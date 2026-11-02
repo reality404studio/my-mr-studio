@@ -19,6 +19,18 @@ export const STATUSES = {
   blocked: '막힘',
 };
 
+export const KINDS = {
+  decide: '결정',
+  collect: '수집',
+  analyze: '분석',
+  write: '작성',
+  make: '생성',
+  build: '구현',
+  verify: '검증',
+};
+
+export const ACTORS = { human: '사람', agent: '에이전트' };
+
 export const OWNER_SUGGESTIONS = ['나', 'Claude Code', 'Claude', 'Codex', 'Gemini'];
 
 export function actorLabel(actor) {
@@ -40,9 +52,9 @@ export function timeAgo(iso) {
 }
 
 const ACTIONS = {
-  'node.create': '단계 추가',
+  'node.create': '과업 추가',
   'node.update': '수정',
-  'node.archive': '단계 보관',
+  'node.archive': '보관',
   'notes.write': '메모 저장',
   'notes.append': '메모 덧붙임',
   'edge.create': '연결',
@@ -52,6 +64,11 @@ const ACTIONS = {
   'asset.archive': '파일 보관',
   'studio.init': '스튜디오 정리',
   'app.create': '앱 만듦',
+  'sub.create': '하위 과업 추가',
+  'node.move': '순서 변경',
+  'stage.create': '단계 추가',
+  'stage.update': '단계 수정',
+  'stage.delete': '단계 삭제',
 };
 
 export function actionLabel(action) {

@@ -1,108 +1,254 @@
 {
-  "version": 2,
+  "version": 3,
   "project": {
     "name": "공통",
-    "subtitle": "모든 VR 앱이 함께 쓰는 조건, 결정, 모듈"
+    "subtitle": "모든 VR 앱이 함께 쓰는 조건, 결정, 형식, 모듈"
   },
-  "nodes": [
+  "stages": [
     {
-      "id": "ref-library",
-      "type": "reference",
-      "title": "레퍼런스 라이브러리",
-      "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": -220
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
-      "updatedBy": "Claude"
+      "id": "conditions",
+      "title": "조건",
+      "goal": "모든 앱이 지키는 조건"
     },
+    {
+      "id": "decisions",
+      "title": "결정",
+      "goal": "한 번 정하면 모든 앱이 따르는 결정"
+    },
+    {
+      "id": "formats",
+      "title": "형식",
+      "goal": "앱들이 같은 형식으로 주고받는 문서"
+    },
+    {
+      "id": "modules",
+      "title": "공용 모듈",
+      "goal": "여러 앱이 가져다 쓰는 구현"
+    },
+    {
+      "id": "library",
+      "title": "레퍼런스",
+      "goal": "여러 앱에서 다시 쓸 자료"
+    }
+  ],
+  "nodes": [
     {
       "id": "platform",
       "type": "note",
       "title": "플랫폼 조건",
+      "stage": "conditions",
+      "order": 0,
+      "owner": "나",
+      "goal": "기기, 입력, 성능, 개발 환경, 좌표 규칙",
+      "output": "platform README",
       "status": "done",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": 60
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
-      "updatedBy": "Claude"
-    },
-    {
-      "id": "unity-version",
-      "type": "note",
-      "title": "결정: Unity 6 vs 2022",
-      "status": "review",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": 330
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
       "updatedBy": "Claude"
     },
     {
       "id": "perf-rules",
       "type": "note",
       "title": "72fps 성능 규칙",
-      "status": "done",
+      "stage": "conditions",
+      "order": 1,
       "owner": "Claude",
-      "position": {
-        "x": 330,
-        "y": -80
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "goal": "표현마다 ok / costly / impossible 과 대체안",
+      "output": "perf-rules README 의 표",
+      "status": "done",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
       "updatedBy": "Claude"
     },
     {
       "id": "hand-patterns",
       "type": "note",
       "title": "핸드 인터랙션 패턴",
-      "status": "todo",
+      "stage": "conditions",
+      "order": 2,
       "owner": "Claude",
-      "position": {
-        "x": 330,
-        "y": 200
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "goal": "같은 동작에 같은 규칙",
+      "output": "hand-patterns README 의 표",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "hand-patterns-draft",
+      "parent": "hand-patterns",
+      "kind": "write",
+      "by": "agent",
+      "title": "패턴 표 초안",
+      "status": "done",
+      "order": 0,
+      "owner": "",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "hand-patterns-verify",
+      "parent": "hand-patterns",
+      "kind": "verify",
+      "by": "human",
+      "title": "실기에서 수치 검증",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "캘리브레이션 모듈과 함께. 결과 수치를 표에 반영",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "unity-version",
+      "type": "note",
+      "title": "Unity 버전",
+      "stage": "decisions",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "Unity 6 와 2022 중 하나로 고정",
+      "output": "unity-version README 의 결정",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "unity-version-compare",
+      "parent": "unity-version",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "비교표 (SDK, MCP, 샘플)",
+      "status": "done",
+      "order": 0,
+      "owner": "",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "unity-version-decide",
+      "parent": "unity-version",
+      "kind": "decide",
+      "by": "human",
+      "title": "버전 결정",
+      "status": "review",
+      "order": 1,
+      "owner": "",
+      "how": "추천은 Unity 6. 결정하면 README 체크",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
       "updatedBy": "Claude"
     },
     {
       "id": "spec-format",
       "type": "spec",
       "title": "장면 명세 형식",
-      "status": "done",
+      "stage": "formats",
+      "order": 0,
       "owner": "Claude",
-      "position": {
-        "x": 660,
-        "y": -80
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "goal": "영상 우선이든 스토리보드 우선이든 같은 계약 형식",
+      "output": "shared/scene_spec.template.yaml",
+      "status": "done",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
       "updatedBy": "Claude"
     },
     {
       "id": "calibration",
       "type": "build",
       "title": "책상 캘리브레이션 모듈",
-      "status": "todo",
+      "stage": "modules",
+      "order": 0,
       "owner": "Claude Code",
-      "position": {
-        "x": 660,
-        "y": 260
-      },
-      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "goal": "손끝과 책상의 교점을 정확히 맞춘다",
+      "output": "unity/shared/DeskCalibration/",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration-estimate",
+      "parent": "calibration",
+      "kind": "build",
+      "by": "agent",
+      "title": "1차 추정: 책상면 그리드",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "MRUK Raycast 로 바라보는 면을 잡아 반투명 그리드",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration-points",
+      "parent": "calibration",
+      "kind": "build",
+      "by": "agent",
+      "title": "세 점 드웰로 좌표계 만들기",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "왼앞, 오른앞, 뒤쪽 한 점. 0.6초 정지, 여러 프레임 평균",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration-height",
+      "parent": "calibration",
+      "kind": "build",
+      "by": "agent",
+      "title": "높이 1mm 조정과 물결 피드백",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration-anchor",
+      "parent": "calibration",
+      "kind": "build",
+      "by": "agent",
+      "title": "공간 앵커 저장과 복원",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration-device",
+      "parent": "calibration",
+      "kind": "verify",
+      "by": "human",
+      "title": "실기 확인: 네 귀퉁이 탭, 72fps",
+      "status": "todo",
+      "order": 4,
+      "owner": "",
+      "how": "물결이 손끝 아래에서 바로 시작되는지",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration-tune",
+      "parent": "calibration",
+      "kind": "write",
+      "by": "agent",
+      "title": "튜닝값 기록",
+      "status": "todo",
+      "order": 5,
+      "owner": "",
+      "how": "README 표와 hand-patterns 에 실측값 반영",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "ref-library",
+      "type": "reference",
+      "title": "레퍼런스 라이브러리",
+      "stage": "library",
+      "order": 0,
+      "owner": "나",
+      "goal": "다음 앱에서도 쓸 자료",
+      "output": "파일과 출처 메모",
+      "by": "human",
+      "status": "todo",
+      "updatedAt": "2026-11-02T15:00:00.000Z",
       "updatedBy": "Claude"
     }
   ],
   "edges": [
-    {
-      "id": "platform__perf-rules",
-      "source": "platform",
-      "target": "perf-rules"
-    },
     {
       "id": "platform__hand-patterns",
       "source": "platform",

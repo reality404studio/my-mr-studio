@@ -42,7 +42,7 @@ export default function Home() {
       <section className="home__apps" aria-labelledby="apps-title">
         <div className="section-head">
           <h2 id="apps-title">앱</h2>
-          <p>앱마다 캔버스가 하나씩 있어요. 만들 때 고른 모드에 따라 단계가 미리 깔려요.</p>
+          <p>앱마다 보드가 하나씩 있어요. 만들 때 고른 모드에 따라 단계와 과업이 미리 깔려요.</p>
         </div>
         <ul className="app-grid">
           {data?.apps.map((app) => <AppCard key={app.id} app={app} mode={modeById[app.template]} />)}
@@ -115,7 +115,7 @@ function SharedBand({ shared }) {
 
 function AppCard({ app, mode }) {
   const c = summary(app.nodes);
-  const current = app.nodes.find((n) => n.status === 'doing') || app.nodes.find((n) => n.status === 'review');
+  const next = app.next?.[0];
   return (
     <li>
       <a className="app-card" href={`#/app/${encodeURIComponent(app.id)}`}>
@@ -124,9 +124,14 @@ function AppCard({ app, mode }) {
         {app.subtitle && <p className="app-card__sub">{app.subtitle}</p>}
         <Strip nodes={app.nodes} />
         <p className="app-card__count">
-          {c.done}/{app.nodes.length} 완료
-          {current && <> · 지금: <strong>{current.title}</strong></>}
+          과업 {c.done}/{app.nodes.length} 완료
         </p>
+        {next && (
+          <p className="app-card__next">
+            <span className={`by by--${next.by}`}>{next.by === 'human' ? '사람' : 'AI'}</span>
+            <span>지금 할 일: <strong>{next.title}</strong></span>
+          </p>
+        )}
         {app.last && (
           <p className={isAgent(app.last.actor) ? 'app-card__last is-agent' : 'app-card__last'}>
             {actorLabel(app.last.actor)} · {timeAgo(app.last.ts)}
@@ -203,8 +208,13 @@ function NewAppDialog({ modes, existing, onClose }) {
               <span className="mode-card__name">{m.name}</span>
               {m.startsFrom && <span className="mode-card__from">출발점: {m.startsFrom}</span>}
               <span className="mode-card__desc">{m.description}</span>
-              <ol className="mode-card__steps">
-                {m.steps.map((s) => <li key={s.id} className={`node--${s.type}`}>{s.title}</li>)}
+              <ol className="mode-card__stages">
+                {m.stages.map((st, i) => (
+                  <li key={st.id}>
+                    <span className="mode-card__stage">{i + 1}. {st.title}</span>
+                    <span className="mode-card__tasks">{st.tasks.map((t) => t.title).join(', ') || (m.uses.length ? '공통 모듈' : '')}</span>
+                  </li>
+                ))}
               </ol>
               {m.uses?.length > 0 && <span className="mode-card__uses">공통에서 가져옴: {m.uses.map((u) => u.title).join(', ')}</span>}
             </label>

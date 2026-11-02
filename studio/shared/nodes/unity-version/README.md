@@ -19,6 +19,6 @@ Meta의 최신 SDK와 에이전트 도구는 Unity 6 기준이에요.
 - [ ] Unity 6으로 이전
 - [ ] 2022 유지
 
-결정하면 이 단계를 `done` 으로 바꾸고, 위에 체크해 주세요. 캘리브레이션과 구현 단계가 이걸 기다려요.
+결정하면 위에 체크하고 하위 과업 "버전 결정"을 `done` 으로 바꿔 주세요. 캘리브레이션 모듈이 이걸 기다려요.
 
 출처: Meta XR All-in-One SDK 페이지 (v85, v205), Unity AI MCP 오픈 베타 공지, Passthrough Camera API 샘플 README (2026-11-02 확인)

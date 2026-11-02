@@ -5,7 +5,7 @@
 //   POST /api/projects                    새 앱 { id, name, subtitle, template }
 //   GET  /api/templates                   모드 목록
 //   GET  /api/events                      파일 변경 알림 (SSE)
-//   /api/p/<pid>/pipeline | log | nodes/... | edges/...   pid = "shared" 또는 앱 id
+//   /api/p/<pid>/pipeline | next | log | stages/... | nodes/... | edges/...   pid = "shared" 또는 앱 id
 //   /files/<studio/ 아래 상대 경로>       첨부 파일
 import fs from 'node:fs';
 import path from 'node:path';
@@ -78,6 +78,13 @@ export function studioApi(root) {
         const [a, b, c, d] = parts.slice(3);
 
         if (a === 'pipeline' && m === 'GET') return send(200, store.pipeline());
+        if (a === 'next' && m === 'GET') return send(200, store.next());
+
+        if (a === 'stages') {
+          if (!b && m === 'POST') return send(201, store.addStage(actor, await readJson(req)));
+          if (b && m === 'PATCH') return send(200, store.updateStage(actor, b, await readJson(req)));
+          if (b && m === 'DELETE') return send(200, store.deleteStage(actor, b));
+        }
         if (a === 'log' && m === 'GET') return send(200, store.readLog(Number(url.searchParams.get('limit')) || 60));
 
         if (a === 'nodes') {
@@ -85,6 +92,7 @@ export function studioApi(root) {
           if (b && !c && m === 'GET') return send(200, store.nodeDetail(b));
           if (b && !c && m === 'PATCH') return send(200, store.updateNode(actor, b, await readJson(req)));
           if (b && !c && m === 'DELETE') return send(200, store.deleteNode(actor, b));
+          if (b && c === 'move' && m === 'POST') return send(200, store.moveNode(actor, b, (await readJson(req)).dir));
           if (b && c === 'notes' && m === 'PUT') return send(200, store.writeNotes(actor, b, (await readJson(req)).notes ?? ''));
           if (b && c === 'notes' && m === 'POST') return send(200, store.appendNote(actor, b, (await readJson(req)).text ?? ''));
           if (b && c === 'assets' && !d && m === 'POST') {

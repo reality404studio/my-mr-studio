@@ -1,126 +1,512 @@
 {
+  "version": 3,
+  "stages": [
+    {
+      "id": "define",
+      "title": "정의",
+      "goal": "무엇을, 어떤 조건으로 만들지 정한다"
+    },
+    {
+      "id": "design",
+      "title": "설계",
+      "goal": "사용 흐름을 컷 단위 행동과 반응으로 정한다"
+    },
+    {
+      "id": "prototype",
+      "title": "프로토타입",
+      "goal": "꾸미지 않고 헤드셋에서 크기와 흐름을 확인한다"
+    },
+    {
+      "id": "spec",
+      "title": "명세",
+      "goal": "스토리보드와 프로토타입을 구현 계약으로 번역한다"
+    },
+    {
+      "id": "build",
+      "title": "구현",
+      "goal": "명세대로 헤드셋에서 돌아가게 만든다"
+    },
+    {
+      "id": "review",
+      "title": "검수",
+      "goal": "실기와 스토리보드의 차이를 찾아 되돌린다"
+    }
+  ],
   "nodes": [
     {
       "id": "brief",
       "type": "note",
       "title": "앱 개요",
+      "stage": "define",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "이 앱만의 조건을 한 장으로",
+      "output": "brief README 의 개요 표"
+    },
+    {
+      "id": "brief-draft",
+      "parent": "brief",
+      "kind": "write",
+      "by": "agent",
+      "title": "개요 표 초안 채우기",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": -330,
-        "y": 150
-      }
+      "order": 0,
+      "owner": "",
+      "how": "대화와 메모에서 채운다. 공통 조건(플랫폼 조건)은 다시 적지 않는다"
+    },
+    {
+      "id": "brief-confirm",
+      "parent": "brief",
+      "kind": "decide",
+      "by": "human",
+      "title": "개요 확정",
+      "status": "todo",
+      "order": 1,
+      "owner": ""
     },
     {
       "id": "concept",
       "type": "concept",
-      "title": "콘셉트 · 기준안 깨기",
-      "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": 0
-      }
+      "title": "콘셉트: 기준안 깨기",
+      "stage": "define",
+      "order": 1,
+      "owner": "Claude",
+      "goal": "예측이 뻔한 지점을 골라 의도적으로 깬다",
+      "output": "고른 대안 (concept README)"
     },
     {
-      "id": "moodboard",
-      "type": "reference",
-      "title": "무드보드",
+      "id": "concept-baseline",
+      "parent": "concept",
+      "kind": "write",
+      "by": "agent",
+      "title": "측정용 기준안 쓰기",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": 300
-      }
+      "order": 0,
+      "owner": "",
+      "how": "가장 뻔한 흐름을 일부러 쓴다. 창의성을 넣지 않는다"
+    },
+    {
+      "id": "concept-map",
+      "parent": "concept",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "관습·기능·예측 지도 표",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "요소마다 따르는 관습, 그 관습이 하는 일, 관객의 예측 정도(상·중·하)"
+    },
+    {
+      "id": "concept-pick",
+      "parent": "concept",
+      "kind": "decide",
+      "by": "human",
+      "title": "깰 지점 2~3개 고르기",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "에이전트는 추천만 하고 결정은 사람에게 넘긴다"
+    },
+    {
+      "id": "concept-diverge",
+      "parent": "concept",
+      "kind": "write",
+      "by": "agent",
+      "title": "지점별 대안 5개",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "하던 일은 지키고 형식만 깬다. 5개가 서로 다른 축(시간, 공간, 주체, 감각, 자유)"
+    },
+    {
+      "id": "concept-choose",
+      "parent": "concept",
+      "kind": "decide",
+      "by": "human",
+      "title": "대안 고르기",
+      "status": "todo",
+      "order": 4,
+      "owner": ""
     },
     {
       "id": "usage-flow",
       "type": "concept",
       "title": "사용 흐름",
-      "status": "todo",
+      "stage": "design",
+      "order": 0,
       "owner": "Claude",
-      "position": {
-        "x": 330,
-        "y": 0
-      }
+      "goal": "착용부터 끝까지 사용자가 겪는 흐름",
+      "output": "흐름 표 (usage-flow README)"
+    },
+    {
+      "id": "usage-flow-draft",
+      "parent": "usage-flow",
+      "kind": "write",
+      "by": "agent",
+      "title": "흐름 표 초안",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "단계마다 사용자 목표, 시스템 반응, 실패하면. 제스처 이름은 공통 핸드 패턴"
+    },
+    {
+      "id": "usage-flow-confirm",
+      "parent": "usage-flow",
+      "kind": "decide",
+      "by": "human",
+      "title": "흐름 확정",
+      "status": "todo",
+      "order": 1,
+      "owner": ""
+    },
+    {
+      "id": "moodboard",
+      "type": "reference",
+      "title": "무드보드: 시각 언어",
+      "stage": "design",
+      "order": 1,
+      "owner": "Claude",
+      "goal": "형용사 대신 쓸 구체적인 어휘를 만든다",
+      "output": "어휘표 (moodboard README \"분석 결과\")"
+    },
+    {
+      "id": "moodboard-collect",
+      "parent": "moodboard",
+      "kind": "collect",
+      "by": "human",
+      "title": "에셋 올리고 이유 메모 달기",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "파일마다 \"전체 분위기 / 이 색감만 / 이 빛만\" 같은 메모"
+    },
+    {
+      "id": "moodboard-analyze",
+      "parent": "moodboard",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "색·빛·질감·움직임 어휘표",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "메모가 \"이 부분만\"이면 그 부분만 반영. 결과는 README의 \"분석 결과\"에 덧붙인다"
+    },
+    {
+      "id": "moodboard-confirm",
+      "parent": "moodboard",
+      "kind": "decide",
+      "by": "human",
+      "title": "어휘표 확인",
+      "status": "todo",
+      "order": 2,
+      "owner": ""
     },
     {
       "id": "storyboard",
       "type": "storyboard",
       "title": "사용성 스토리보드",
-      "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 660,
-        "y": 150
-      }
-    },
-    {
-      "id": "greybox",
-      "type": "build",
-      "title": "그레이박스 프로토타입",
-      "status": "todo",
-      "owner": "Claude Code",
-      "position": {
-        "x": 990,
-        "y": 150
-      }
-    },
-    {
-      "id": "usability-test",
-      "type": "review",
-      "title": "사용성 테스트",
-      "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 1320,
-        "y": 150
-      }
-    },
-    {
-      "id": "spec",
-      "type": "spec",
-      "title": "명세 번역",
-      "status": "todo",
+      "stage": "design",
+      "order": 2,
       "owner": "Claude",
-      "position": {
-        "x": 1650,
-        "y": 150
-      }
+      "goal": "흐름을 컷 단위 행동과 반응으로",
+      "output": "컷 표와 컷 스케치 (storyboard)"
+    },
+    {
+      "id": "storyboard-cuts",
+      "parent": "storyboard",
+      "kind": "write",
+      "by": "agent",
+      "title": "컷 표 초안",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "한 컷에 사용자 행동 하나. 위치는 책상 좌표나 손과의 거리로"
+    },
+    {
+      "id": "storyboard-sketch",
+      "parent": "storyboard",
+      "kind": "make",
+      "by": "human",
+      "title": "컷 스케치 올리기",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "손그림이든 생성 이미지든. 파일 메모에 컷 번호"
+    },
+    {
+      "id": "storyboard-confirm",
+      "parent": "storyboard",
+      "kind": "decide",
+      "by": "human",
+      "title": "컷 확정",
+      "status": "todo",
+      "order": 2,
+      "owner": ""
     },
     {
       "id": "use-calibration",
       "type": "shared",
       "title": "",
-      "status": "todo",
+      "stage": "prototype",
+      "order": 0,
       "owner": "",
-      "position": {
-        "x": 990,
-        "y": 470
-      },
       "ref": "calibration"
+    },
+    {
+      "id": "greybox",
+      "type": "build",
+      "title": "그레이박스",
+      "stage": "prototype",
+      "order": 1,
+      "owner": "Claude Code",
+      "goal": "꾸미지 않고 크기, 손 거리, 흐름을 확인한다",
+      "output": "치수 메모와 녹화 (greybox)"
+    },
+    {
+      "id": "greybox-scene",
+      "parent": "greybox",
+      "kind": "build",
+      "by": "agent",
+      "title": "회색 박스 씬 만들기",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "스토리보드 컷 순서대로 도형만. 꾸미기 금지"
+    },
+    {
+      "id": "greybox-try",
+      "parent": "greybox",
+      "kind": "verify",
+      "by": "human",
+      "title": "헤드셋에서 크기·손 거리·흐름 확인",
+      "status": "todo",
+      "order": 1,
+      "owner": ""
+    },
+    {
+      "id": "greybox-dims",
+      "parent": "greybox",
+      "kind": "write",
+      "by": "agent",
+      "title": "바뀐 치수 기록",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "greybox README 에 대상별 치수"
+    },
+    {
+      "id": "usability-test",
+      "type": "review",
+      "title": "사용성 테스트",
+      "stage": "prototype",
+      "order": 2,
+      "owner": "Claude",
+      "goal": "설명 없이 쓸 수 있는지 본다",
+      "output": "관찰 표와 고칠 컷 목록"
+    },
+    {
+      "id": "usability-test-observe",
+      "parent": "usability-test",
+      "kind": "collect",
+      "by": "human",
+      "title": "관찰 기록 (3명 이상)",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "설명 없이 씌우고 막힌 곳, 시간, 손 동작 실패를 적는다"
+    },
+    {
+      "id": "usability-test-analyze",
+      "parent": "usability-test",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "막힌 곳 정리와 고칠 컷",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "고칠 컷이 있으면 스토리보드의 해당 하위 과업을 다시 todo 로"
+    },
+    {
+      "id": "usability-test-pass",
+      "parent": "usability-test",
+      "kind": "decide",
+      "by": "human",
+      "title": "통과 여부",
+      "status": "todo",
+      "order": 2,
+      "owner": ""
+    },
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "장면 명세",
+      "stage": "spec",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "스토리보드와 그레이박스를 구현 계약으로",
+      "output": "scene_spec.yaml"
+    },
+    {
+      "id": "spec-break",
+      "parent": "spec",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "스토리보드와 그레이박스 분해",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "영상이면 1초 간격 프레임, 스토리보드면 컷 표를 읽는다"
+    },
+    {
+      "id": "spec-write",
+      "parent": "spec",
+      "kind": "write",
+      "by": "agent",
+      "title": "objects · timeline · interactions 작성",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "좌표는 공통 플랫폼 조건의 책상 좌표, 제스처 이름은 공통 핸드 패턴"
+    },
+    {
+      "id": "spec-perf",
+      "parent": "spec",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "72fps 태그와 대체안",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "공통 72fps 성능 규칙의 ok / costly / impossible"
+    },
+    {
+      "id": "spec-unknowns",
+      "parent": "spec",
+      "kind": "decide",
+      "by": "human",
+      "title": "unknowns 답하기",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "원본만으로 정할 수 없는 것. 에이전트가 질문을 정리해 둔다"
     },
     {
       "id": "build",
       "type": "build",
       "title": "Unity 구현",
-      "status": "todo",
+      "stage": "build",
+      "order": 0,
       "owner": "Claude Code",
-      "position": {
-        "x": 1980,
-        "y": 300
-      }
+      "goal": "명세대로 헤드셋에서 동작하게",
+      "output": "unity/<앱 id>/ 프로젝트와 APK"
+    },
+    {
+      "id": "build-setup",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "프로젝트 세팅",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "공통 Unity 버전, 패스스루, 핸드트래킹, 캘리브레이션 모듈 가져오기. 위치는 unity/<앱 id>/"
+    },
+    {
+      "id": "build-objects",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "오브젝트 배치",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "scene_spec.yaml 의 objects"
+    },
+    {
+      "id": "build-timeline",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "타임라인과 흐름",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "scene_spec.yaml 의 timeline"
+    },
+    {
+      "id": "build-interact",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "인터랙션과 사운드",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "scene_spec.yaml 의 interactions"
+    },
+    {
+      "id": "build-sim",
+      "parent": "build",
+      "kind": "verify",
+      "by": "agent",
+      "title": "시뮬레이터에서 확인",
+      "status": "todo",
+      "order": 4,
+      "owner": "",
+      "how": "Meta XR Simulator. 배치, 순서, 사운드 연결"
+    },
+    {
+      "id": "build-device",
+      "parent": "build",
+      "kind": "verify",
+      "by": "human",
+      "title": "실기 확인: 72fps와 손끝",
+      "status": "todo",
+      "order": 5,
+      "owner": "",
+      "how": "APK 빌드 후 헤드셋에서"
     },
     {
       "id": "review",
       "type": "review",
       "title": "검수: 실기 vs 스토리보드",
+      "stage": "review",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "차이를 찾아 구현으로 되돌린다",
+      "output": "scene_spec.yaml 의 review 블록"
+    },
+    {
+      "id": "review-record",
+      "parent": "review",
+      "kind": "collect",
+      "by": "human",
+      "title": "헤드셋 녹화 올리기",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 2310,
-        "y": 300
-      }
+      "order": 0,
+      "owner": ""
+    },
+    {
+      "id": "review-diff",
+      "parent": "review",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "스토리보드과의 차이 목록",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "scene_spec.yaml 의 review 블록에 시간, 대상, 차이, 수정안"
+    },
+    {
+      "id": "review-pass",
+      "parent": "review",
+      "kind": "decide",
+      "by": "human",
+      "title": "통과 여부",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "고칠 게 있으면 구현의 해당 하위 과업을 다시 todo 로"
     }
   ],
   "edges": [
@@ -128,6 +514,11 @@
       "id": "brief__concept",
       "source": "brief",
       "target": "concept"
+    },
+    {
+      "id": "brief__moodboard",
+      "source": "brief",
+      "target": "moodboard"
     },
     {
       "id": "concept__usage-flow",
@@ -160,12 +551,6 @@
       "target": "usability-test"
     },
     {
-      "id": "usability-test__storyboard",
-      "source": "usability-test",
-      "target": "storyboard",
-      "label": "고칠 컷"
-    },
-    {
       "id": "usability-test__spec",
       "source": "usability-test",
       "target": "spec"
@@ -176,20 +561,23 @@
       "target": "build"
     },
     {
-      "id": "use-calibration__build",
-      "source": "use-calibration",
-      "target": "build"
-    },
-    {
       "id": "build__review",
       "source": "build",
       "target": "review"
     },
     {
+      "id": "usability-test__storyboard",
+      "source": "usability-test",
+      "target": "storyboard",
+      "label": "고칠 컷",
+      "kind": "feedback"
+    },
+    {
       "id": "review__build",
       "source": "review",
       "target": "build",
-      "label": "차이 수정"
+      "label": "차이 수정",
+      "kind": "feedback"
     }
   ]
 }

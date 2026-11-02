@@ -1,156 +1,493 @@
 {
+  "version": 3,
+  "stages": [
+    {
+      "id": "define",
+      "title": "정의",
+      "goal": "무엇을, 어떤 조건으로 만들지 정한다"
+    },
+    {
+      "id": "reference",
+      "title": "레퍼런스",
+      "goal": "눈과 공간의 기준을 모은다"
+    },
+    {
+      "id": "video",
+      "title": "영상",
+      "goal": "보고 싶은 화면을 영상으로 고정한다"
+    },
+    {
+      "id": "spec",
+      "title": "명세",
+      "goal": "영상을 구현 계약으로 번역한다"
+    },
+    {
+      "id": "build",
+      "title": "구현",
+      "goal": "명세대로 헤드셋에서 돌아가게 만든다"
+    },
+    {
+      "id": "review",
+      "title": "검수",
+      "goal": "실기와 원본의 차이를 찾아 되돌린다"
+    }
+  ],
   "nodes": [
     {
       "id": "brief",
       "type": "note",
       "title": "앱 개요",
-      "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": -330,
-        "y": 150
-      }
+      "stage": "define",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "이 앱만의 조건을 한 장으로",
+      "output": "brief README 의 개요 표"
     },
     {
-      "id": "moodboard",
-      "type": "reference",
-      "title": "무드보드",
+      "id": "brief-draft",
+      "parent": "brief",
+      "kind": "write",
+      "by": "agent",
+      "title": "개요 표 초안 채우기",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": 0
-      }
+      "order": 0,
+      "owner": "",
+      "how": "대화와 메모에서 채운다. 공통 조건(플랫폼 조건)은 다시 적지 않는다"
     },
     {
-      "id": "space-photo",
-      "type": "reference",
-      "title": "실제 공간 사진",
+      "id": "brief-confirm",
+      "parent": "brief",
+      "kind": "decide",
+      "by": "human",
+      "title": "개요 확정",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 0,
-        "y": 300
-      }
+      "order": 1,
+      "owner": ""
     },
     {
       "id": "concept",
       "type": "concept",
-      "title": "콘셉트 · 기준안 깨기",
+      "title": "콘셉트: 기준안 깨기",
+      "stage": "define",
+      "order": 1,
+      "owner": "Claude",
+      "goal": "예측이 뻔한 지점을 골라 의도적으로 깬다",
+      "output": "고른 대안 (concept README)"
+    },
+    {
+      "id": "concept-baseline",
+      "parent": "concept",
+      "kind": "write",
+      "by": "agent",
+      "title": "측정용 기준안 쓰기",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 330,
-        "y": 0
-      }
+      "order": 0,
+      "owner": "",
+      "how": "가장 뻔한 흐름을 일부러 쓴다. 창의성을 넣지 않는다"
+    },
+    {
+      "id": "concept-map",
+      "parent": "concept",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "관습·기능·예측 지도 표",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "요소마다 따르는 관습, 그 관습이 하는 일, 관객의 예측 정도(상·중·하)"
+    },
+    {
+      "id": "concept-pick",
+      "parent": "concept",
+      "kind": "decide",
+      "by": "human",
+      "title": "깰 지점 2~3개 고르기",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "에이전트는 추천만 하고 결정은 사람에게 넘긴다"
+    },
+    {
+      "id": "concept-diverge",
+      "parent": "concept",
+      "kind": "write",
+      "by": "agent",
+      "title": "지점별 대안 5개",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "하던 일은 지키고 형식만 깬다. 5개가 서로 다른 축(시간, 공간, 주체, 감각, 자유)"
+    },
+    {
+      "id": "concept-choose",
+      "parent": "concept",
+      "kind": "decide",
+      "by": "human",
+      "title": "대안 고르기",
+      "status": "todo",
+      "order": 4,
+      "owner": ""
+    },
+    {
+      "id": "moodboard",
+      "type": "reference",
+      "title": "무드보드: 시각 언어",
+      "stage": "reference",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "형용사 대신 쓸 구체적인 어휘를 만든다",
+      "output": "어휘표 (moodboard README \"분석 결과\")"
+    },
+    {
+      "id": "moodboard-collect",
+      "parent": "moodboard",
+      "kind": "collect",
+      "by": "human",
+      "title": "에셋 올리고 이유 메모 달기",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "파일마다 \"전체 분위기 / 이 색감만 / 이 빛만\" 같은 메모"
+    },
+    {
+      "id": "moodboard-analyze",
+      "parent": "moodboard",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "색·빛·질감·움직임 어휘표",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "메모가 \"이 부분만\"이면 그 부분만 반영. 결과는 README의 \"분석 결과\"에 덧붙인다"
+    },
+    {
+      "id": "moodboard-confirm",
+      "parent": "moodboard",
+      "kind": "decide",
+      "by": "human",
+      "title": "어휘표 확인",
+      "status": "todo",
+      "order": 2,
+      "owner": ""
+    },
+    {
+      "id": "space-photo",
+      "type": "reference",
+      "title": "현실 공간 기준",
+      "stage": "reference",
+      "order": 1,
+      "owner": "Claude",
+      "goal": "영상과 구현이 같은 시점과 크기를 쓰게 한다",
+      "output": "시점·스케일 기준 메모"
+    },
+    {
+      "id": "space-photo-photos",
+      "parent": "space-photo",
+      "kind": "collect",
+      "by": "human",
+      "title": "공간 사진 3장과 실제 크기",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "정면 눈높이, 위, 대각선. 파일 메모에 크기(cm)"
+    },
+    {
+      "id": "space-photo-frame",
+      "parent": "space-photo",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "시점과 스케일 기준 정리",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "눈높이, 공간 크기, 첫 장면 프레이밍"
+    },
+    {
+      "id": "video",
+      "type": "video",
+      "title": "참조 영상 만들기",
+      "stage": "video",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "보고 싶은 화면을 영상으로 고정한다",
+      "output": "final.mp4 와 컷별 메모 (video assets)"
+    },
+    {
+      "id": "video-cuts",
+      "parent": "video",
+      "kind": "write",
+      "by": "agent",
+      "title": "컷 구성과 타이밍",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "1인칭 고정 시점, 컷마다 변화 하나. 음악이 있으면 박에 맞춘다"
     },
     {
       "id": "video-prompts",
-      "type": "prompt",
-      "title": "영상 프롬프트",
+      "parent": "video",
+      "kind": "write",
+      "by": "agent",
+      "title": "컷별 프롬프트",
       "status": "todo",
-      "owner": "Claude",
-      "position": {
-        "x": 660,
-        "y": 150
-      }
+      "order": 1,
+      "owner": "",
+      "how": "무드보드 어휘 그대로, 공간 사진을 참조 이미지로. 72fps 규칙의 impossible 표현은 넣지 않는다"
     },
     {
-      "id": "reference-video",
-      "type": "video",
-      "title": "참조 영상",
+      "id": "video-generate",
+      "parent": "video",
+      "kind": "make",
+      "by": "human",
+      "title": "영상 생성",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 990,
-        "y": 150
-      }
+      "order": 2,
+      "owner": "",
+      "how": "영상 모델에서 사람이 직접"
+    },
+    {
+      "id": "video-upload",
+      "parent": "video",
+      "kind": "collect",
+      "by": "human",
+      "title": "컷 올리고 사용·버림 메모",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "버린 컷도 지우지 않고 이유를 적는다"
+    },
+    {
+      "id": "video-check",
+      "parent": "video",
+      "kind": "verify",
+      "by": "agent",
+      "title": "컷 검토: 멀미와 72fps",
+      "status": "todo",
+      "order": 4,
+      "owner": "",
+      "how": "빠른 카메라 이동, 구현 불가 표현을 표시해 사람에게 넘긴다"
+    },
+    {
+      "id": "video-final",
+      "parent": "video",
+      "kind": "decide",
+      "by": "human",
+      "title": "최종본 확정 (final.mp4)",
+      "status": "todo",
+      "order": 5,
+      "owner": ""
     },
     {
       "id": "spec",
       "type": "spec",
-      "title": "명세 번역",
-      "status": "todo",
+      "title": "장면 명세",
+      "stage": "spec",
+      "order": 0,
       "owner": "Claude",
-      "position": {
-        "x": 1320,
-        "y": 150
-      }
+      "goal": "영상을 구현 계약으로 번역한다",
+      "output": "scene_spec.yaml"
+    },
+    {
+      "id": "spec-break",
+      "parent": "spec",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "영상 분해",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "영상이면 1초 간격 프레임, 스토리보드면 컷 표를 읽는다"
+    },
+    {
+      "id": "spec-write",
+      "parent": "spec",
+      "kind": "write",
+      "by": "agent",
+      "title": "objects · timeline · interactions 작성",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "좌표는 공통 플랫폼 조건의 책상 좌표, 제스처 이름은 공통 핸드 패턴"
+    },
+    {
+      "id": "spec-perf",
+      "parent": "spec",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "72fps 태그와 대체안",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "공통 72fps 성능 규칙의 ok / costly / impossible"
+    },
+    {
+      "id": "spec-unknowns",
+      "parent": "spec",
+      "kind": "decide",
+      "by": "human",
+      "title": "unknowns 답하기",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "원본만으로 정할 수 없는 것. 에이전트가 질문을 정리해 둔다"
     },
     {
       "id": "use-calibration",
       "type": "shared",
       "title": "",
-      "status": "todo",
+      "stage": "build",
+      "order": 0,
       "owner": "",
-      "position": {
-        "x": 1320,
-        "y": 470
-      },
       "ref": "calibration"
     },
     {
       "id": "build",
       "type": "build",
       "title": "Unity 구현",
-      "status": "todo",
+      "stage": "build",
+      "order": 1,
       "owner": "Claude Code",
-      "position": {
-        "x": 1650,
-        "y": 300
-      }
+      "goal": "명세대로 헤드셋에서 동작하게",
+      "output": "unity/<앱 id>/ 프로젝트와 APK"
+    },
+    {
+      "id": "build-setup",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "프로젝트 세팅",
+      "status": "todo",
+      "order": 0,
+      "owner": "",
+      "how": "공통 Unity 버전, 패스스루, 핸드트래킹, 캘리브레이션 모듈 가져오기. 위치는 unity/<앱 id>/"
+    },
+    {
+      "id": "build-objects",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "오브젝트 배치",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "scene_spec.yaml 의 objects"
+    },
+    {
+      "id": "build-timeline",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "타임라인과 흐름",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "scene_spec.yaml 의 timeline"
+    },
+    {
+      "id": "build-interact",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "인터랙션과 사운드",
+      "status": "todo",
+      "order": 3,
+      "owner": "",
+      "how": "scene_spec.yaml 의 interactions"
+    },
+    {
+      "id": "build-sim",
+      "parent": "build",
+      "kind": "verify",
+      "by": "agent",
+      "title": "시뮬레이터에서 확인",
+      "status": "todo",
+      "order": 4,
+      "owner": "",
+      "how": "Meta XR Simulator. 배치, 순서, 사운드 연결"
+    },
+    {
+      "id": "build-device",
+      "parent": "build",
+      "kind": "verify",
+      "by": "human",
+      "title": "실기 확인: 72fps와 손끝",
+      "status": "todo",
+      "order": 5,
+      "owner": "",
+      "how": "APK 빌드 후 헤드셋에서"
     },
     {
       "id": "review",
       "type": "review",
       "title": "검수: 실기 vs 원본 영상",
+      "stage": "review",
+      "order": 0,
+      "owner": "Claude",
+      "goal": "차이를 찾아 구현으로 되돌린다",
+      "output": "scene_spec.yaml 의 review 블록"
+    },
+    {
+      "id": "review-record",
+      "parent": "review",
+      "kind": "collect",
+      "by": "human",
+      "title": "헤드셋 녹화 올리기",
       "status": "todo",
-      "owner": "나",
-      "position": {
-        "x": 1980,
-        "y": 300
-      }
+      "order": 0,
+      "owner": ""
+    },
+    {
+      "id": "review-diff",
+      "parent": "review",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "원본 영상과의 차이 목록",
+      "status": "todo",
+      "order": 1,
+      "owner": "",
+      "how": "scene_spec.yaml 의 review 블록에 시간, 대상, 차이, 수정안"
+    },
+    {
+      "id": "review-pass",
+      "parent": "review",
+      "kind": "decide",
+      "by": "human",
+      "title": "통과 여부",
+      "status": "todo",
+      "order": 2,
+      "owner": "",
+      "how": "고칠 게 있으면 구현의 해당 하위 과업을 다시 todo 로"
     }
   ],
   "edges": [
-    {
-      "id": "brief__moodboard",
-      "source": "brief",
-      "target": "moodboard"
-    },
     {
       "id": "brief__concept",
       "source": "brief",
       "target": "concept"
     },
     {
-      "id": "moodboard__concept",
-      "source": "moodboard",
-      "target": "concept"
+      "id": "brief__moodboard",
+      "source": "brief",
+      "target": "moodboard"
     },
     {
-      "id": "moodboard__video-prompts",
-      "source": "moodboard",
-      "target": "video-prompts"
-    },
-    {
-      "id": "space-photo__video-prompts",
-      "source": "space-photo",
-      "target": "video-prompts"
-    },
-    {
-      "id": "concept__video-prompts",
+      "id": "concept__video",
       "source": "concept",
-      "target": "video-prompts"
+      "target": "video"
     },
     {
-      "id": "video-prompts__reference-video",
-      "source": "video-prompts",
-      "target": "reference-video"
+      "id": "moodboard__video",
+      "source": "moodboard",
+      "target": "video"
     },
     {
-      "id": "reference-video__spec",
-      "source": "reference-video",
+      "id": "space-photo__video",
+      "source": "space-photo",
+      "target": "video"
+    },
+    {
+      "id": "video__spec",
+      "source": "video",
       "target": "spec"
     },
     {
@@ -172,7 +509,8 @@
       "id": "review__build",
       "source": "review",
       "target": "build",
-      "label": "차이 수정"
+      "label": "차이 수정",
+      "kind": "feedback"
     }
   ]
 }
