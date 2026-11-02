@@ -3,10 +3,12 @@ export const TYPES = {
   concept: { label: '콘셉트', hint: '기준안, 깰 지점, 방향' },
   prompt: { label: '프롬프트', hint: '이미지·영상 생성 프롬프트' },
   video: { label: '영상', hint: '생성한 참조 영상' },
-  spec: { label: '명세', hint: '영상을 구현 명세로 번역' },
-  build: { label: '구현', hint: 'Unity 작업' },
-  review: { label: '검수', hint: '실기 녹화와 원본 비교' },
+  storyboard: { label: '스토리보드', hint: '컷별 행동과 반응' },
+  spec: { label: '명세', hint: '원본을 구현 명세로 번역' },
+  build: { label: '구현', hint: 'Unity 작업, 프로토타입' },
+  review: { label: '검수', hint: '실기 확인, 사용성 테스트' },
   note: { label: '메모', hint: '결정, 질문, 자유 메모' },
+  shared: { label: '공통', hint: '공통 캔버스의 단계를 가져와 연결' },
 };
 
 export const STATUSES = {
@@ -48,7 +50,8 @@ const ACTIONS = {
   'asset.add': '파일 추가',
   'asset.memo': '파일 메모',
   'asset.archive': '파일 보관',
-  'studio.init': '스튜디오 생성',
+  'studio.init': '스튜디오 정리',
+  'app.create': '앱 만듦',
 };
 
 export function actionLabel(action) {

@@ -26,6 +26,8 @@
   --type-build: #579355;
   --type-review: #9b6195;
   --type-note: #8a8298;
+  --type-storyboard: #c0703c;
+  --type-shared: #6c6ab8;
 
   --font-ui: 'IBM Plex Sans KR', system-ui, -apple-system, 'Apple SD Gothic Neo', sans-serif;
   --font-dream: 'Gowun Dodum', 'IBM Plex Sans KR', system-ui, sans-serif;
@@ -176,6 +178,12 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.92em
 .node--build { --type: var(--type-build); }
 .node--review { --type: var(--type-review); }
 .node--note { --type: var(--type-note); }
+.node--storyboard { --type: var(--type-storyboard); }
+.node--shared { --type: var(--type-shared); }
+
+/* 공통에서 가져온 노드: 점선 테두리로 "여기서 관리하지 않음"을 보여준다 */
+.node.node--shared { border-style: dashed; border-color: color-mix(in srgb, var(--type-shared) 55%, var(--line)); background: color-mix(in srgb, var(--type-shared) 5%, var(--paper)); }
+.node__used { margin: 0 0 8px; font-size: 11.5px; color: var(--type-shared); }
 
 .is-todo { --status: var(--status-todo); }
 .is-doing { --status: var(--status-doing); }
@@ -394,4 +402,158 @@ code { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 0.92em
   .bar__summary { order: 3; width: 100%; }
   .app.has-inspector { grid-template-columns: 1fr; grid-template-rows: auto 45vh 1fr; }
   .inspector { border-left: 0; border-top: 1px solid var(--line); }
+}
+
+/* ---------- 모드 태그 ---------- */
+.mode--video-first { --mode: var(--type-video); }
+.mode--storyboard-first { --mode: var(--type-storyboard); }
+.mode-tag {
+  display: inline-block; padding: 1px 9px; border-radius: 999px;
+  font-size: 12px; font-weight: 600;
+  color: var(--mode, var(--type-note));
+  background: color-mix(in srgb, var(--mode, var(--type-note)) 12%, transparent);
+}
+
+/* ---------- 프로젝트 헤더 위치 표시 ---------- */
+.crumb { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--ink-2); margin-bottom: 1px; }
+.crumb a { color: var(--ink-2); text-decoration: none; }
+.crumb a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.missing { height: 100%; display: grid; place-content: center; justify-items: center; gap: 14px; font-family: var(--font-dream); font-size: 18px; }
+.missing a { text-decoration: none; font-family: var(--font-ui); }
+a.primary, a.ghost { display: inline-block; text-decoration: none; text-align: center; }
+a.ghost { color: var(--ink); }
+a.link-chip { color: var(--ink); text-decoration: none; }
+
+.type-select.is-static { color: var(--type-shared); }
+.ref-block {
+  display: grid; gap: 10px; padding: 12px;
+  border: 1px dashed color-mix(in srgb, var(--type-shared) 55%, var(--line)); border-radius: 12px;
+  background: color-mix(in srgb, var(--type-shared) 5%, transparent);
+}
+.ref-block select { border: 1px solid var(--line); border-radius: 10px; background: var(--paper); padding: 7px 10px; font-size: 14px; color: var(--ink); }
+.ref-block__status { margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
+.ref-block .ghost { justify-self: start; }
+
+/* ---------- 홈 ---------- */
+.home {
+  min-height: 100%;
+  padding: 40px clamp(16px, 5vw, 64px) 64px;
+  background:
+    radial-gradient(900px 600px at 8% 0%, var(--haze), transparent 70%),
+    radial-gradient(800px 700px at 100% 100%, var(--haze-2), transparent 70%),
+    var(--canvas);
+}
+.home > :not(.dialog-back):not(.toast) { max-width: 1180px; margin-left: auto; margin-right: auto; }
+.home > .toast { position: fixed; }
+.home__head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 32px; }
+.home__head h1 { margin: 0; font-family: var(--font-dream); font-weight: 400; font-size: clamp(32px, 5vw, 48px); line-height: 1.1; letter-spacing: -0.02em; }
+.home__head p { margin: 8px 0 0; color: var(--ink-2); font-size: 15px; }
+
+.section-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin: 0 0 14px; }
+.section-head h2 { margin: 0; font-family: var(--font-dream); font-weight: 400; font-size: 24px; }
+.section-head p { margin: 0; color: var(--ink-2); font-size: 13px; }
+
+/* 공통: 앱들 위에 깔린 띠. 모든 앱이 이 위에 선다는 느낌 */
+.shared-band {
+  display: grid; grid-template-columns: minmax(200px, 280px) 1fr; gap: 20px 28px; align-items: start;
+  padding: 20px 22px; margin-bottom: 40px;
+  border: 1px dashed color-mix(in srgb, var(--type-shared) 55%, var(--line));
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--paper) 78%, transparent);
+}
+.shared-band h2 { margin: 0; font-family: var(--font-dream); font-weight: 400; font-size: 26px; }
+.shared-band h2 a { color: var(--ink); text-decoration: none; }
+.shared-band h2 a:hover { text-decoration: underline; text-decoration-color: var(--type-shared); text-underline-offset: 4px; }
+.shared-band p { margin: 4px 0 0; color: var(--ink-2); font-size: 13px; }
+.shared-band__count { font-size: 12.5px; }
+.shared-band__count .is-review { color: var(--status-review); }
+.shared-band__count .is-doing { color: var(--status-doing); }
+.shared-band__nodes { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.shared-chip {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 7px 12px; border-radius: 12px;
+  border: 1px solid var(--line); background: var(--paper);
+  color: var(--ink); text-decoration: none; font-size: 13.5px;
+  box-shadow: inset 3px 0 0 var(--type);
+}
+.shared-chip:hover { border-color: var(--ink-2); }
+.shared-chip__use { font-size: 11.5px; color: var(--type-shared); background: color-mix(in srgb, var(--type-shared) 12%, transparent); padding: 0 7px; border-radius: 999px; }
+
+.app-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+.app-grid > li { display: flex; }
+.app-card {
+  flex: 1; display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 18px 18px 16px; border-radius: 18px;
+  background: var(--paper); border: 1px solid var(--line);
+  color: var(--ink); text-decoration: none; text-align: left;
+  transition: border-color 160ms ease, transform 160ms ease;
+}
+.app-card:hover { border-color: var(--ink-2); }
+@media (prefers-reduced-motion: no-preference) { .app-card:hover { transform: translateY(-2px); } }
+.app-card h3 { margin: 6px 0 0; font-family: var(--font-dream); font-weight: 400; font-size: 24px; line-height: 1.2; }
+.app-card__sub { margin: 0; color: var(--ink-2); font-size: 13px; }
+.app-card__count { margin: 0; font-size: 12.5px; color: var(--ink-2); }
+.app-card__count strong { color: var(--ink); font-weight: 500; }
+.app-card__last { margin: auto 0 0; padding-top: 6px; font-size: 12px; color: var(--ink-2); }
+.app-card__last.is-agent { color: var(--type-prompt); }
+.app-card--new {
+  align-items: center; justify-content: center; text-align: center; gap: 4px; min-height: 200px;
+  background: transparent; border: 1.5px dashed var(--grid); font: inherit; cursor: pointer;
+}
+.app-card--new:hover { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 5%, transparent); }
+.app-card--new .plus { font-family: var(--font-dream); font-size: 34px; line-height: 1; color: var(--accent); }
+.app-card--new strong { font-weight: 600; font-size: 15px; }
+.app-card--new span:last-child { color: var(--ink-2); font-size: 12.5px; }
+
+/* 진행 띠: 단계 하나가 한 칸 */
+.strip { display: flex; gap: 3px; width: 100%; margin: 10px 0 4px; }
+.strip__seg { flex: 1; height: 8px; border-radius: 4px; background: var(--status); opacity: 0.85; }
+.strip__seg.is-todo { opacity: 0.45; }
+
+/* ---------- 새 앱 대화상자 ---------- */
+.dialog-back {
+  position: fixed; inset: 0; z-index: 20;
+  display: grid; place-items: center; padding: 16px;
+  background: color-mix(in srgb, var(--ink) 30%, transparent);
+  backdrop-filter: blur(3px);
+}
+.dialog {
+  width: min(760px, 100%); max-height: calc(100vh - 32px); overflow: auto;
+  display: grid; gap: 14px;
+  padding: 22px 24px; border-radius: 20px;
+  background: var(--paper); border: 1px solid var(--line);
+  box-shadow: 0 30px 80px -30px rgba(60, 30, 90, 0.5);
+}
+.dialog__head { display: flex; justify-content: space-between; align-items: center; }
+.dialog__head h2 { margin: 0; font-family: var(--font-dream); font-weight: 400; font-size: 26px; }
+.dialog__foot { display: flex; justify-content: flex-end; gap: 8px; padding-top: 4px; }
+.primary:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
+.field em { font-style: normal; color: var(--ink-2); opacity: 0.8; margin-left: 6px; }
+.field input:focus { outline: none; border-color: var(--accent); }
+.field input[aria-invalid='true'] { border-color: var(--status-blocked); }
+.field__err { color: var(--status-blocked); font-size: 12.5px; margin: 0; }
+
+.modes { border: 0; padding: 0; margin: 6px 0 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.modes legend { padding: 0; margin-bottom: 8px; font-size: 13.5px; font-weight: 600; }
+.mode-card {
+  position: relative; display: grid; gap: 6px; align-content: start;
+  padding: 14px 16px; border-radius: 14px; cursor: pointer;
+  border: 1.5px solid var(--line); background: var(--paper);
+}
+.mode-card:hover { border-color: var(--ink-2); }
+.mode-card.is-on { border-color: var(--mode); background: color-mix(in srgb, var(--mode) 6%, var(--paper)); }
+.mode-card input { position: absolute; opacity: 0; pointer-events: none; }
+.mode-card:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.mode-card__name { font-family: var(--font-dream); font-size: 22px; color: var(--mode); }
+.mode-card__from { font-size: 12.5px; font-weight: 600; }
+.mode-card__desc { font-size: 13px; color: var(--ink-2); }
+.mode-card__steps { margin: 6px 0 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; gap: 4px 0; font-size: 12px; }
+.mode-card__steps li { color: var(--ink); }
+.mode-card__steps li::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 2px; margin-right: 5px; background: var(--type); vertical-align: 1px; }
+.mode-card__steps li:not(:last-child)::after { content: '→'; color: var(--ink-2); margin: 0 6px; }
+.mode-card__uses { font-size: 12px; color: var(--type-shared); }
+
+@media (max-width: 640px) {
+  .shared-band { grid-template-columns: 1fr; }
+  .home__head { flex-direction: column; }
 }

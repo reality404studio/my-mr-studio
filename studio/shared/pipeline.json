@@ -1,0 +1,127 @@
+{
+  "version": 2,
+  "project": {
+    "name": "공통",
+    "subtitle": "모든 VR 앱이 함께 쓰는 조건, 결정, 모듈"
+  },
+  "nodes": [
+    {
+      "id": "ref-library",
+      "type": "reference",
+      "title": "레퍼런스 라이브러리",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": -220
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "platform",
+      "type": "note",
+      "title": "플랫폼 조건",
+      "status": "done",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 60
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "unity-version",
+      "type": "note",
+      "title": "결정: Unity 6 vs 2022",
+      "status": "review",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 330
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "perf-rules",
+      "type": "note",
+      "title": "72fps 성능 규칙",
+      "status": "done",
+      "owner": "Claude",
+      "position": {
+        "x": 330,
+        "y": -80
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "hand-patterns",
+      "type": "note",
+      "title": "핸드 인터랙션 패턴",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 330,
+        "y": 200
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "spec-format",
+      "type": "spec",
+      "title": "장면 명세 형식",
+      "status": "done",
+      "owner": "Claude",
+      "position": {
+        "x": 660,
+        "y": -80
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "calibration",
+      "type": "build",
+      "title": "책상 캘리브레이션 모듈",
+      "status": "todo",
+      "owner": "Claude Code",
+      "position": {
+        "x": 660,
+        "y": 260
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    }
+  ],
+  "edges": [
+    {
+      "id": "platform__perf-rules",
+      "source": "platform",
+      "target": "perf-rules"
+    },
+    {
+      "id": "platform__hand-patterns",
+      "source": "platform",
+      "target": "hand-patterns"
+    },
+    {
+      "id": "perf-rules__spec-format",
+      "source": "perf-rules",
+      "target": "spec-format"
+    },
+    {
+      "id": "unity-version__calibration",
+      "source": "unity-version",
+      "target": "calibration"
+    },
+    {
+      "id": "hand-patterns__calibration",
+      "source": "hand-patterns",
+      "target": "calibration"
+    }
+  ]
+}

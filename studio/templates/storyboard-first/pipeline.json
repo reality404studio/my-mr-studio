@@ -1,0 +1,195 @@
+{
+  "nodes": [
+    {
+      "id": "brief",
+      "type": "note",
+      "title": "앱 개요",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": -330,
+        "y": 150
+      }
+    },
+    {
+      "id": "concept",
+      "type": "concept",
+      "title": "콘셉트 · 기준안 깨기",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "moodboard",
+      "type": "reference",
+      "title": "무드보드",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 300
+      }
+    },
+    {
+      "id": "usage-flow",
+      "type": "concept",
+      "title": "사용 흐름",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 330,
+        "y": 0
+      }
+    },
+    {
+      "id": "storyboard",
+      "type": "storyboard",
+      "title": "사용성 스토리보드",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 660,
+        "y": 150
+      }
+    },
+    {
+      "id": "greybox",
+      "type": "build",
+      "title": "그레이박스 프로토타입",
+      "status": "todo",
+      "owner": "Claude Code",
+      "position": {
+        "x": 990,
+        "y": 150
+      }
+    },
+    {
+      "id": "usability-test",
+      "type": "review",
+      "title": "사용성 테스트",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 1320,
+        "y": 150
+      }
+    },
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "명세 번역",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 1650,
+        "y": 150
+      }
+    },
+    {
+      "id": "use-calibration",
+      "type": "shared",
+      "title": "",
+      "status": "todo",
+      "owner": "",
+      "position": {
+        "x": 990,
+        "y": 470
+      },
+      "ref": "calibration"
+    },
+    {
+      "id": "build",
+      "type": "build",
+      "title": "Unity 구현",
+      "status": "todo",
+      "owner": "Claude Code",
+      "position": {
+        "x": 1980,
+        "y": 300
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "검수: 실기 vs 스토리보드",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 2310,
+        "y": 300
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "brief__concept",
+      "source": "brief",
+      "target": "concept"
+    },
+    {
+      "id": "concept__usage-flow",
+      "source": "concept",
+      "target": "usage-flow"
+    },
+    {
+      "id": "usage-flow__storyboard",
+      "source": "usage-flow",
+      "target": "storyboard"
+    },
+    {
+      "id": "moodboard__storyboard",
+      "source": "moodboard",
+      "target": "storyboard"
+    },
+    {
+      "id": "storyboard__greybox",
+      "source": "storyboard",
+      "target": "greybox"
+    },
+    {
+      "id": "use-calibration__greybox",
+      "source": "use-calibration",
+      "target": "greybox"
+    },
+    {
+      "id": "greybox__usability-test",
+      "source": "greybox",
+      "target": "usability-test"
+    },
+    {
+      "id": "usability-test__storyboard",
+      "source": "usability-test",
+      "target": "storyboard",
+      "label": "고칠 컷"
+    },
+    {
+      "id": "usability-test__spec",
+      "source": "usability-test",
+      "target": "spec"
+    },
+    {
+      "id": "spec__build",
+      "source": "spec",
+      "target": "build"
+    },
+    {
+      "id": "use-calibration__build",
+      "source": "use-calibration",
+      "target": "build"
+    },
+    {
+      "id": "build__review",
+      "source": "build",
+      "target": "review"
+    },
+    {
+      "id": "review__build",
+      "source": "review",
+      "target": "build",
+      "label": "차이 수정"
+    }
+  ]
+}

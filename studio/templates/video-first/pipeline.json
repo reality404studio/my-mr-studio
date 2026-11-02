@@ -1,0 +1,178 @@
+{
+  "nodes": [
+    {
+      "id": "brief",
+      "type": "note",
+      "title": "앱 개요",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": -330,
+        "y": 150
+      }
+    },
+    {
+      "id": "moodboard",
+      "type": "reference",
+      "title": "무드보드",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "id": "space-photo",
+      "type": "reference",
+      "title": "실제 공간 사진",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 300
+      }
+    },
+    {
+      "id": "concept",
+      "type": "concept",
+      "title": "콘셉트 · 기준안 깨기",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 330,
+        "y": 0
+      }
+    },
+    {
+      "id": "video-prompts",
+      "type": "prompt",
+      "title": "영상 프롬프트",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 660,
+        "y": 150
+      }
+    },
+    {
+      "id": "reference-video",
+      "type": "video",
+      "title": "참조 영상",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 990,
+        "y": 150
+      }
+    },
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "명세 번역",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 1320,
+        "y": 150
+      }
+    },
+    {
+      "id": "use-calibration",
+      "type": "shared",
+      "title": "",
+      "status": "todo",
+      "owner": "",
+      "position": {
+        "x": 1320,
+        "y": 470
+      },
+      "ref": "calibration"
+    },
+    {
+      "id": "build",
+      "type": "build",
+      "title": "Unity 구현",
+      "status": "todo",
+      "owner": "Claude Code",
+      "position": {
+        "x": 1650,
+        "y": 300
+      }
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "검수: 실기 vs 원본 영상",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 1980,
+        "y": 300
+      }
+    }
+  ],
+  "edges": [
+    {
+      "id": "brief__moodboard",
+      "source": "brief",
+      "target": "moodboard"
+    },
+    {
+      "id": "brief__concept",
+      "source": "brief",
+      "target": "concept"
+    },
+    {
+      "id": "moodboard__concept",
+      "source": "moodboard",
+      "target": "concept"
+    },
+    {
+      "id": "moodboard__video-prompts",
+      "source": "moodboard",
+      "target": "video-prompts"
+    },
+    {
+      "id": "space-photo__video-prompts",
+      "source": "space-photo",
+      "target": "video-prompts"
+    },
+    {
+      "id": "concept__video-prompts",
+      "source": "concept",
+      "target": "video-prompts"
+    },
+    {
+      "id": "video-prompts__reference-video",
+      "source": "video-prompts",
+      "target": "reference-video"
+    },
+    {
+      "id": "reference-video__spec",
+      "source": "reference-video",
+      "target": "spec"
+    },
+    {
+      "id": "spec__build",
+      "source": "spec",
+      "target": "build"
+    },
+    {
+      "id": "use-calibration__build",
+      "source": "use-calibration",
+      "target": "build"
+    },
+    {
+      "id": "build__review",
+      "source": "build",
+      "target": "review"
+    },
+    {
+      "id": "review__build",
+      "source": "review",
+      "target": "build",
+      "label": "차이 수정"
+    }
+  ]
+}

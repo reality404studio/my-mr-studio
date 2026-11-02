@@ -2,14 +2,14 @@ node_modules/
 dist/
 .DS_Store
 *.tmp
-studio/.lock/
+studio/**/.lock/
 
-# Unity (unity/ 폴더를 만들 경우)
-unity/[Ll]ibrary/
-unity/[Tt]emp/
-unity/[Oo]bj/
-unity/[Bb]uild/
-unity/[Bb]uilds/
-unity/[Ll]ogs/
-unity/[Uu]ser[Ss]ettings/
+# Unity (unity/<앱 id>/, unity/shared/)
+unity/**/[Ll]ibrary/
+unity/**/[Tt]emp/
+unity/**/[Oo]bj/
+unity/**/[Bb]uild/
+unity/**/[Bb]uilds/
+unity/**/[Ll]ogs/
+unity/**/[Uu]ser[Ss]ettings/
 *.apk

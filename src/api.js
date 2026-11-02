@@ -7,26 +7,38 @@ async function call(method, url, body) {
   return data;
 }
 
-export const api = {
-  pipeline: () => call('GET', '/api/pipeline'),
-  log: (limit = 40) => call('GET', `/api/log?limit=${limit}`),
-  node: (id) => call('GET', `/api/nodes/${encodeURIComponent(id)}`),
-  createNode: (body) => call('POST', '/api/nodes', body),
-  updateNode: (id, patch) => call('PATCH', `/api/nodes/${encodeURIComponent(id)}`, patch),
-  deleteNode: (id) => call('DELETE', `/api/nodes/${encodeURIComponent(id)}`),
-  writeNotes: (id, notes) => call('PUT', `/api/nodes/${encodeURIComponent(id)}/notes`, { notes }),
-  addEdge: (source, target) => call('POST', '/api/edges', { source, target }),
-  deleteEdge: (id) => call('DELETE', `/api/edges/${encodeURIComponent(id)}`),
-  updateAsset: (id, file, memo) => call('PATCH', `/api/nodes/${encodeURIComponent(id)}/assets/${encodeURIComponent(file)}`, { memo }),
-  deleteAsset: (id, file) => call('DELETE', `/api/nodes/${encodeURIComponent(id)}/assets/${encodeURIComponent(file)}`),
-  async uploadAsset(id, file) {
-    const res = await fetch(`/api/nodes/${encodeURIComponent(id)}/assets?name=${encodeURIComponent(file.name)}`, {
-      method: 'POST',
-      headers: { 'x-actor': 'human', 'Content-Type': file.type || 'application/octet-stream' },
-      body: file,
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || `업로드 실패 (${res.status})`);
-    return data;
-  },
+const enc = encodeURIComponent;
+
+export const studioApi = {
+  projects: () => call('GET', '/api/projects'),
+  templates: () => call('GET', '/api/templates'),
+  createApp: (body) => call('POST', '/api/projects', body),
 };
+
+// pid = "shared" 또는 앱 id
+export function projectApi(pid) {
+  const base = `/api/p/${enc(pid)}`;
+  return {
+    pipeline: () => call('GET', `${base}/pipeline`),
+    log: (limit = 40) => call('GET', `${base}/log?limit=${limit}`),
+    node: (id) => call('GET', `${base}/nodes/${enc(id)}`),
+    createNode: (body) => call('POST', `${base}/nodes`, body),
+    updateNode: (id, patch) => call('PATCH', `${base}/nodes/${enc(id)}`, patch),
+    deleteNode: (id) => call('DELETE', `${base}/nodes/${enc(id)}`),
+    writeNotes: (id, notes) => call('PUT', `${base}/nodes/${enc(id)}/notes`, { notes }),
+    addEdge: (source, target) => call('POST', `${base}/edges`, { source, target }),
+    deleteEdge: (id) => call('DELETE', `${base}/edges/${enc(id)}`),
+    updateAsset: (id, file, memo) => call('PATCH', `${base}/nodes/${enc(id)}/assets/${enc(file)}`, { memo }),
+    deleteAsset: (id, file) => call('DELETE', `${base}/nodes/${enc(id)}/assets/${enc(file)}`),
+    async uploadAsset(id, file) {
+      const res = await fetch(`${base}/nodes/${enc(id)}/assets?name=${enc(file.name)}`, {
+        method: 'POST',
+        headers: { 'x-actor': 'human', 'Content-Type': file.type || 'application/octet-stream' },
+        body: file,
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || `업로드 실패 (${res.status})`);
+      return data;
+    },
+  };
+}

@@ -3,7 +3,7 @@
 - 계약은 `studio/scene_spec.yaml` 하나. 영상은 참고만
 - 기기: Quest 3S 패스스루, 핸드트래킹만, 72fps 유지
 - 캘리브레이션 결과(`desk` 좌표계) 위에 모든 오브젝트를 배치
-- Unity 프로젝트는 레포의 `unity/` 폴더에 둔다
+- Unity 프로젝트는 `unity/desk-dream/` 에 둔다. 캘리브레이션은 공통 모듈(`unity/shared/DeskCalibration/`)을 가져다 쓴다
 
 ## Mac 개발 루프
 

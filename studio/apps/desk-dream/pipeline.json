@@ -1,0 +1,205 @@
+{
+  "version": 2,
+  "project": {
+    "name": "책상 위 꿈",
+    "subtitle": "평범한 책상이 몽환적인 데스크테리어로 바뀌는 순간",
+    "template": "video-first",
+    "createdAt": "2026-11-02T08:30:00.000Z"
+  },
+  "nodes": [
+    {
+      "id": "brief",
+      "type": "note",
+      "title": "앱 개요",
+      "status": "done",
+      "owner": "나",
+      "position": {
+        "x": -330,
+        "y": 150
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "moodboard",
+      "type": "reference",
+      "title": "무드보드 · 레퍼런스",
+      "status": "doing",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "desk-photo",
+      "type": "reference",
+      "title": "실제 책상 사진",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 0,
+        "y": 300
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "concept",
+      "type": "concept",
+      "title": "콘셉트 · 기준안 깨기",
+      "status": "review",
+      "owner": "나",
+      "position": {
+        "x": 330,
+        "y": 0
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "video-prompts",
+      "type": "prompt",
+      "title": "Google 영상 프롬프트",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 660,
+        "y": 150
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "reference-video",
+      "type": "video",
+      "title": "참조 영상 (약 60초)",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 990,
+        "y": 150
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "spec",
+      "type": "spec",
+      "title": "영상 → 명세 번역",
+      "status": "todo",
+      "owner": "Claude",
+      "position": {
+        "x": 1320,
+        "y": 150
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "build",
+      "type": "build",
+      "title": "Unity 구현",
+      "status": "todo",
+      "owner": "Claude Code",
+      "position": {
+        "x": 1650,
+        "y": 300
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "review",
+      "type": "review",
+      "title": "검수: 실기 vs 원본 영상",
+      "status": "todo",
+      "owner": "나",
+      "position": {
+        "x": 1980,
+        "y": 300
+      },
+      "updatedAt": "2026-11-02T08:30:00.000Z",
+      "updatedBy": "Claude"
+    },
+    {
+      "id": "use-calibration",
+      "type": "shared",
+      "title": "",
+      "status": "todo",
+      "owner": "",
+      "position": {
+        "x": 1320,
+        "y": 470
+      },
+      "updatedAt": "2026-11-02T14:30:00.000Z",
+      "updatedBy": "Claude",
+      "ref": "calibration"
+    }
+  ],
+  "edges": [
+    {
+      "id": "moodboard__concept",
+      "source": "moodboard",
+      "target": "concept"
+    },
+    {
+      "id": "moodboard__video-prompts",
+      "source": "moodboard",
+      "target": "video-prompts"
+    },
+    {
+      "id": "desk-photo__video-prompts",
+      "source": "desk-photo",
+      "target": "video-prompts"
+    },
+    {
+      "id": "concept__video-prompts",
+      "source": "concept",
+      "target": "video-prompts"
+    },
+    {
+      "id": "video-prompts__reference-video",
+      "source": "video-prompts",
+      "target": "reference-video"
+    },
+    {
+      "id": "reference-video__spec",
+      "source": "reference-video",
+      "target": "spec"
+    },
+    {
+      "id": "spec__build",
+      "source": "spec",
+      "target": "build"
+    },
+    {
+      "id": "build__review",
+      "source": "build",
+      "target": "review"
+    },
+    {
+      "id": "review__build",
+      "source": "review",
+      "target": "build",
+      "label": "차이 수정"
+    },
+    {
+      "id": "brief__moodboard",
+      "source": "brief",
+      "target": "moodboard"
+    },
+    {
+      "id": "brief__concept",
+      "source": "brief",
+      "target": "concept"
+    },
+    {
+      "id": "use-calibration__build",
+      "source": "use-calibration",
+      "target": "build"
+    }
+  ]
+}
