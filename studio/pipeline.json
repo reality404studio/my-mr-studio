@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "project": {
+    "name": "책상 위 꿈",
+    "subtitle": "영상 우선 MR 개발 · Quest 3S 패스스루"
+  },
+  "nodes": [
+    { "id": "moodboard", "type": "reference", "title": "무드보드 · 레퍼런스", "status": "doing", "owner": "나", "position": { "x": 0, "y": 0 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "desk-photo", "type": "reference", "title": "실제 책상 사진", "status": "todo", "owner": "나", "position": { "x": 0, "y": 300 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "concept", "type": "concept", "title": "콘셉트 · 기준안 깨기", "status": "review", "owner": "나", "position": { "x": 330, "y": 0 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "unity-version", "type": "note", "title": "결정: Unity 6 vs 2022", "status": "review", "owner": "나", "position": { "x": 330, "y": 470 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "video-prompts", "type": "prompt", "title": "Google 영상 프롬프트", "status": "todo", "owner": "Claude", "position": { "x": 660, "y": 150 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "reference-video", "type": "video", "title": "참조 영상 (약 60초)", "status": "todo", "owner": "나", "position": { "x": 990, "y": 150 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "spec", "type": "spec", "title": "영상 → 명세 번역", "status": "todo", "owner": "Claude", "position": { "x": 1320, "y": 150 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "calibration", "type": "build", "title": "책상 캘리브레이션 프로토타입", "status": "todo", "owner": "Claude Code", "position": { "x": 1320, "y": 470 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "build", "type": "build", "title": "Unity 구현", "status": "todo", "owner": "Claude Code", "position": { "x": 1650, "y": 300 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" },
+    { "id": "review", "type": "review", "title": "검수: 실기 vs 원본 영상", "status": "todo", "owner": "나", "position": { "x": 1980, "y": 300 }, "updatedAt": "2026-11-02T08:30:00.000Z", "updatedBy": "Claude" }
+  ],
+  "edges": [
+    { "id": "moodboard__concept", "source": "moodboard", "target": "concept" },
+    { "id": "moodboard__video-prompts", "source": "moodboard", "target": "video-prompts" },
+    { "id": "desk-photo__video-prompts", "source": "desk-photo", "target": "video-prompts" },
+    { "id": "concept__video-prompts", "source": "concept", "target": "video-prompts" },
+    { "id": "video-prompts__reference-video", "source": "video-prompts", "target": "reference-video" },
+    { "id": "reference-video__spec", "source": "reference-video", "target": "spec" },
+    { "id": "spec__build", "source": "spec", "target": "build" },
+    { "id": "unity-version__calibration", "source": "unity-version", "target": "calibration" },
+    { "id": "calibration__build", "source": "calibration", "target": "build" },
+    { "id": "build__review", "source": "build", "target": "review" },
+    { "id": "review__build", "source": "review", "target": "build", "label": "차이 수정" }
+  ]
+}
