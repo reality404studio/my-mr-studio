@@ -1,8 +1,3 @@
-// GateFileChecks — 가드레일 검사를 "파일만 읽어서" 한다. UnityEngine/UnityEditor 의존 없음.
-// 같은 파일을 두 곳에서 컴파일한다:
-//   1) Unity 빌드 게이트 (BuildGate.cs, IPreprocessBuildWithReport)
-//   2) 사전 점검 (Preflight/, dotnet) — 에디터가 열려 있어도 에이전트가 돌릴 수 있게
-// 그래서 게이트와 사전 점검은 항상 같은 규칙이다. 규칙을 바꾸면 여기만 바꾼다.
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +16,6 @@ namespace Reality404.BuildGate
         public override string ToString() { return $"[{Level.ToString().ToUpperInvariant()}] {Check}: {Message}"; }
     }
 
-    /// ProjectSettings/BuildGate.json
     public class GateConfig
     {
         public string LogTag = "MP";
@@ -60,12 +54,99 @@ namespace Reality404.BuildGate
             foreach (string scene in EnabledScenes(projectRoot)) CheckScene(projectRoot, scene, rigGuid, r);
             CheckOutlineMaterials(projectRoot, r);
             CheckForbiddenApis(projectRoot, cfg.ForbiddenApis, r);
+            CheckHandTracking(projectRoot, r);
+            CheckComments(projectRoot, r);
             return r;
+        }
+
+        static void CheckHandTracking(string root, List<GateResult> r)
+        {
+            string p = Path.Combine(root, "Assets", "Oculus", "OculusProjectConfig.asset");
+            if (!File.Exists(p)) { Add(r, GateLevel.Fail, "hand-tracking", "OculusProjectConfig.asset 없음"); return; }
+            var m = Regex.Match(File.ReadAllText(p), @"handTrackingSupport: (\d+)");
+            if (m.Success && (m.Groups[1].Value == "1" || m.Groups[1].Value == "2"))
+                Add(r, GateLevel.Info, "hand-tracking", m.Groups[1].Value == "1" ? "ControllersAndHands" : "HandsOnly");
+            else Add(r, GateLevel.Fail, "hand-tracking", "handTrackingSupport 가 ControllersOnly(0) 또는 없음 → 핸즈 퍼스트 앱에서 손이 안 잡힘");
+        }
+
+        public static readonly string[] CommentLintExemptFiles = { "MetaQuestVRSetup.cs" };
+        static readonly Regex UsageHeader = new Regex(@"-batchmode|사용:");
+
+        static IEnumerable<string> CommentLintRoots(string root)
+        {
+            yield return Path.Combine(root, "Assets", "Scripts");
+            yield return Path.Combine(root, "Assets", "Editor");
+            yield return Path.GetFullPath(Path.Combine(root, "..", "shared"));
+        }
+
+        static void CheckComments(string root, List<GateResult> r)
+        {
+            int hits = 0;
+            foreach (string dir in CommentLintRoots(root))
+            {
+                if (!Directory.Exists(dir)) continue;
+                foreach (string cs in Directory.GetFiles(dir, "*.cs", SearchOption.AllDirectories))
+                {
+                    string n = cs.Replace('\\', '/');
+                    if (n.Contains("/obj/") || n.Contains("/bin/") || CommentLintExemptFiles.Contains(Path.GetFileName(cs))) continue;
+                    foreach (int line in CommentLines(File.ReadAllLines(cs)))
+                    {
+                        Add(r, GateLevel.Fail, "comment", $"{Display(root, cs)}:{line} 주석 금지 → 이유는 카드 메모, 규칙은 게이트·테스트로");
+                        hits++;
+                    }
+                }
+            }
+            if (hits == 0) Add(r, GateLevel.Info, "comment", "주석 없음 (배치 실행 안내 머리말 제외)");
+        }
+
+        public static List<int> CommentLines(string[] lines)
+        {
+            var result = new List<int>();
+            bool inBlock = false, header = true;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                bool had = HasComment(lines[i], ref inBlock, out bool codeToo);
+                if (!had) { if (lines[i].Trim().Length > 0) header = false; continue; }
+                if (header && !codeToo && UsageHeader.IsMatch(lines[i])) continue;
+                if (codeToo) header = false;
+                result.Add(i + 1);
+            }
+            return result;
+        }
+
+        static bool HasComment(string line, ref bool inBlock, out bool codeToo)
+        {
+            bool found = inBlock, inStr = false, verbatim = false, inChar = false;
+            codeToo = false;
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i], nx = i + 1 < line.Length ? line[i + 1] : '\0';
+                if (inBlock) { if (c == '*' && nx == '/') { inBlock = false; i++; } continue; }
+                if (inStr)
+                {
+                    if (verbatim) { if (c == '"' && nx == '"') i++; else if (c == '"') inStr = false; }
+                    else if (c == '\\') i++;
+                    else if (c == '"') inStr = false;
+                    continue;
+                }
+                if (inChar) { if (c == '\\') i++; else if (c == '\'') inChar = false; continue; }
+                if (c == '/' && nx == '/') return true;
+                if (c == '/' && nx == '*') { found = inBlock = true; i++; continue; }
+                if (c == '"') { inStr = true; verbatim = i > 0 && (line[i - 1] == '@' || (line[i - 1] == '$' && i > 1 && line[i - 2] == '@')); codeToo = true; continue; }
+                if (c == '\'') { inChar = true; codeToo = true; continue; }
+                if (!char.IsWhiteSpace(c)) codeToo = true;
+            }
+            return found;
+        }
+
+        static string Display(string root, string p)
+        {
+            string full = Path.GetFullPath(p), r = Path.GetFullPath(root);
+            return full.StartsWith(r) ? Rel(root, full) : Path.GetRelativePath(r, full).Replace('\\', '/');
         }
 
         static void Add(List<GateResult> r, GateLevel l, string check, string msg) { r.Add(new GateResult { Level = l, Check = check, Message = msg }); }
 
-        // §2: Android XR 로더는 정확히 1개
         static void CheckXrLoaders(string root, List<GateResult> r)
         {
             string p = Path.Combine(root, "Assets", "XR", "Settings", "XRGeneralSettingsPerBuildTarget.asset");
@@ -83,7 +164,6 @@ namespace Reality404.BuildGate
             Add(r, GateLevel.Fail, "xr-loader", "Android 용 XRManagerSettings 없음");
         }
 
-        // §4: URP 패키지만 있고 파이프라인 에셋이 비면 기기에서 URP 머티리얼이 전부 마젠타
         static void CheckRenderPipeline(string root, List<GateResult> r)
         {
             string gs = Path.Combine(root, "ProjectSettings", "GraphicsSettings.asset");
@@ -102,7 +182,6 @@ namespace Reality404.BuildGate
             else Add(r, GateLevel.Fail, "render-pipeline", "Graphics 기본·Android 품질 단계 모두 파이프라인 에셋 없음 → URP 머티리얼 마젠타");
         }
 
-        // §3: 카메라 접근 권한
         static void CheckManifest(string root, List<GateResult> r)
         {
             string p = Path.Combine(root, "Assets", "Plugins", "Android", "AndroidManifest.xml");
@@ -133,7 +212,6 @@ namespace Reality404.BuildGate
             return null;
         }
 
-        // §3: Skybox None, 카메라는 OVRCameraRig 하나뿐 (씬에 직접 놓은 Camera 0개)
         static void CheckScene(string root, string scenePath, string rigGuid, List<GateResult> r)
         {
             string p = Path.Combine(root, scenePath);
@@ -145,7 +223,7 @@ namespace Reality404.BuildGate
             if (sky.Success && sky.Groups[1].Value == "0") Add(r, GateLevel.Info, "skybox", name + ": None");
             else Add(r, GateLevel.Fail, "skybox", name + ": Skybox Material 이 남아 있음 → 패스스루 대신 스카이박스");
 
-            int direct = Regex.Matches(t, @"^--- !u!20 &-?\d+\s*$", RegexOptions.Multiline).Count; // stripped(프리팹 안) 제외
+            int direct = Regex.Matches(t, @"^--- !u!20 &-?\d+\s*$", RegexOptions.Multiline).Count;
             if (direct > 0) Add(r, GateLevel.Fail, "camera", $"{name}: 씬에 직접 놓은 Camera {direct}개 (Main Camera 중복 → 불투명 카메라가 덮음)");
 
             if (rigGuid == null) { Add(r, GateLevel.Warn, "camera", "OVRCameraRig 프리팹 GUID 를 못 찾음 (Library 없음?) → 리그 개수 검사 생략"); return; }
@@ -154,7 +232,6 @@ namespace Reality404.BuildGate
             else Add(r, GateLevel.Fail, "camera", $"{name}: OVRCameraRig {rigs}개 (정확히 1개)");
         }
 
-        // §4: 인버티드 헐 외곽선 = Render Face Back (_Cull: 1)
         static void CheckOutlineMaterials(string root, List<GateResult> r)
         {
             string assets = Path.Combine(root, "Assets");
@@ -168,7 +245,6 @@ namespace Reality404.BuildGate
             }
         }
 
-        // 금지 API: 런타임 코드에서만 (Editor 폴더, 이 게이트 자신 제외). 주석 줄은 무시
         static void CheckForbiddenApis(string root, string[] apis, List<GateResult> r)
         {
             string assets = Path.Combine(root, "Assets");

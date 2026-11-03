@@ -1,5 +1,3 @@
-// BuildGate — Android 빌드 직전에 가드레일 검사. 실패가 하나라도 있으면 빌드를 막는다 (우회하지 말고 원인을 고칠 것).
-// 통과하면 빌드 ID(git 짧은 해시 + 시각)를 Resources 에 박는다 → 앱 첫 로그 "[<tag>] build=<id>" (BuildIdLog.cs).
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -46,7 +44,6 @@ namespace Reality404.BuildGate.Editor
             Debug.Log($"[BuildGate] 통과. build={id}");
         }
 
-        /// git 짧은 해시 (+ 커밋 안 된 변경이 있으면 -dirty) + 로컬 시각
         public static string MakeBuildId(string root)
         {
             string hash = Git(root, "rev-parse --short HEAD") ?? "nogit";
