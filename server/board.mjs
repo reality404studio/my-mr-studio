@@ -35,8 +35,8 @@ export function proofGaps(node, assets) {
   if (!String(node.success || '').trim()) gaps.push('성공 조건(success)이 비어 있어요. set <id> --success "무엇이 관찰되면 끝인지"');
   if (node.status !== 'proof') gaps.push(`지금 상태가 ${node.status || 'todo'} 예요. 먼저 status <id> proof 로 "증명"에 올리세요`);
   const since = node.proofAt || '';
-  const evidence = (assets || []).filter((a) => a.addedAt && a.addedAt >= since && String(a.memo || '').trim());
-  if (node.status === 'proof' && evidence.length === 0) gaps.push('증명에 올린 뒤 붙인 증거 파일(메모 포함)이 없어요. proof <id> <파일> --memo "무엇을 증명하는지"');
+  const evidence = (assets || []).filter((a) => a.addedAt && a.addedAt >= since && a.check && a.check.exit === 0 && String(a.check.cmd || '').trim());
+  if (node.status === 'proof' && evidence.length === 0) gaps.push('증명에 올린 뒤 이 세션이 돌린 검증 명령의 통과 로그가 없어요. check <id> --app <앱> -- <검증 명령>');
   return gaps;
 }
 

@@ -436,12 +436,11 @@ function createProjectStore(dir, pid, ctx) {
           if (k === 'status' && hasKids) throw httpError(400, `"${node.title}"의 상태는 하위 과업에서 계산돼요. 하위 과업의 상태를 바꾸세요. (show ${id})`);
           if (k === 'status' && patch.status === 'done' && isGated(node, hasKids)) {
             const gaps = proofGaps(node, readAssets(id));
-            if (node.proofBy && node.proofBy === actor) gaps.push(`증명에 올린 이름(${actor})이 직접 done 할 수 없어요. 다른 세션이 --as "<다른 이름>" 으로 카드·성공 조건·증거만 보고 옮기세요 (proofs --app <앱>)`);
             if (gaps.length) throw httpError(409, `"${node.title}" 은(는) 아직 done 으로 못 가요:\n- ${gaps.join('\n- ')}`);
           }
           if (k === 'success' && node.status === 'done' && isGated(node, hasKids)) throw httpError(409, `"${node.title}" 은(는) 이미 증명을 거쳐 done 이에요. 증명한 성공 조건은 바꿀 수 없어요. 조건이 달라졌으면 새 카드를 만드세요.`);
           if (k === 'by' && patch.by === 'human' && isGated(node, hasKids) && (node.status || 'todo') !== 'todo') throw httpError(409, `"${node.title}" 은(는) 이미 시작된 에이전트 카드예요. 하는 쪽을 사람으로 바꾸면 증명 게이트를 건너뛰게 돼서, todo 일 때만 바꿀 수 있어요.`);
-          if (k === 'status' && patch.status === 'proof') { node.proofAt = new Date().toISOString(); node.proofBy = actor; }
+          if (k === 'status' && patch.status === 'proof') node.proofAt = new Date().toISOString();
           if (k === 'stage') {
             if (node.parent) throw httpError(400, '하위 과업은 과업을 따라 움직여요. 과업의 단계를 바꾸세요.');
             getStage(p, patch.stage);
@@ -545,14 +544,14 @@ function createProjectStore(dir, pid, ctx) {
       });
     },
 
-    saveAsset(actor, id, originalName, buffer, memo = '') {
+    saveAsset(actor, id, originalName, buffer, memo = '', extra = {}) {
       getNode(readPipeline(), id);
       const adir = assetsDir(id);
       fs.mkdirSync(adir, { recursive: true });
       const file = uniqueName(adir, safeFileName(originalName));
       fs.writeFileSync(path.join(adir, file), buffer);
       const index = readAssets(id).filter((a) => a.file !== file);
-      index.push({ file, memo, addedBy: actor, addedAt: new Date().toISOString() });
+      index.push({ file, memo, addedBy: actor, addedAt: new Date().toISOString(), ...(extra.check ? { check: { cmd: String(extra.check.cmd), exit: Number(extra.check.exit) } } : {}) });
       writeJsonAtomic(assetsIndexPath(id), index);
       appendLog(actor, 'asset.add', id, file);
       return { file };

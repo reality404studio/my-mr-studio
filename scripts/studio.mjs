@@ -13,11 +13,12 @@
 //   npm run studio -- list                                   단계 > 과업 > 하위 과업 트리
 //   npm run studio -- show   <id>                            과업이나 하위 과업 상세와 메모
 //   npm run studio -- status <id> <todo|doing|review|proof|done|blocked>
-//   npm run studio -- proof  <id> <증거 파일> --memo "무엇을 증명하는지"     증명 칼럼에 붙이는 증거 (proof 상태에서만)
-//   npm run studio -- proofs                                 검증 세션용: 증명 칼럼 카드의 성공 조건과 증거만
+//   npm run studio -- check  <id> --app <앱> -- <검증 명령>   검증 명령을 실행해 로그를 증거로 붙인다. 통과면 proof, 실패면 doing + 원인 메모
+//   npm run studio -- proof  <id> <파일> --memo "설명"         보조 자료(스크린샷 등). 이것만으로는 done 이 안 된다
+//   npm run studio -- proofs                                 증명 칼럼 카드의 성공 조건과 검증 로그
 //
-// 증명 게이트 (에이전트 카드): doing → proof → 증거 붙이기 → done. 성공 조건(--success)이 없거나,
-// proof 를 건너뛰었거나, proof 이후 붙인 증거가 없거나, proof 로 올린 이름과 같은 이름이면 done 이 거절된다.
+// 증명 게이트 (에이전트 카드): doing → check(검증 명령 통과) → proof → done. 성공 조건(--success)이 없거나,
+// proof 를 건너뛰었거나, proof 이후 exit 0 인 check 로그가 없으면 done 이 거절된다.
 //   npm run studio -- note   <id> "덧붙일 메모"
 //   npm run studio -- asset  <id> <파일 경로> [--memo "설명"]
 //   npm run studio -- add    <type> "과업 제목" --stage <단계 id> [--goal ..] [--output ..] [--ref <공통 과업 id>]
@@ -34,13 +35,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { createStudio, NODE_TYPES, STATUSES, KINDS, ACTORS } from '../server/store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const studio = createStudio(root);
 
 const BOOL_FLAGS = new Set(['feedback']);
-const argv = process.argv.slice(2);
+const all = process.argv.slice(2);
+const dash = all.indexOf('--');
+const argv = dash === -1 ? all : all.slice(0, dash);
+const tail = dash === -1 ? [] : all.slice(dash + 1);
 const flags = {};
 const args = [];
 for (let i = 0; i < argv.length; i++) {
@@ -258,7 +263,33 @@ try {
       const n = s.nodeDetail(id).node;
       if (n.status !== 'proof') fail(`${id} 는 지금 ${n.status} 예요. 먼저 status ${id} proof`);
       const r = s.saveAsset(actor, id, path.basename(file), fs.readFileSync(file), flags.memo.trim());
-      console.log(`증거: studio/${s.relDir}/nodes/${id}/assets/${r.file}\n검증은 다른 세션: proofs --app ${s.pid}`);
+      console.log(`보조 자료: studio/${s.relDir}/nodes/${id}/assets/${r.file}  (done 에는 check 통과 로그가 필요해요)`);
+      break;
+    }
+    case 'check': {
+      const [id] = rest;
+      const command = tail.join(' ').trim();
+      if (!id || !command) fail('check <id> --app <앱> -- <검증 명령>');
+      const s = store();
+      const n = s.nodeDetail(id).node;
+      if (!String(n.success || '').trim()) fail(`${id} 에 성공 조건이 없어요. 먼저 set ${id} --success "..."`);
+      console.log(`$ ${command}`);
+      const r = spawnSync('sh', ['-c', command], { cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+      const out = `${r.stdout || ''}${r.stderr || ''}`;
+      const exit = r.status ?? 1;
+      process.stdout.write(out.split('\n').slice(-20).join('\n') + '\n');
+      const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const log = `$ ${command}\n# cwd: ${root}\n# exit: ${exit}\n# at: ${new Date().toISOString()}\n\n${out}`;
+      if (exit === 0) {
+        if (n.status !== 'proof') s.updateNode(actor, id, { status: 'proof' });
+        const a = s.saveAsset(actor, id, `check-${stamp}.log`, Buffer.from(log), `$ ${command} → exit 0`, { check: { cmd: command, exit } });
+        console.log(`통과 → ${id} proof, 로그 studio/${s.relDir}/nodes/${id}/assets/${a.file}\n다음: status ${id} done`);
+      } else {
+        s.saveAsset(actor, id, `check-${stamp}.log`, Buffer.from(log), `$ ${command} → exit ${exit} (실패)`, { check: { cmd: command, exit } });
+        if (n.status === 'proof' || n.status === 'todo') s.updateNode(actor, id, { status: 'doing' });
+        s.appendNote(actor, id, `check 실패 (exit ${exit}): \`${command}\`\n\n\`\`\`\n${out.split('\n').slice(-15).join('\n')}\n\`\`\``);
+        fail(`검증 실패 (exit ${exit}). ${id} 는 doing, 원인은 메모에`);
+      }
       break;
     }
     case 'proofs': {
@@ -267,13 +298,12 @@ try {
       if (!cards.length) { console.log('증명 칼럼에 카드가 없어요.'); break; }
       for (const n of cards) {
         const d = s.nodeDetail(n.id);
-        const ev = d.assets.filter((a) => a.addedAt && a.addedAt >= (n.proofAt || '') && String(a.memo || '').trim());
-        console.log(`[P] ${n.id}  "${n.title}"  올린 이름: ${n.proofBy || '-'}`);
+        const ev = d.assets.filter((a) => a.addedAt && a.addedAt >= (n.proofAt || '') && a.check);
+        console.log(`[P] ${n.id}  "${n.title}"`);
         console.log(`    성공 조건: ${n.success || '(없음)'}`);
-        for (const a of ev) console.log(`    증거: studio/${s.relDir}/nodes/${n.id}/assets/${a.file}  # ${a.memo}`);
-        if (!ev.length) console.log('    증거: (없음)');
+        for (const a of ev) console.log(`    검증: $ ${a.check.cmd} → exit ${a.check.exit}  (studio/${s.relDir}/nodes/${n.id}/assets/${a.file})`);
+        if (!ev.length) console.log('    검증: (없음)');
       }
-      console.log(`\n판단: 증거가 성공 조건을 보여 주면 status <id> done --as "<${actor === 'agent' ? '다른 이름' : '올린 이름과 다른 이름'}>", 아니면 status <id> doing + note <id> "무엇이 모자란지"`);
       break;
     }
     case 'log': {

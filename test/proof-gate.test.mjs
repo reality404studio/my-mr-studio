@@ -23,7 +23,7 @@ beforeEach(() => {
   s = createStudio(root).project('t');
 });
 
-const evidence = () => s.saveAsset('t', 'sub', 'batch.log', Buffer.from('BUILD OK id=abc'), '배치 빌드 성공 로그');
+const evidence = (exit = 0) => s.saveAsset('t', 'sub', 'check.log', Buffer.from('BUILD OK id=abc'), `$ make test → exit ${exit}`, { check: { cmd: 'make test', exit } });
 
 test('doing → done 직행은 거절된다', () => {
   s.updateNode('t', 'sub', { success: '배치 빌드 exit 0', status: 'doing' });
@@ -36,25 +36,31 @@ test('성공 조건 없이는 done 불가', () => {
   assert.throws(() => s.updateNode('t', 'sub', { status: 'done' }), /성공 조건/);
 });
 
-test('proof 이전에 붙인 파일은 증거로 치지 않는다', async () => {
+test('proof 이전에 붙인 로그는 증거로 치지 않는다', async () => {
   s.updateNode('t', 'sub', { success: '배치 빌드 exit 0', status: 'doing' });
   evidence();
   await new Promise((r) => setTimeout(r, 5));
   s.updateNode('t', 'sub', { status: 'proof' });
-  assert.throws(() => s.updateNode('t', 'sub', { status: 'done' }), /증거/);
+  assert.throws(() => s.updateNode('t', 'sub', { status: 'done' }), /통과 로그/);
 });
 
-test('메모 없는 파일은 증거가 아니다', () => {
+test('검증 명령 기록이 없는 파일은 증거가 아니다', () => {
   s.updateNode('t', 'sub', { success: 'x', status: 'proof' });
-  s.saveAsset('t', 'sub', 'a.log', Buffer.from('x'), '');
-  assert.throws(() => s.updateNode('t', 'sub', { status: 'done' }), /증거/);
+  s.saveAsset('t', 'sub', 'shot.png', Buffer.from('x'), '스크린샷');
+  assert.throws(() => s.updateNode('t', 'sub', { status: 'done' }), /통과 로그/);
+});
+
+test('실패한 검증 로그(exit≠0)는 증거가 아니다', () => {
+  s.updateNode('t', 'sub', { success: 'x', status: 'proof' });
+  evidence(2);
+  assert.throws(() => s.updateNode('t', 'sub', { status: 'done' }), /통과 로그/);
 });
 
 test('성공 조건 + proof + 이후 증거 → done 통과, 과업 상태도 계산된다', () => {
   s.updateNode('t', 'sub', { success: '배치 빌드 exit 0', status: 'proof' });
   assert.equal(s.nodeDetail('task').node.status, 'proof');
   evidence();
-  s.updateNode('v', 'sub', { status: 'done' });
+  s.updateNode('t', 'sub', { status: 'done' });
   assert.equal(s.nodeDetail('sub').node.status, 'done');
 });
 
@@ -81,15 +87,14 @@ test('UI 상태 목록이 서버와 같다 (증명 칼럼 포함)', () => {
 test('done 된 에이전트 카드의 성공 조건은 덮어쓸 수 없다', () => {
   s.updateNode('t', 'sub', { success: '원래 조건', status: 'proof' });
   evidence();
-  s.updateNode('v', 'sub', { status: 'done' });
-  assert.throws(() => s.updateNode('v', 'sub', { success: '다른 조건' }), /바꿀 수 없어요/);
+  s.updateNode('t', 'sub', { status: 'done' });
+  assert.throws(() => s.updateNode('t', 'sub', { success: '다른 조건' }), /바꿀 수 없어요/);
   assert.equal(s.nodeDetail('sub').node.success, '원래 조건');
 });
 
-test('증명에 올린 이름은 직접 done 할 수 없다, 다른 이름은 된다', () => {
+test('같은 세션이 통과 로그로 직접 done 할 수 있다', () => {
   s.updateNode('작업자', 'sub', { success: '배치 빌드 exit 0', status: 'proof' });
   evidence();
-  assert.throws(() => s.updateNode('작업자', 'sub', { status: 'done' }), /다른 세션/);
-  s.updateNode('검증자', 'sub', { status: 'done' });
+  s.updateNode('작업자', 'sub', { status: 'done' });
   assert.equal(s.nodeDetail('sub').node.status, 'done');
 });
