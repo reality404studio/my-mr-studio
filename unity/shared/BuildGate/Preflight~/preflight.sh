@@ -41,8 +41,14 @@ refs() { # $1 = editor|runtime
 
 # Assets 안 asmdef 가 없는 스크립트 = Assembly-CSharp / Assembly-CSharp-Editor (Editor 폴더)
 rm -f "$OUT"/Assembly-CSharp*.dll
-find "$PROJ/Assets" -name '*.cs' -not -path '*/Editor/*' > "$OUT/runtime.txt"
-find "$PROJ/Assets" -name '*.cs' -path '*/Editor/*' > "$OUT/editor.txt"
+# asmdef 가 있는 폴더는 별도 어셈블리라 여기서 뺀다 (Unity 가 컴파일. 테스트 하네스가 검증)
+find "$PROJ/Assets" -name '*.asmdef' -exec dirname {} \; > "$OUT/asmdef_dirs.txt"
+in_asmdef() { while read -r d; do case "$1" in "$d"/*) return 0;; esac; done < "$OUT/asmdef_dirs.txt"; return 1; }
+: > "$OUT/runtime.txt"; : > "$OUT/editor.txt"
+find "$PROJ/Assets" -name '*.cs' | while read -r f; do
+  in_asmdef "$f" && continue
+  case "$f" in */Editor/*) echo "$f" >> "$OUT/editor.txt";; *) echo "$f" >> "$OUT/runtime.txt";; esac
+done
 DEFS="-define:UNITY_ANDROID;UNITY_6000_0_OR_NEWER;UNITY_2023_1_OR_NEWER;UNITY_2022_3_OR_NEWER;ENABLE_INPUT_SYSTEM"
 
 compile() { # $1 name  $2 list  $3 refkind
