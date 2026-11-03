@@ -43,7 +43,9 @@ namespace Reality404.BuildGate
     {
         const string CameraPermission = "horizonos.permission.HEADSET_CAMERA";
 
-        public static List<GateResult> RunAll(string projectRoot)
+        public static List<GateResult> RunAll(string projectRoot) => RunAll(projectRoot, null);
+
+        public static List<GateResult> RunAll(string projectRoot, IEnumerable<string> scenes)
         {
             var cfg = GateConfig.Load(projectRoot);
             var r = new List<GateResult>();
@@ -51,7 +53,7 @@ namespace Reality404.BuildGate
             CheckRenderPipeline(projectRoot, r);
             if (cfg.RequireCameraPermission) CheckManifest(projectRoot, r);
             string rigGuid = FindCameraRigGuid(projectRoot);
-            foreach (string scene in EnabledScenes(projectRoot)) CheckScene(projectRoot, scene, rigGuid, r);
+            foreach (string scene in scenes ?? EnabledScenes(projectRoot)) CheckScene(projectRoot, scene, rigGuid, r);
             CheckOutlineMaterials(projectRoot, r);
             CheckForbiddenApis(projectRoot, cfg.ForbiddenApis, r);
             CheckHandTracking(projectRoot, r);

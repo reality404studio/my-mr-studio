@@ -21,7 +21,8 @@ namespace Reality404.BuildGate.Editor
             if (report.summary.platform != BuildTarget.Android) return;
             string root = Directory.GetParent(UnityEngine.Application.dataPath).FullName;
             var cfg = GateConfig.Load(root);
-            var results = GateFileChecks.RunAll(root);
+            var scenes = EditorBuildSettings.scenes.Where(s => s.enabled).Select(s => s.path).ToList();
+            var results = GateFileChecks.RunAll(root, scenes);
 
             bool dev = (report.summary.options & BuildOptions.Development) != 0;
             if (!dev) results.Add(new GateResult { Level = GateLevel.Warn, Check = "development-build", Message = "Development Build 꺼짐 → logcat 에 Debug.Log 가 안 뜬다" });
