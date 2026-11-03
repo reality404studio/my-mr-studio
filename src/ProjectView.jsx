@@ -185,7 +185,7 @@ function Project({ pid, initialNode }) {
 
   const tops = useMemo(() => (pipeline?.nodes || []).filter((n) => !n.parent), [pipeline]);
   const counts = useMemo(() => {
-    const c = { total: 0, done: 0, doing: 0, review: 0, blocked: 0 };
+    const c = { total: 0, done: 0, doing: 0, review: 0, proof: 0, blocked: 0 };
     for (const n of tops) { c.total++; if (c[n.status] !== undefined) c[n.status]++; }
     return c;
   }, [tops]);
@@ -221,6 +221,7 @@ function Project({ pid, initialNode }) {
           <span>과업 <strong>{counts.done}</strong>/{counts.total} 완료</span>
           {counts.doing > 0 && <span className="is-doing">진행 중 {counts.doing}</span>}
           {counts.review > 0 && <span className="is-review">확인 필요 {counts.review}</span>}
+          {counts.proof > 0 && <span className="is-proof">증명 {counts.proof}</span>}
           {counts.blocked > 0 && <span className="is-blocked">막힘 {counts.blocked}</span>}
         </div>
         <div className="bar__actions">

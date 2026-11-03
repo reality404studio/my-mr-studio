@@ -21,7 +21,24 @@ export const KINDS = {
   verify: '검증',
 };
 export const ACTORS = { human: '사람', agent: '에이전트' };
-export const STATUSES = ['todo', 'doing', 'review', 'done', 'blocked'];
+export const STATUSES = ['todo', 'doing', 'review', 'proof', 'done', 'blocked'];
+
+// 증명 게이트: 에이전트 카드(하위 과업이 없는 과업, 또는 하위 과업)는 proof 를 거쳐야 done 이 된다.
+// 사람(by human) 카드와 공통 과업은 게이트 밖이다.
+export function isGated(node, hasKids) {
+  return !hasKids && node.type !== 'shared' && node.by !== 'human';
+}
+
+// done 으로 갈 수 없는 이유 목록. 빈 배열이면 통과.
+export function proofGaps(node, assets) {
+  const gaps = [];
+  if (!String(node.success || '').trim()) gaps.push('성공 조건(success)이 비어 있어요. set <id> --success "무엇이 관찰되면 끝인지"');
+  if (node.status !== 'proof') gaps.push(`지금 상태가 ${node.status || 'todo'} 예요. 먼저 status <id> proof 로 "증명"에 올리세요`);
+  const since = node.proofAt || '';
+  const evidence = (assets || []).filter((a) => a.addedAt && a.addedAt >= since && String(a.memo || '').trim());
+  if (node.status === 'proof' && evidence.length === 0) gaps.push('증명에 올린 뒤 붙인 증거 파일(메모 포함)이 없어요. proof <id> <파일> --memo "무엇을 증명하는지"');
+  return gaps;
+}
 
 // 예전(v2, 자유 배치) 파이프라인을 단계 구조로 바꾼다. 위치의 x 열을 단계로, y 를 순서로 쓴다.
 export function normalize(p) {
@@ -53,6 +70,7 @@ function combine(statuses) {
   if (statuses.every((s) => s === 'done')) return 'done';
   if (statuses.includes('blocked')) return 'blocked';
   if (statuses.includes('review')) return 'review';
+  if (statuses.includes('proof')) return 'proof';
   if (statuses.includes('doing') || statuses.includes('done')) return 'doing';
   return 'todo';
 }

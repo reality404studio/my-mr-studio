@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "vite build",
     "start": "vite build && vite preview --port 5173",
-    "studio": "node scripts/studio.mjs"
+    "studio": "node scripts/studio.mjs",
+    "test": "node --test test/*.test.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.3.0",

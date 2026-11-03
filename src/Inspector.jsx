@@ -112,6 +112,10 @@ export default function Inspector({ api, isShared, detail, stages, nodesById, sh
         </div>
       ))}
 
+      {!isRef && !hasKids && (
+        <TextField multiline value={node.success || ''} placeholder="무엇이 관찰되면 끝인지 (테스트 통과, 배치 빌드 결과, 재생 로그 …)" onSave={(v) => patch({ success: v })} label="성공 조건" />
+      )}
+
       {isSub ? (
         <TextField multiline value={node.how || ''} placeholder="어떻게 하는지, 결과를 어디에 남기는지" onSave={(v) => patch({ how: v })} label="방법" />
       ) : !isRef && (

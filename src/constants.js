@@ -15,6 +15,7 @@ export const STATUSES = {
   todo: '대기',
   doing: '진행 중',
   review: '확인 필요',
+  proof: '증명',
   done: '완료',
   blocked: '막힘',
 };

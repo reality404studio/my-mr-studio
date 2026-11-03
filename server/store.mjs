@@ -13,9 +13,9 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
-import { KINDS, ACTORS, STATUSES, normalize, derive, nextActions, stageOrder } from './board.mjs';
+import { KINDS, ACTORS, STATUSES, normalize, derive, nextActions, stageOrder, isGated, proofGaps } from './board.mjs';
 
-export { KINDS, ACTORS, STATUSES };
+export { KINDS, ACTORS, STATUSES, isGated, proofGaps };
 export const NODE_TYPES = ['reference', 'concept', 'prompt', 'video', 'storyboard', 'spec', 'build', 'review', 'note', 'shared'];
 export const SHARED_ID = 'shared';
 
@@ -383,8 +383,9 @@ function createProjectStore(dir, pid, ctx) {
 
     // ---------- 과업과 하위 과업 ----------
     createNode(actor, input = {}) {
-      const { type = 'note', title, status = 'todo', owner = '', id, ref, stage, parent, kind, by, how, goal, output } = input;
+      const { type = 'note', title, status = 'todo', owner = '', id, ref, stage, parent, kind, by, how, goal, output, success } = input;
       cleanFields({ type, kind, by, status });
+      if ((status === 'done' || status === 'proof') && type !== 'shared' && (by || 'agent') !== 'human') throw httpError(400, '에이전트 카드는 done/proof 상태로 바로 만들 수 없어요. 만든 뒤 proof → 증거 → done 순서로 옮기세요.');
       if (type === 'shared' && isShared) throw httpError(400, '공통 보드 안에는 "공통" 과업을 둘 수 없어요.');
       return mutate((p) => {
         let node;
@@ -398,6 +399,7 @@ function createProjectStore(dir, pid, ctx) {
           if (!title?.trim()) throw httpError(400, '하위 과업 이름을 적어 주세요.');
           node = { ...base, parent, kind: kind || 'write', by: by || 'agent', status, order: nextOrder(p, { parent }) };
           if (how) node.how = how;
+          if (success) node.success = success;
         } else {
           const st = stage ? getStage(p, stage).id : p.stages[0].id;
           if (type !== 'shared' && !title?.trim()) throw httpError(400, '과업 이름을 적어 주세요.');
@@ -408,6 +410,7 @@ function createProjectStore(dir, pid, ctx) {
           if (output) node.output = output;
           if (by) node.by = by;
           if (how) node.how = how;
+          if (success) node.success = success;
         }
         p.nodes.push(node);
         if (!parent && type !== 'shared') {
@@ -421,7 +424,7 @@ function createProjectStore(dir, pid, ctx) {
 
     updateNode(actor, id, patch) {
       cleanFields(patch);
-      const allowed = ['title', 'status', 'owner', 'type', 'ref', 'stage', 'parent', 'kind', 'by', 'how', 'goal', 'output'];
+      const allowed = ['title', 'success', 'status', 'by', 'owner', 'type', 'ref', 'stage', 'parent', 'kind', 'how', 'goal', 'output'];
       return mutate((p) => {
         const node = getNode(p, id);
         const hasKids = p.nodes.some((n) => n.parent === id);
@@ -431,6 +434,14 @@ function createProjectStore(dir, pid, ctx) {
           if (JSON.stringify(node[k] ?? '') === JSON.stringify(patch[k])) continue;
           if (k === 'status' && node.type === 'shared') throw httpError(400, '"공통" 과업의 상태는 공통 보드에서 바꿔요.');
           if (k === 'status' && hasKids) throw httpError(400, `"${node.title}"의 상태는 하위 과업에서 계산돼요. 하위 과업의 상태를 바꾸세요. (show ${id})`);
+          if (k === 'status' && patch.status === 'done' && isGated(node, hasKids)) {
+            const gaps = proofGaps(node, readAssets(id));
+            if (node.proofBy && node.proofBy === actor) gaps.push(`증명에 올린 이름(${actor})이 직접 done 할 수 없어요. 다른 세션이 --as "<다른 이름>" 으로 카드·성공 조건·증거만 보고 옮기세요 (proofs --app <앱>)`);
+            if (gaps.length) throw httpError(409, `"${node.title}" 은(는) 아직 done 으로 못 가요:\n- ${gaps.join('\n- ')}`);
+          }
+          if (k === 'success' && node.status === 'done' && isGated(node, hasKids)) throw httpError(409, `"${node.title}" 은(는) 이미 증명을 거쳐 done 이에요. 증명한 성공 조건은 바꿀 수 없어요. 조건이 달라졌으면 새 카드를 만드세요.`);
+          if (k === 'by' && patch.by === 'human' && isGated(node, hasKids) && (node.status || 'todo') !== 'todo') throw httpError(409, `"${node.title}" 은(는) 이미 시작된 에이전트 카드예요. 하는 쪽을 사람으로 바꾸면 증명 게이트를 건너뛰게 돼서, todo 일 때만 바꿀 수 있어요.`);
+          if (k === 'status' && patch.status === 'proof') { node.proofAt = new Date().toISOString(); node.proofBy = actor; }
           if (k === 'stage') {
             if (node.parent) throw httpError(400, '하위 과업은 과업을 따라 움직여요. 과업의 단계를 바꾸세요.');
             getStage(p, patch.stage);
