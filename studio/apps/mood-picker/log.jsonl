@@ -1,0 +1,182 @@
+{"ts":"2026-11-02T15:29:45.926Z","actor":"human","action":"app.create","nodeId":null,"detail":"스토리보드 우선 모드로 생성"}
+{"ts":"2026-11-03T03:13:12.215Z","actor":"Claude Code","action":"node.archive","nodeId":"concept","detail":"하위 과업 5개 포함"}
+{"ts":"2026-11-03T03:13:12.216Z","actor":"Claude Code","action":"node.archive","nodeId":"moodboard","detail":"하위 과업 3개 포함"}
+{"ts":"2026-11-03T03:13:12.217Z","actor":"Claude Code","action":"node.archive","nodeId":"storyboard","detail":"하위 과업 3개 포함"}
+{"ts":"2026-11-03T03:13:12.218Z","actor":"Claude Code","action":"node.archive","nodeId":"use-calibration"}
+{"ts":"2026-11-03T03:13:12.218Z","actor":"Claude Code","action":"node.archive","nodeId":"greybox","detail":"하위 과업 3개 포함"}
+{"ts":"2026-11-03T03:13:12.219Z","actor":"Claude Code","action":"node.archive","nodeId":"usability-test","detail":"하위 과업 3개 포함"}
+{"ts":"2026-11-03T03:13:12.219Z","actor":"Claude Code","action":"node.archive","nodeId":"spec","detail":"하위 과업 4개 포함"}
+{"ts":"2026-11-03T03:13:12.220Z","actor":"Claude Code","action":"node.archive","nodeId":"build","detail":"하위 과업 6개 포함"}
+{"ts":"2026-11-03T03:13:12.221Z","actor":"Claude Code","action":"node.archive","nodeId":"review","detail":"하위 과업 3개 포함"}
+{"ts":"2026-11-03T03:13:12.221Z","actor":"Claude Code","action":"stage.update","nodeId":null,"detail":"정의"}
+{"ts":"2026-11-03T03:13:12.222Z","actor":"Claude Code","action":"stage.update","nodeId":null,"detail":"설계"}
+{"ts":"2026-11-03T03:13:12.222Z","actor":"Claude Code","action":"stage.update","nodeId":null,"detail":"셋업"}
+{"ts":"2026-11-03T03:13:12.223Z","actor":"Claude Code","action":"stage.delete","nodeId":null,"detail":"명세"}
+{"ts":"2026-11-03T03:13:12.223Z","actor":"Claude Code","action":"stage.update","nodeId":null,"detail":"구현"}
+{"ts":"2026-11-03T03:13:12.223Z","actor":"Claude Code","action":"stage.update","nodeId":null,"detail":"마감"}
+{"ts":"2026-11-03T03:13:12.224Z","actor":"Claude Code","action":"node.create","nodeId":"use-unity-guardrails","detail":"unity-guardrails"}
+{"ts":"2026-11-03T03:13:12.224Z","actor":"Claude Code","action":"node.create","nodeId":"use-unity-version","detail":"unity-version"}
+{"ts":"2026-11-03T03:13:12.225Z","actor":"Claude Code","action":"node.create","nodeId":"submit-meta","detail":"제출 정보 결정"}
+{"ts":"2026-11-03T03:13:12.225Z","actor":"Claude Code","action":"sub.create","nodeId":"submit-meta-check","detail":"부문 근거: 2026-09-24 이전 코드·빌드가 있는지"}
+{"ts":"2026-11-03T03:13:12.226Z","actor":"Claude Code","action":"sub.create","nodeId":"submit-meta-decide","detail":"이름 · 트랙 · 부문 결정"}
+{"ts":"2026-11-03T03:13:12.226Z","actor":"Claude Code","action":"node.create","nodeId":"setup","detail":"Unity 셋업 + First Light"}
+{"ts":"2026-11-03T03:13:12.227Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-guardrails","detail":"가드레일 읽고 이번 셋업 체크리스트 뽑기"}
+{"ts":"2026-11-03T03:13:12.227Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-project","detail":"Unity 프로젝트 생성 + Meta SDK·MRUK 임포트 + XR 플러그인"}
+{"ts":"2026-11-03T03:13:12.228Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-files","detail":"설정 파일 점검"}
+{"ts":"2026-11-03T03:13:12.228Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-scene","detail":"씬: Camera Rig + Passthrough + 손 추적 + 카메라 접근 켜기"}
+{"ts":"2026-11-03T03:13:12.229Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-firstlight","detail":"First Light 스크립트: 정면 Unlit 큐브 + 카메라 텍스처 쿼드 + 손끝 점"}
+{"ts":"2026-11-03T03:13:12.229Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-device","detail":"실기 First Light: 방 + 가상 + 카메라 텍스처 + 손이 한 화면에"}
+{"ts":"2026-11-03T03:13:12.230Z","actor":"Claude Code","action":"node.create","nodeId":"catch","detail":"Catch: 채집 원 · 크롭 · 2톤"}
+{"ts":"2026-11-03T03:13:12.230Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-ray","detail":"머리 방향 레이로 채집 중심"}
+{"ts":"2026-11-03T03:13:12.231Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-pinch","detail":"엄지-검지 간격 → 채집 원 반경, 붙이면 담기"}
+{"ts":"2026-11-03T03:13:12.231Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-crop","detail":"월드 → 카메라 이미지 투영, 영역만 크롭"}
+{"ts":"2026-11-03T03:13:12.232Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-cel","detail":"CelExtract: 2~3톤 + 빛 방향 근사"}
+{"ts":"2026-11-03T03:13:12.232Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-store","detail":"PaintStore: 물감 JSON 저장·로드"}
+{"ts":"2026-11-03T03:13:12.233Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-device","detail":"실기: 실내·창밖에서 담아 보기"}
+{"ts":"2026-11-03T03:13:12.233Z","actor":"Claude Code","action":"node.create","nodeId":"loop","detail":"LoopCapture: 물결 루프"}
+{"ts":"2026-11-03T03:13:12.234Z","actor":"Claude Code","action":"sub.create","nodeId":"loop-frames","detail":"약 2초, 10~15fps 크롭 프레임 수집"}
+{"ts":"2026-11-03T03:13:12.234Z","actor":"Claude Code","action":"sub.create","nodeId":"loop-seam","detail":"끝-시작 크로스페이드 + 플립북"}
+{"ts":"2026-11-03T03:13:12.234Z","actor":"Claude Code","action":"sub.create","nodeId":"loop-gaze","detail":"응시 시간 → 진하기 · 루프 길이"}
+{"ts":"2026-11-03T03:13:12.235Z","actor":"Claude Code","action":"sub.create","nodeId":"loop-device","detail":"실기: 물결 루프가 이음매 없이 도는지"}
+{"ts":"2026-11-03T03:13:12.236Z","actor":"Claude Code","action":"node.create","nodeId":"portal","detail":"팔레트 포탈 (왼손바닥)"}
+{"ts":"2026-11-03T03:13:12.236Z","actor":"Claude Code","action":"sub.create","nodeId":"portal-palm","detail":"왼손바닥 위로 뒤집기 감지 → 포탈 열기"}
+{"ts":"2026-11-03T03:13:12.236Z","actor":"Claude Code","action":"sub.create","nodeId":"portal-dip","detail":"오른손가락 넣었다 빼기 → 손끝에 물감"}
+{"ts":"2026-11-03T03:13:12.237Z","actor":"Claude Code","action":"sub.create","nodeId":"portal-device","detail":"실기: 두 손이 가까워도 추적이 안 흔들리고 시스템 메뉴가 안 뜨는지"}
+{"ts":"2026-11-03T03:13:12.237Z","actor":"Claude Code","action":"node.create","nodeId":"dab","detail":"Dab: 푝 + 셀 셰이더"}
+{"ts":"2026-11-03T03:13:12.238Z","actor":"Claude Code","action":"sub.create","nodeId":"dab-decide","detail":"결정: 집 무대(CRT 세계 유지?), 오브제 목록, 손 판단 방식"}
+{"ts":"2026-11-03T03:13:12.239Z","actor":"Claude Code","action":"sub.create","nodeId":"dab-shader","detail":"CelShader: 트라이플래너 + 2톤 램프 + lightDir + 남색 외곽선 + 플립북"}
+{"ts":"2026-11-03T03:13:12.240Z","actor":"Claude Code","action":"sub.create","nodeId":"dab-mask","detail":"DabPaint: 접촉점 → 페인트 마스크 번짐"}
+{"ts":"2026-11-03T03:13:12.240Z","actor":"Claude Code","action":"sub.create","nodeId":"dab-judge","detail":"HandJudge 휴리스틱: 톡 / 꾹"}
+{"ts":"2026-11-03T03:13:12.241Z","actor":"Claude Code","action":"sub.create","nodeId":"dab-objects","detail":"오브제 3종 (페트병부터)"}
+{"ts":"2026-11-03T03:13:12.241Z","actor":"Claude Code","action":"sub.create","nodeId":"dab-device","detail":"실기: 페트병에 \"푝\" → 셀 물결이 흐르고 72fps"}
+{"ts":"2026-11-03T03:13:12.242Z","actor":"Claude Code","action":"node.create","nodeId":"export","detail":"내보내기 + 저장·재개"}
+{"ts":"2026-11-03T03:13:12.242Z","actor":"Claude Code","action":"sub.create","nodeId":"export-glb","detail":"GLB (메시 + 정지 텍스처), glTFast"}
+{"ts":"2026-11-03T03:13:12.243Z","actor":"Claude Code","action":"sub.create","nodeId":"export-sheet","detail":"루프 스프라이트 시트 PNG + 셰이더 파라미터 JSON"}
+{"ts":"2026-11-03T03:13:12.243Z","actor":"Claude Code","action":"sub.create","nodeId":"export-resume","detail":"저장·재개 + 빠른 시작"}
+{"ts":"2026-11-03T03:13:12.244Z","actor":"Claude Code","action":"sub.create","nodeId":"export-device","detail":"실기: 내보낸 파일을 adb pull 해서 PC에서 열어 보기"}
+{"ts":"2026-11-03T03:13:12.245Z","actor":"Claude Code","action":"node.create","nodeId":"polish","detail":"폴리시 + 디자인 테스트"}
+{"ts":"2026-11-03T03:13:12.246Z","actor":"Claude Code","action":"sub.create","nodeId":"polish-onboard","detail":"첫 5분 온보딩"}
+{"ts":"2026-11-03T03:13:12.246Z","actor":"Claude Code","action":"sub.create","nodeId":"polish-sound","detail":"사운드 + 셀 외곽선 정리"}
+{"ts":"2026-11-03T03:13:12.247Z","actor":"Claude Code","action":"sub.create","nodeId":"polish-eye","detail":"(선택) 눈 추적 층"}
+{"ts":"2026-11-03T03:13:12.247Z","actor":"Claude Code","action":"sub.create","nodeId":"polish-handsonly","detail":"핸즈 온리 완주: 컨트롤러 끄고 처음부터 끝까지"}
+{"ts":"2026-11-03T03:13:12.248Z","actor":"Claude Code","action":"sub.create","nodeId":"polish-tests","detail":"비행기 좌석(60cm, 앉아서) · 버스 한 정거장 · 가져가 보기"}
+{"ts":"2026-11-03T03:13:12.248Z","actor":"Claude Code","action":"node.create","nodeId":"demo-video","detail":"데모 영상 (3분 미만)"}
+{"ts":"2026-11-03T03:13:12.249Z","actor":"Claude Code","action":"sub.create","nodeId":"demo-conti","detail":"콘티: 첫 20초 + 3분 구성"}
+{"ts":"2026-11-03T03:13:12.250Z","actor":"Claude Code","action":"sub.create","nodeId":"demo-shoot-commute","detail":"전철 실제 채집 장면 (여러 날)"}
+{"ts":"2026-11-03T03:13:12.250Z","actor":"Claude Code","action":"sub.create","nodeId":"demo-shoot-home","detail":"집 장면: 포탈 → 푝 → 물결"}
+{"ts":"2026-11-03T03:13:12.251Z","actor":"Claude Code","action":"sub.create","nodeId":"demo-edit","detail":"편집 + 공개 업로드"}
+{"ts":"2026-11-03T03:13:12.252Z","actor":"Claude Code","action":"node.create","nodeId":"submit","detail":"제출"}
+{"ts":"2026-11-03T03:13:12.252Z","actor":"Claude Code","action":"sub.create","nodeId":"submit-form","detail":"제출 폼 초안: 140자 태그라인, 500단어 설명, 손 인터랙션 설명"}
+{"ts":"2026-11-03T03:13:12.253Z","actor":"Claude Code","action":"sub.create","nodeId":"submit-apk","detail":"APK를 \"Competition\" 릴리스 채널에 업로드, 초대 URL 확인"}
+{"ts":"2026-11-03T03:13:12.253Z","actor":"Claude Code","action":"sub.create","nodeId":"submit-final","detail":"Devpost 제출 + 확인"}
+{"ts":"2026-11-03T03:13:12.255Z","actor":"Claude Code","action":"node.update","nodeId":"brief-draft","detail":"status=done"}
+{"ts":"2026-11-03T03:13:12.256Z","actor":"Claude Code","action":"node.update","nodeId":"usage-flow-draft","detail":"status=done"}
+{"ts":"2026-11-03T03:13:12.256Z","actor":"Claude Code","action":"node.update","nodeId":"usage-flow","detail":"goal=전철 채집 → 집에서 바르기까지, 그리고 중단·재개"}
+{"ts":"2026-11-03T03:13:12.257Z","actor":"Claude Code","action":"edge.create","nodeId":"brief","detail":"→ usage-flow"}
+{"ts":"2026-11-03T03:13:12.258Z","actor":"Claude Code","action":"edge.create","nodeId":"use-unity-version","detail":"→ setup"}
+{"ts":"2026-11-03T03:13:12.258Z","actor":"Claude Code","action":"edge.create","nodeId":"setup","detail":"→ catch"}
+{"ts":"2026-11-03T03:13:12.259Z","actor":"Claude Code","action":"edge.create","nodeId":"catch","detail":"→ loop"}
+{"ts":"2026-11-03T03:13:12.259Z","actor":"Claude Code","action":"edge.create","nodeId":"catch","detail":"→ portal"}
+{"ts":"2026-11-03T03:13:12.260Z","actor":"Claude Code","action":"edge.create","nodeId":"portal","detail":"→ dab"}
+{"ts":"2026-11-03T03:13:12.261Z","actor":"Claude Code","action":"edge.create","nodeId":"dab","detail":"→ export"}
+{"ts":"2026-11-03T03:13:12.261Z","actor":"Claude Code","action":"edge.create","nodeId":"loop","detail":"→ export"}
+{"ts":"2026-11-03T03:13:12.262Z","actor":"Claude Code","action":"edge.create","nodeId":"export","detail":"→ polish"}
+{"ts":"2026-11-03T03:13:12.263Z","actor":"Claude Code","action":"edge.create","nodeId":"usage-flow","detail":"→ polish"}
+{"ts":"2026-11-03T03:13:12.263Z","actor":"Claude Code","action":"edge.create","nodeId":"catch","detail":"→ demo-video"}
+{"ts":"2026-11-03T03:13:12.264Z","actor":"Claude Code","action":"edge.create","nodeId":"polish","detail":"→ submit"}
+{"ts":"2026-11-03T03:13:12.264Z","actor":"Claude Code","action":"edge.create","nodeId":"demo-video","detail":"→ submit"}
+{"ts":"2026-11-03T03:13:12.265Z","actor":"Claude Code","action":"edge.create","nodeId":"submit-meta","detail":"→ submit"}
+{"ts":"2026-11-03T03:13:12.266Z","actor":"Claude Code","action":"edge.create","nodeId":"polish","detail":"→ dab"}
+{"ts":"2026-11-03T03:29:34.531Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-gate","detail":"빌드 게이트 + 빌드 ID (unity/shared/BuildGate/)"}
+{"ts":"2026-11-03T03:29:34.532Z","actor":"Claude Code","action":"sub.create","nodeId":"setup-preflight","detail":"사전 점검 스크립트 (에이전트용)"}
+{"ts":"2026-11-03T03:29:34.533Z","actor":"Claude Code","action":"node.move","nodeId":"setup-gate","detail":"위로"}
+{"ts":"2026-11-03T03:29:34.536Z","actor":"Claude Code","action":"node.move","nodeId":"setup-gate","detail":"위로"}
+{"ts":"2026-11-03T03:29:34.536Z","actor":"Claude Code","action":"node.move","nodeId":"setup-preflight","detail":"위로"}
+{"ts":"2026-11-03T03:29:34.537Z","actor":"Claude Code","action":"node.move","nodeId":"setup-preflight","detail":"위로"}
+{"ts":"2026-11-03T03:29:34.538Z","actor":"Claude Code","action":"node.update","nodeId":"setup-device","detail":"how=Development Build 설치. 에이전트가 logcat·screencap 으로 같이 확인 (가드레일 §6) · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.539Z","actor":"Claude Code","action":"node.update","nodeId":"catch-device","detail":"how=흔들려도 원이 따라오는지, 톤이 그럴듯한지. MQDH 캐스팅으로 같이 본다 · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.540Z","actor":"Claude Code","action":"node.update","nodeId":"loop-device","detail":"how= · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.540Z","actor":"Claude Code","action":"node.update","nodeId":"portal-device","detail":"how= · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.541Z","actor":"Claude Code","action":"node.update","nodeId":"dab-device","detail":"how= · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.541Z","actor":"Claude Code","action":"node.update","nodeId":"export-device","detail":"how= · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.542Z","actor":"Claude Code","action":"node.update","nodeId":"polish-handsonly","detail":"how=하드 요구사항. 디버그용으로 켰던 컨트롤러 의존(샘플의 A/B 버튼 등)이 남았는지 · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:29:34.543Z","actor":"Claude Code","action":"node.update","nodeId":"polish-tests","detail":"how=결과를 polish README 표에 · 증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:30:15.594Z","actor":"Claude Code","action":"node.update","nodeId":"loop-device","detail":"how=증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:30:15.795Z","actor":"Claude Code","action":"node.update","nodeId":"portal-device","detail":"how=증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:30:15.992Z","actor":"Claude Code","action":"node.update","nodeId":"dab-device","detail":"how=증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:30:16.191Z","actor":"Claude Code","action":"node.update","nodeId":"export-device","detail":"how=증거: 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 첨부해야 done"}
+{"ts":"2026-11-03T03:32:48.532Z","actor":"Claude Code","action":"notes.append","nodeId":"submit-meta","detail":"부문 근거 조사 (2026-11-03): 이 앱의 코드·폴더는 전부 2026-11-02 이후 생성 (my-vr-colorpicker 폴더 11-"}
+{"ts":"2026-11-03T03:32:48.729Z","actor":"Claude Code","action":"node.update","nodeId":"submit-meta-check","detail":"status=done"}
+{"ts":"2026-11-03T03:37:04.952Z","actor":"Claude Code","action":"node.update","nodeId":"brief-confirm","detail":"status=done"}
+{"ts":"2026-11-03T03:37:05.155Z","actor":"Claude Code","action":"node.update","nodeId":"usage-flow-confirm","detail":"status=done"}
+{"ts":"2026-11-03T03:37:05.381Z","actor":"Claude Code","action":"node.update","nodeId":"submit-meta-decide","detail":"status=done"}
+{"ts":"2026-11-03T03:37:05.575Z","actor":"Claude Code","action":"node.update","nodeId":"dab-decide","detail":"status=done"}
+{"ts":"2026-11-03T03:37:05.783Z","actor":"Claude Code","action":"node.update","nodeId":"dab-objects","detail":"title=오브제: 페트병 하나 먼저 (나머지는 시간 남으면), how=폴리 예산 지키기. 의자·머그는 MVP 이후"}
+{"ts":"2026-11-03T03:37:05.985Z","actor":"Claude Code","action":"node.update","nodeId":"dab-judge","detail":"how=접근 속도, 관통 깊이, 손가락 굽힘. 휴리스틱만 (ML 분류기 안 함, 2026-11-03 결정)"}
+{"ts":"2026-11-03T03:37:06.181Z","actor":"Claude Code","action":"node.update","nodeId":"dab","detail":"output=DabPaint, CelShader, HandJudge, 페트병"}
+{"ts":"2026-11-03T03:37:06.383Z","actor":"Claude Code","action":"sub.create","nodeId":"polish-build-d13d","detail":"첫 실행용 기본 물감 번들"}
+{"ts":"2026-11-03T03:37:06.776Z","actor":"Claude Code","action":"node.move","nodeId":"polish-build-d13d","detail":"위로"}
+{"ts":"2026-11-03T03:37:06.978Z","actor":"Claude Code","action":"node.move","nodeId":"polish-build-d13d","detail":"위로"}
+{"ts":"2026-11-03T03:37:07.181Z","actor":"Claude Code","action":"node.move","nodeId":"polish-build-d13d","detail":"위로"}
+{"ts":"2026-11-03T03:37:07.382Z","actor":"Claude Code","action":"node.move","nodeId":"polish-build-d13d","detail":"위로"}
+{"ts":"2026-11-03T03:37:07.579Z","actor":"Claude Code","action":"node.move","nodeId":"polish-build-d13d","detail":"위로"}
+{"ts":"2026-11-03T03:40:00.427Z","actor":"Claude Code","action":"node.update","nodeId":"setup-project","detail":"how=unity/mood-picker/ 는 이미 git 레포(reality404studio/meta-mr-picker)라 비어 있지 않음 → Hub에서 URP 프로젝트를 unity/_new/mood-picker 에 만들고, 에이전트가 Assets·Packages·ProjectSettings 를 unity/mood-picker/ 로 옮긴다. Android 전환, ASTC. XR 플러그인은 OpenXR 하나 (가드레일 §2). Project Setup Tool Fix All"}
+{"ts":"2026-11-03T03:40:24.918Z","actor":"Claude Code","action":"node.create","nodeId":"world","detail":"세계관: 기준안 깨기"}
+{"ts":"2026-11-03T03:40:24.919Z","actor":"Claude Code","action":"sub.create","nodeId":"world-baseline","detail":"측정용 기준안 세계관"}
+{"ts":"2026-11-03T03:40:24.920Z","actor":"Claude Code","action":"sub.create","nodeId":"world-map","detail":"관습·기능·예측 지도 표"}
+{"ts":"2026-11-03T03:40:24.921Z","actor":"Claude Code","action":"sub.create","nodeId":"world-seed","detail":"바깥 씨앗 던지기"}
+{"ts":"2026-11-03T03:40:24.922Z","actor":"Claude Code","action":"sub.create","nodeId":"world-pick","detail":"깰 지점 2~3개 고르기"}
+{"ts":"2026-11-03T03:40:24.922Z","actor":"Claude Code","action":"sub.create","nodeId":"world-diverge","detail":"지점별 대안 5개"}
+{"ts":"2026-11-03T03:40:24.923Z","actor":"Claude Code","action":"sub.create","nodeId":"world-choose","detail":"조합 고르기"}
+{"ts":"2026-11-03T03:40:24.924Z","actor":"Claude Code","action":"sub.create","nodeId":"world-remeasure","detail":"재측정: 고른 조합을 다시 지도에"}
+{"ts":"2026-11-03T03:40:24.925Z","actor":"Claude Code","action":"edge.create","nodeId":"world","detail":"→ demo-video"}
+{"ts":"2026-11-03T03:40:24.925Z","actor":"Claude Code","action":"edge.create","nodeId":"world","detail":"→ polish"}
+{"ts":"2026-11-03T03:43:37.515Z","actor":"Claude Code","action":"notes.append","nodeId":"world","detail":"사람 고민 (2026-11-03): 지브리풍 일상 마법(동화, '마법처럼 일상을 채집') vs 인스타 인디 아티스트 감성(에디토리얼, '당신의 "}
+{"ts":"2026-11-03T03:53:45.996Z","actor":"Claude Code","action":"notes.append","nodeId":"world","detail":"## 씨앗: 사람 레퍼런스 (my-vr-colorpicker/ref/, 10장, 2026-11-03)\n\n- 동화 쪽: 과슈 질감 검은 고양이(r"}
+{"ts":"2026-11-03T03:53:56.045Z","actor":"Claude Code","action":"notes.append","nodeId":"world","detail":"## 3단계 — 동화 × 에디토리얼을 붙이는 방식 5개 (서로 다른 축)\n\n지키는 기능: 세계를 설명하는 일(지도 12)은 대사 없이도 되게, "}
+{"ts":"2026-11-03T03:57:10.938Z","actor":"Claude Code","action":"node.update","nodeId":"world-seed","detail":"status=done"}
+{"ts":"2026-11-03T03:57:11.144Z","actor":"Claude Code","action":"node.update","nodeId":"world-pick","detail":"status=done"}
+{"ts":"2026-11-03T03:57:11.368Z","actor":"Claude Code","action":"notes.append","nodeId":"world","detail":"## 2단계 결과 (사람, 2026-11-03)\n> \"감각-눈은 에디토리얼, 귀는 동화라는 두 축은 마음에 드네요\" / \"이걸 사용하는 사람이 "}
+{"ts":"2026-11-03T03:57:11.668Z","actor":"Claude Code","action":"node.update","nodeId":"world-diverge","detail":"status=review"}
+{"ts":"2026-11-03T03:57:30.779Z","actor":"Claude Code","action":"notes.append","nodeId":"world","detail":"## 3단계 — 지도 2번 '나는 어떤 사람인가' 대안 5개\n기준안(평균): 견습 빛 채집가 / 감각 있는 창작자. 지키는 기능: 사용자에게 역"}
+{"ts":"2026-11-03T04:03:01.723Z","actor":"Claude Code","action":"node.update","nodeId":"world-diverge","detail":"status=done"}
+{"ts":"2026-11-03T04:03:01.944Z","actor":"Claude Code","action":"node.update","nodeId":"world-choose","detail":"status=done"}
+{"ts":"2026-11-03T04:03:02.148Z","actor":"Claude Code","action":"node.update","nodeId":"world-remeasure","detail":"status=review"}
+{"ts":"2026-11-03T04:03:02.221Z","actor":"Claude Code","action":"node.create","nodeId":"interface","detail":"인터페이스 언어: 모던 매지션"}
+{"ts":"2026-11-03T04:03:02.222Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-palette","detail":"팔레트 다시 고르기 (CRT 팔레트 폐기 여부)"}
+{"ts":"2026-11-03T04:03:02.223Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-texture","detail":"질감: 2톤 셀 유지 / 회화 질감 섞기"}
+{"ts":"2026-11-03T04:03:02.224Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-fonts","detail":"폰트 후보: 도면 레터링 · 에디토리얼 세리프 · 한글"}
+{"ts":"2026-11-03T04:03:02.224Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-hud","detail":"실측 HUD 시안 (측량 원, 응시 카운터, 방위, 표제란)"}
+{"ts":"2026-11-03T04:03:02.225Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-tile","detail":"재료 타일 + 표제란 라벨 시안"}
+{"ts":"2026-11-03T04:03:02.226Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-sound","detail":"소리 방향표 (동화)"}
+{"ts":"2026-11-03T04:03:02.227Z","actor":"Claude Code","action":"sub.create","nodeId":"interface-confirm","detail":"인터페이스 언어 확정"}
+{"ts":"2026-11-03T04:03:02.227Z","actor":"Claude Code","action":"edge.create","nodeId":"world","detail":"→ interface"}
+{"ts":"2026-11-03T04:03:02.228Z","actor":"Claude Code","action":"edge.create","nodeId":"interface","detail":"→ polish"}
+{"ts":"2026-11-03T04:03:02.229Z","actor":"Claude Code","action":"edge.create","nodeId":"interface","detail":"→ demo-video"}
+{"ts":"2026-11-03T04:05:51.340Z","actor":"Claude Code","action":"notes.append","nodeId":"interface","detail":"2026-11-03 사람 결정: 팔레트는 레퍼런스 쪽(r4 하늘, r7·r10 빨강 포인트, r9·r10 코발트·클라인 블루, 흰 여백)으로. "}
+{"ts":"2026-11-03T04:05:51.537Z","actor":"Claude Code","action":"node.update","nodeId":"interface-palette","detail":"status=done"}
+{"ts":"2026-11-03T04:05:51.755Z","actor":"Claude Code","action":"node.update","nodeId":"interface-texture","detail":"status=done"}
+{"ts":"2026-11-03T04:05:52.104Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-collect-b29e","detail":"테스트 영상 촬영: 윤슬 · 나뭇잎 · 바닥 타일 (+ 밤 불빛)"}
+{"ts":"2026-11-03T04:05:52.303Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-analyze-6b12","detail":"테스트 영상으로 CelExtract·Loop 오프라인 검증 (Mac)"}
+{"ts":"2026-11-03T04:05:52.712Z","actor":"Claude Code","action":"node.move","nodeId":"catch-collect-b29e","detail":"위로"}
+{"ts":"2026-11-03T04:05:52.911Z","actor":"Claude Code","action":"node.move","nodeId":"catch-collect-b29e","detail":"위로"}
+{"ts":"2026-11-03T04:05:53.123Z","actor":"Claude Code","action":"node.move","nodeId":"catch-collect-b29e","detail":"위로"}
+{"ts":"2026-11-03T04:05:53.324Z","actor":"Claude Code","action":"node.move","nodeId":"catch-collect-b29e","detail":"위로"}
+{"ts":"2026-11-03T04:05:53.519Z","actor":"Claude Code","action":"node.move","nodeId":"catch-collect-b29e","detail":"위로"}
+{"ts":"2026-11-03T04:05:53.719Z","actor":"Claude Code","action":"node.move","nodeId":"catch-collect-b29e","detail":"위로"}
+{"ts":"2026-11-03T04:05:53.936Z","actor":"Claude Code","action":"node.move","nodeId":"catch-analyze-6b12","detail":"위로"}
+{"ts":"2026-11-03T04:05:54.143Z","actor":"Claude Code","action":"node.move","nodeId":"catch-analyze-6b12","detail":"위로"}
+{"ts":"2026-11-03T04:05:54.345Z","actor":"Claude Code","action":"node.move","nodeId":"catch-analyze-6b12","detail":"위로"}
+{"ts":"2026-11-03T04:05:54.547Z","actor":"Claude Code","action":"node.move","nodeId":"catch-analyze-6b12","detail":"위로"}
+{"ts":"2026-11-03T04:05:54.741Z","actor":"Claude Code","action":"node.move","nodeId":"catch-analyze-6b12","detail":"위로"}
+{"ts":"2026-11-03T04:05:54.941Z","actor":"Claude Code","action":"node.move","nodeId":"catch-analyze-6b12","detail":"위로"}
+{"ts":"2026-11-03T04:09:28.334Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-build-fe09","detail":"모드 토글: 찰칵 / 루프 온"}
+{"ts":"2026-11-03T04:09:28.540Z","actor":"Claude Code","action":"sub.create","nodeId":"catch-build-b9bd","detail":"찰칵: 무늬 보존 2톤 + 이음매 없는 타일"}
+{"ts":"2026-11-03T04:09:28.968Z","actor":"Claude Code","action":"node.move","nodeId":"catch-build-fe09","detail":"위로"}
+{"ts":"2026-11-03T04:09:29.168Z","actor":"Claude Code","action":"node.move","nodeId":"catch-build-fe09","detail":"위로"}
+{"ts":"2026-11-03T04:09:29.370Z","actor":"Claude Code","action":"node.move","nodeId":"catch-build-b9bd","detail":"위로"}
+{"ts":"2026-11-03T04:09:29.590Z","actor":"Claude Code","action":"node.move","nodeId":"catch-build-b9bd","detail":"위로"}
+{"ts":"2026-11-03T04:09:29.787Z","actor":"Claude Code","action":"node.update","nodeId":"catch-store","detail":"how=HANDOFF §5 데이터 구조 + mode: snap | loop. snap 은 loop 없음. Application.persistentDataPath"}
+{"ts":"2026-11-03T04:09:29.992Z","actor":"Claude Code","action":"node.update","nodeId":"catch","detail":"goal=11-05~07 · 머리 레이 + 핀치 간격으로 영역을 담는다. 찰칵(정지 텍스처, 무늬 보존 2톤) 모드가 MVP"}
+{"ts":"2026-11-03T04:09:30.194Z","actor":"Claude Code","action":"node.update","nodeId":"loop","detail":"title=루프 온 모드: 물결 루프, goal=11-08~09 · 토글을 켜면 움직이는 재질을 짧은 반복 루프로 담는다. 응시 시간 = 진하기·루프 길이 (MVP 다음 순위)"}
+{"ts":"2026-11-03T04:09:30.457Z","actor":"Claude Code","action":"node.update","nodeId":"interface-hud","detail":"title=실측 HUD 시안: 측량 원, 응시 카운터, 방위, 표제란, 모드 토글, how=2D 시안. 찰칵 / 루프 온 두 모드의 HUD 차이 (루프 온은 타임코드가 돈다). 토글 위치는 한 손·무릎 위 기준. 선 굵기·글자 크기 하한 표시"}

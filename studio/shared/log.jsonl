@@ -1,1 +1,10 @@
 {"ts": "2026-11-02T14:30:00.000Z", "actor": "Claude", "action": "studio.init", "nodeId": null, "detail": "책상 위 꿈에서 공통 조건과 모듈을 분리"}
+{"ts":"2026-11-03T03:13:12.212Z","actor":"Claude Code","action":"node.create","nodeId":"unity-guardrails","detail":"Unity 실기 가드레일 (패스스루 안 보임 방지)"}
+{"ts":"2026-11-03T03:13:12.214Z","actor":"Claude Code","action":"sub.create","nodeId":"unity-guardrails-draft","detail":"가드레일 초안 (과거 실기 함정 + Meta 문서 2026-11-03 대조)"}
+{"ts":"2026-11-03T03:13:12.214Z","actor":"Claude Code","action":"sub.create","nodeId":"unity-guardrails-verify","detail":"첫 실기 First Light에서 맞는지 확인"}
+{"ts":"2026-11-03T03:15:16.653Z","actor":"Claude Code","action":"notes.append","nodeId":"hand-patterns","detail":"mood-picker 에서 나온 새 패턴 (실기 검증 전):\n- **핀치 간격 = 반경**: 엄지-검지 간격으로 원 크기 조절, 붙이면 확정. "}
+{"ts":"2026-11-03T03:29:21.819Z","actor":"Claude Code","action":"node.create","nodeId":"note-e09f","detail":"결정 기록: 정한 것 / 안 하기로 한 것"}
+{"ts":"2026-11-03T03:29:34.528Z","actor":"Claude Code","action":"node.archive","nodeId":"note-e09f"}
+{"ts":"2026-11-03T03:29:34.530Z","actor":"Claude Code","action":"node.create","nodeId":"decision-log","detail":"결정 기록: 정한 것 / 안 하기로 한 것"}
+{"ts":"2026-11-03T03:37:04.502Z","actor":"Claude Code","action":"node.update","nodeId":"unity-version-decide","detail":"status=done"}
+{"ts":"2026-11-03T03:37:04.723Z","actor":"Claude Code","action":"notes.append","nodeId":"platform","detail":"2026-11-03: Unity 버전 = **Unity 6** 으로 결정 (6000.0.66f2 이상, 6.1+ 권장). XR 플러그인은 Ope"}

@@ -13,3 +13,6 @@ unity/**/[Bb]uilds/
 unity/**/[Ll]ogs/
 unity/**/[Uu]ser[Ss]ettings/
 *.apk
+
+# 앱 전용 레포 (각자 git): unity/mood-picker → reality404studio/meta-mr-picker
+unity/mood-picker/

@@ -34,3 +34,8 @@ M1 Air는 빌드가 느린 편이라 실기 루프는 하루 몇 번으로 묶�
 앱마다 `unity/<앱 id>/` 에 둬요. `Library/`, `Temp/`, `Build/` 는 커밋하지 않아요.
 
 출처 (2026-11-02 확인): [Meta 개발 요구사항, Link는 Windows만](https://developers.meta.com/vr/documentation/unity/unity-development-requirements/), [Meta XR Simulator Mac 지원](https://developers.meta.com/vr/blog/meta-xr-simulator-pc-mac-unity-unreal-developer-mixed-reality/)
+
+---
+**Claude Code** · 2026-11-03 03:37
+
+2026-11-03: Unity 버전 = **Unity 6** 으로 결정 (6000.0.66f2 이상, 6.1+ 권장). XR 플러그인은 OpenXR — 공통 'Unity 실기 가드레일' §2.

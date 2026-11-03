@@ -125,12 +125,12 @@
       "kind": "decide",
       "by": "human",
       "title": "버전 결정",
-      "status": "review",
+      "status": "done",
       "order": 1,
       "owner": "",
       "how": "추천은 Unity 6. 결정하면 README 체크",
-      "updatedAt": "2026-11-02T15:00:00.000Z",
-      "updatedBy": "Claude"
+      "updatedAt": "2026-11-03T03:37:04.502Z",
+      "updatedBy": "Claude Code"
     },
     {
       "id": "spec-format",
@@ -246,6 +246,57 @@
       "status": "todo",
       "updatedAt": "2026-11-02T15:00:00.000Z",
       "updatedBy": "Claude"
+    },
+    {
+      "id": "unity-guardrails",
+      "title": "Unity 실기 가드레일 (패스스루 안 보임 방지)",
+      "owner": "Claude Code",
+      "updatedAt": "2026-11-03T03:13:12.211Z",
+      "updatedBy": "Claude Code",
+      "type": "note",
+      "stage": "conditions",
+      "order": 3,
+      "status": "todo",
+      "goal": "에이전트가 Unity에 들어가기 전에 읽고, 매 실기 루프마다 대조한다",
+      "output": "unity-guardrails README"
+    },
+    {
+      "id": "unity-guardrails-draft",
+      "title": "가드레일 초안 (과거 실기 함정 + Meta 문서 2026-11-03 대조)",
+      "owner": "",
+      "updatedAt": "2026-11-03T03:13:12.214Z",
+      "updatedBy": "Claude Code",
+      "parent": "unity-guardrails",
+      "kind": "write",
+      "by": "agent",
+      "status": "done",
+      "order": 0
+    },
+    {
+      "id": "unity-guardrails-verify",
+      "title": "첫 실기 First Light에서 맞는지 확인",
+      "owner": "",
+      "updatedAt": "2026-11-03T03:13:12.214Z",
+      "updatedBy": "Claude Code",
+      "parent": "unity-guardrails",
+      "kind": "verify",
+      "by": "human",
+      "status": "todo",
+      "order": 1,
+      "how": "틀린 항목은 README 맨 아래 \"실기에서 바뀐 것\"에 덧붙인다"
+    },
+    {
+      "id": "decision-log",
+      "title": "결정 기록: 정한 것 / 안 하기로 한 것",
+      "owner": "Claude Code",
+      "updatedAt": "2026-11-03T03:29:34.530Z",
+      "updatedBy": "Claude Code",
+      "type": "note",
+      "stage": "decisions",
+      "order": 1,
+      "status": "done",
+      "goal": "사람이 내린 결정을 원문과 날짜로 남겨, 에이전트가 다시 묻지 않게 한다",
+      "output": "studio/shared/DECIDED.md, studio/shared/REJECTED.md"
     }
   ],
   "edges": [

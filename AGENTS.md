@@ -24,6 +24,8 @@
 2. `npm run studio -- next --app <앱 id> --by agent` — **지금 내가 시작할 수 있는 하위 과업**. 여기에 없는 일은 아직 차례가 아니다
 3. `npm run studio -- show <하위 과업 id> --app <앱 id>` — 방법(how), 속한 과업의 목표·산출물, 메모와 파일
 4. 처음이면 공통 조건을 읽는다: `show platform --app shared`, `show perf-rules --app shared`, `show hand-patterns --app shared`, 그리고 앱의 `show brief`
+   **Unity를 열거나 Unity 코드를 쓰기 전에는 반드시** `show unity-guardrails --app shared` (패스스루 안 보임, 마젠타, 헛빌드 같은 실기 함정)
+   **사람에게 묻기 전에는** `studio/shared/DECIDED.md` 와 `REJECTED.md` 를 본다. 거기 있는 건 다시 묻지 않는다
 5. 시작: `status <id> doing` → 일한다 → 결과를 산출물 위치에 남긴다 → `note <과업 id> "무엇을 했고, 무엇이 남았는지"` → `status <id> done`
 6. 다음 하위 과업이 `human` 이면 거기서 멈추고 사람에게 알린다. 사람 확인이 필요한 결과를 냈다면 `status <id> review`
 
@@ -64,6 +66,12 @@ unity/shared/                    여러 앱이 가져다 쓰는 공용 모듈
 - **과업 추가**: `add <type> "제목" --stage <단계 id> --goal "목표" --output "산출물"`. 단계 목록은 `stages`.
 - **사람이 판단할 지점은 `decide` 하위 과업으로 둔다.** 깰 지점 고르기, 무드보드 확인, 테스트·검수 통과는 사람의 몫이다.
   에이전트는 선택지를 메모로 정리하고 멈춘다.
+- **사람의 결정은 기록한다.** `decide` 하위 과업이 끝나면, 사람이 한 말 그대로와 날짜를 `DECIDED.md`(거절이면 `REJECTED.md`)에 적는다.
+  에이전트의 추천은 적지 않는다. 옛 결정은 지우지 않고 `→ 대체됨 (날짜)` 만 붙인다.
+- **실기 검증은 증거가 있어야 끝난다.** 실기 `verify` 하위 과업은 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 `asset` 으로 붙여야 `done`.
+  빌드 ID가 기대한 값과 다르면 헛빌드다. 결과와 상관없이 다시 빌드한다.
+- **mood-picker 보드나 공통 결정을 바꿨으면, 작업을 마칠 때** `sh unity/mood-picker/scripts/sync-docs.sh` 를 돌리고
+  앱 레포(`unity/mood-picker/`, reality404studio/meta-mr-picker)를 커밋·푸시한다. 사람은 GitHub 의 `board/BOARD.md` 로 보드를 본다.
 - **메모는 덧붙인다.** 사람이 쓴 문단을 지우거나 고쳐 쓰지 말 것.
 - **산출물은 해당 과업 폴더에.** `asset <id> <파일> --memo "설명"`, 또는 `nodes/<id>/assets/` 에 직접.
 - **새 앱**: 사람이 요청했을 때만. `new-app <id> "이름" --mode <모드 id>` (`modes` 로 목록 확인).
