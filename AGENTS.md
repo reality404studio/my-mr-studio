@@ -97,8 +97,11 @@ unity/shared/                    여러 앱이 가져다 쓰는 공용 모듈
 - **성공 조건을 같이 쓴다.** 에이전트 카드를 만들 때 `--success "관찰 가능한 조건"` 을 붙인다. 없으면 그 카드는 done 이 안 된다.
 - **실기 검증은 증거가 있어야 끝난다.** 실기 `verify` 하위 과업은 빌드 ID가 찍힌 logcat 발췌 + 스크린샷을 `asset` 으로 붙여야 `done`.
   빌드 ID가 기대한 값과 다르면 헛빌드다. 결과와 상관없이 다시 빌드한다.
+- **커밋·푸시** (2026-11-04 사람 결정, git 훅이 강제):
+  게이트를 통과한(done) 카드만 커밋한다. 메시지 첫 줄은 `card-id: 관찰 가능한 변화`. 푸시는 `scripts/githooks/push-branches.json` 의 지정 브랜치만 자동.
+  force-push 와 main 직푸시는 사람에게 묻고, 승인받은 그 푸시만 `STUDIO_PUSH_APPROVED=1 git push`. 훅 설치: `git config core.hooksPath <작업대>/scripts/githooks` (두 레포 모두).
 - **mood-picker 보드나 공통 결정을 바꿨으면, 작업을 마칠 때** `sh unity/mood-picker/scripts/sync-docs.sh` 를 돌리고
-  앱 레포(`unity/mood-picker/`, reality404studio/meta-mr-picker)를 커밋·푸시한다. 사람은 GitHub 의 `board/BOARD.md` 로 보드를 본다.
+  앱 레포(`unity/mood-picker/`, reality404studio/meta-mr-picker)를 위 규칙대로 커밋·푸시한다. 사람은 GitHub 의 `board/BOARD.md` 로 보드를 본다.
 - **메모는 덧붙인다.** 사람이 쓴 문단을 지우거나 고쳐 쓰지 말 것.
 - **산출물은 해당 과업 폴더에.** `asset <id> <파일> --memo "설명"`, 또는 `nodes/<id>/assets/` 에 직접.
 - **새 앱**: 사람이 요청했을 때만. `new-app <id> "이름" --mode <모드 id>` (`modes` 로 목록 확인).
