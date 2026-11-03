@@ -1,0 +1,8 @@
+{
+  "name": "com.reality404.buildgate",
+  "displayName": "Reality404 Build Gate",
+  "version": "0.1.0",
+  "unity": "6000.0",
+  "description": "Quest 패스스루 앱 공용 빌드 게이트: 가드레일 파일 검사 + 빌드 ID. 같은 검사를 Preflight/ 에서 Unity 없이 돌린다.",
+  "dependencies": {}
+}

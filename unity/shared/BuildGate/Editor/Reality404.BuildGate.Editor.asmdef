@@ -1,0 +1,10 @@
+{
+    "name": "Reality404.BuildGate.Editor",
+    "rootNamespace": "Reality404.BuildGate.Editor",
+    "references": ["Reality404.BuildGate"],
+    "includePlatforms": ["Editor"],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "autoReferenced": true,
+    "noEngineReferences": false
+}
