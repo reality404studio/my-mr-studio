@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          "/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/studio/apps/mood-picker/nodes/catch-make-1624/assets/hand-punch-sheets.html"
+        ],
+        "createdAt": "2026-11-04T05:24:44.135Z",
+        "reason": "user confirmed: DECIDED.md 2026-11-03 '색은 b' — #F0EEE6 is the measured r9 paper ref color chosen as the line/paper color; this is a review sheet, not product UI"
+      }
+    ]
+  }
+}

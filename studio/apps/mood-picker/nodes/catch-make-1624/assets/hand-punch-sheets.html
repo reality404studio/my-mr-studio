@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Hand Punch Links</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=IBM+Plex+Mono:wght@400;500&display=block" rel="stylesheet">
+<style>
+:root{--paper:#F0EEE6;--ink:#15317C;--cobalt:#2559B4;--sky:#7FA6D9;--red:#D23A2C;--mute:#4a5060}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper)}
+body{width:1600px;height:900px;overflow:hidden;font-family:"IBM Plex Mono",monospace;color:var(--ink)}
+.sheet{position:relative;width:1600px;height:900px;padding:0 40px}
+.mast{display:flex;justify-content:space-between;align-items:flex-end;height:112px;padding-bottom:14px;border-bottom:3px solid var(--ink)}
+.mast h1{font-family:Fraunces,serif;font-variation-settings:"opsz" 144;font-weight:500;font-size:50px;line-height:1;margin:0}
+.mast h1 .k{color:var(--red)}
+.mast .sub{font-size:13px;letter-spacing:.08em;margin-top:8px;font-weight:500}
+.tb{background:var(--cobalt);color:var(--paper);font-size:12px;line-height:1.55;padding:8px 14px;min-width:300px;font-weight:500}
+.tb b{font-weight:500;color:#fff}
+.row{display:flex;gap:20px;margin-top:18px}
+.col{width:365px}
+.col svg{display:block}
+.cap{font-size:12.5px;line-height:1.45;margin-top:8px;min-height:38px;font-weight:400;color:#1d2230}
+.cap b{font-weight:500;color:var(--ink)}
+.legend{position:absolute;left:40px;right:40px;bottom:18px;display:flex;gap:26px;white-space:nowrap;align-items:center;font-size:12.5px;border-top:1px solid #C9C6BB;padding-top:10px}
+.legend svg{vertical-align:middle;margin-right:8px}.legend span{display:inline-flex;align-items:center}
+.w text,text.w{fill:#F0EEE6;paint-order:stroke;stroke:#15317C;stroke-width:3px;stroke-linejoin:round;font-family:"IBM Plex Mono",monospace;font-weight:500}
+</style></head><body>
+<div class="sheet" id="sheet"></div>
+<script>
+const P='#F0EEE6',INK='#15317C',SKY='#7FA6D9',RED='#D23A2C';
+const BG='../../catch-device/assets/paints/paint_20261104_140211_002/still.png';
+const W=365,H=620,S=120;
+const C0={x:182,y:215};            // punch home (gaze)
+const L0={x:96,y:486},R0={x:268,y:486}; // pinch points near lap
+let uid=0;
+
+// stroke with navy backing
+function dl(d,o={}){const w=o.w||2.2,c=o.c||P,da=o.dash?`stroke-dasharray="${o.dash}"`:'',lc=o.round?'round':'butt',pl=o.pl?`pathLength="1"`:'';
+ return `<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w+2.6}" ${da} ${pl} stroke-linecap="${lc}" stroke-linejoin="round"/>`+
+        `<path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" ${da} ${pl} stroke-linecap="${lc}" stroke-linejoin="round"/>`}
+function dot(x,y,r=3.6,c=P){return `<circle cx="${x}" cy="${y}" r="${r}" fill="${c}" stroke="${INK}" stroke-width="2"/>`}
+
+// flat cel hands. origin = pinch point. right hand body goes down-right.
+const HAND_PINCH='M-2,-4 C12,-10 30,2 38,30 L48,44 C60,36 74,38 80,48 C92,42 104,46 108,58 C118,56 127,64 124,78 C127,112 121,142 112,162 L120,240 L48,240 L44,172 C28,152 14,122 8,98 C2,72 -6,32 -8,6 C-8,-2 -6,-5 -2,-4 Z M6,12 C14,18 22,32 27,48 C19,60 14,70 12,80 C5,60 3,32 6,12 Z';
+const HAND_OPEN='M-4,-16 C12,-22 31,-2 38,30 L48,44 C60,36 74,38 80,48 C92,42 104,46 108,58 C118,56 127,64 124,78 C127,112 121,142 112,162 L120,240 L48,240 L44,172 C28,152 12,124 4,100 C-4,78 -16,46 -20,18 C-21,10 -14,8 -12,14 C-6,34 4,58 12,74 C16,62 22,52 26,46 C20,24 8,-2 -8,-8 C-10,-12 -8,-15 -4,-16 Z';
+function hand(x,y,side,pinched){const sx=side==='L'?-1:1,SK='#8E7F78',SH='#7A6C66';
+ const cap=(d,w,c=SK)=>`<path d="${d}" fill="none" stroke="${INK}" stroke-width="${w+5}" stroke-linecap="round"/><path d="${d}" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round"/>`;
+ const thumb=pinched?'M34,112 Q6,78 3,10':'M34,112 Q2,84 -12,18';
+ const index=pinched?'M54,54 Q34,2 6,-1':'M54,54 Q38,-8 0,-22';
+ let g=`<g transform="translate(${x},${y}) scale(${sx*0.8},0.8)">`;
+ // wrist + back of hand, one silhouette
+ g+=`<path d="M62,120 L84,260" stroke="${INK}" stroke-width="69" stroke-linecap="round"/><ellipse cx="66" cy="92" rx="46" ry="52" transform="rotate(-22 66 92)" fill="${INK}" stroke="${INK}" stroke-width="5"/>`;
+ g+=`<path d="M62,120 L84,260" stroke="${SK}" stroke-width="64" stroke-linecap="round"/><ellipse cx="66" cy="92" rx="46" ry="52" transform="rotate(-22 66 92)" fill="${SK}"/>`;
+ g+=cap('M106,82 Q112,58 100,48',13,SH)+cap('M92,66 Q94,38 78,30',14,SH)+cap('M74,56 Q70,24 52,18',15,SH);
+ g+=cap(index,15)+cap(thumb,17);
+ g+=`<path d="M44,150 C52,170 60,190 64,210" stroke="${SH}" stroke-width="2.4" fill="none"/></g>`;
+ return g}
+
+function corners(c,s){const h=s/2;return{TL:{x:c.x-h,y:c.y-h},TR:{x:c.x+h,y:c.y-h},BL:{x:c.x-h,y:c.y+h},BR:{x:c.x+h,y:c.y+h}}}
+function punch(c,o={}){const h=S/2,x=c.x-h,y=c.y-h;let g='';
+ if(o.ghost){return `<rect x="${x}" y="${y}" width="${S}" height="${S}" fill="none" stroke="${SKY}" stroke-width="1.6" stroke-dasharray="3 5"/>`}
+ if(o.fired){
+  const id='cp'+(++uid);
+  g+=`<defs><clipPath id="${id}"><rect x="${x}" y="${y}" width="${S}" height="${S}"/></clipPath></defs>`;
+  g+=`<rect x="${x}" y="${y}" width="${S}" height="${S}" fill="#0B1228" opacity=".62"/>`;
+  g+=dl(`M${x},${y} h${S} v${S} h-${S} Z`,{w:2.6});
+  g+=`<g transform="translate(14,-30) rotate(-5 ${c.x} ${c.y})">
+   <rect x="${x-6}" y="${y-6}" width="${S+12}" height="${S+30}" fill="${P}" stroke="${INK}" stroke-width="2"/>
+   <g clip-path="url(#${id})"><image href="${BG}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/></g>
+   <circle cx="${x+S-4}" cy="${y+S+12}" r="4" fill="${RED}"/>
+   <text x="${x}" y="${y+S+16}" font-size="9.5" fill="#1d2230" font-family="IBM Plex Mono">No.015</text></g>`;
+  // click ticks
+  const t=[[x-10,y-10,-1,-1],[x+S+10,y-10,1,-1],[x-10,y+S+10,-1,1],[x+S+10,y+S+10,1,1]];
+  t.forEach(([a,b,dx,dy])=>{g+=dl(`M${a},${b} l${dx*9},${dy*9}`,{w:2})});
+  return g}
+ g+=dl(`M${x},${y} h${S} v${S} h-${S} Z`,{w:o.thick?3:2.4});
+ const k=12;[[x,y,1,1],[x+S,y,-1,1],[x,y+S,1,-1],[x+S,y+S,-1,-1]].forEach(([a,b,dx,dy])=>{g+=dl(`M${a-dx*8},${b} h${dx*(k+8)} M${a},${b-dy*8} v${dy*(k+8)}`,{w:2})});
+ return g}
+function reticle(){return `<path d="M${C0.x-7},${C0.y} h14 M${C0.x},${C0.y-7} v14" stroke="${SKY}" stroke-width="1.6"/>`}
+function arrow(a,b,c=SKY){const ang=Math.atan2(b.y-a.y,b.x-a.x),hx=8;
+ const p1={x:b.x-hx*Math.cos(ang-0.5),y:b.y-hx*Math.sin(ang-0.5)},p2={x:b.x-hx*Math.cos(ang+0.5),y:b.y-hx*Math.sin(ang+0.5)};
+ return `<path d="M${a.x},${a.y} L${b.x},${b.y} M${p1.x},${p1.y} L${b.x},${b.y} L${p2.x},${p2.y}" stroke="${INK}" stroke-width="4.4" fill="none" stroke-linecap="round"/><path d="M${a.x},${a.y} L${b.x},${b.y} M${p1.x},${p1.y} L${b.x},${b.y} L${p2.x},${p2.y}" stroke="${c}" stroke-width="2" fill="none" stroke-linecap="round"/>`}
+
+// state: idle | drag | hold | fired | both
+function layout(state){
+ const drag=state==='drag'||state==='both';
+ const dL={x:-18,y:-14},dC={x:-34,y:-28};
+ return {C: drag?{x:C0.x+dC.x,y:C0.y+dC.y}:C0, L: drag?{x:L0.x+dL.x,y:L0.y+dL.y}:L0, R:R0,
+  lp: drag, rp: state==='hold'||state==='fired'||state==='both', prog: state==='fired'?1:(state==='hold'||state==='both')?0.6:0,
+  fired: state==='fired', drag}}
+
+const DOT='2 5',DASH='5 5';
+
+const OPT={
+ A:{name:'Leader Line',draw(s){let g='';const k=corners(s.C,S);
+  // left leader -> bottom-left corner, rigid rod
+  const lp=`M${s.L.x},${s.L.y} L${s.L.x},${k.BL.y+26} L${k.BL.x},${k.BL.y}`;
+  g+=dl(lp,{w:2,dash:s.lp?null:DASH});g+=dot(s.L.x,s.L.y);
+  // right leader -> top edge
+  const T={x:s.C.x+24,y:k.TL.y},rp=`M${s.R.x},${s.R.y} L${s.R.x},${T.y-34} L${T.x},${T.y-34} L${T.x},${T.y}`;
+  g+=dl(rp,{w:2,dash:s.rp?null:DASH});
+  if(s.prog>0){g+=`<path d="${rp}" pathLength="1" fill="none" stroke="${RED}" stroke-width="2.6" stroke-dasharray="${s.prog} 1"/>`}
+  g+=dot(s.R.x,s.R.y,3.6,s.prog>0?RED:P);
+  g+=dl(`M${T.x-6},${T.y} h12`,{w:2});
+  return g}},
+ B:{name:'Pinch Lever',draw(s){let g='';const k=corners(s.C,S);
+  // grip knob in left pinch
+  if(s.lp){g+=`<circle cx="${s.L.x}" cy="${s.L.y}" r="8" fill="${P}" stroke="${INK}" stroke-width="2.4"/><circle cx="${s.L.x}" cy="${s.L.y}" r="2.5" fill="${INK}"/>`}
+  else g+=`<circle cx="${s.L.x}" cy="${s.L.y}" r="10" fill="none" stroke="${INK}" stroke-width="4.6" stroke-dasharray="2 4"/><circle cx="${s.L.x}" cy="${s.L.y}" r="10" fill="none" stroke="${P}" stroke-width="2" stroke-dasharray="2 4"/>`;
+  // miniature lever held in the right pinch: tip at the fingertips, pivot behind
+  const pv={x:s.R.x+44,y:s.R.y-14},tip={x:s.R.x+2,y:s.R.y-34+s.prog*30};
+  const sol=s.rp?null:DOT;
+  g+=dl(`M${s.R.x-10},${s.R.y+4} h62 v12 h-62 Z`,{w:2,dash:sol,round:!s.rp});
+  g+=dl(`M${pv.x},${s.R.y+4} V${pv.y}`,{w:2,dash:sol,round:!s.rp});
+  g+=dl(`M${pv.x},${pv.y} L${tip.x},${tip.y}`,{w:4,dash:sol,round:!s.rp});
+  g+=`<circle cx="${pv.x}" cy="${pv.y}" r="4" fill="${P}" stroke="${INK}" stroke-width="2"/>`;
+  if(s.prog>0&&s.prog<1)g+=`<circle cx="${tip.x}" cy="${tip.y}" r="5" fill="${RED}" stroke="${INK}" stroke-width="1.6"/>`;
+  // blade in big punch
+  if(!s.fired){const by=k.TL.y+S*s.prog;
+   if(s.prog>0)g+=`<rect x="${k.TL.x}" y="${k.TL.y}" width="${S}" height="${S*s.prog}" fill="#0B1228" opacity=".35"/>`;
+   g+=dl(`M${k.TL.x-10},${by} H${k.TR.x+10}`,{w:s.prog>0?3.4:2,dash:s.prog>0?null:DOT,round:s.prog==0});
+   if(s.prog>0)g+=`<path d="M${k.TL.x},${by+2.6} H${k.TR.x}" stroke="${RED}" stroke-width="1.8"/>`;
+   }
+  return g}},
+ C:{name:'Miniature Punch',draw(s){let g='';
+  // map rect fixed near lap, mini punch in left pinch moves inside it
+  const mw=70,mh=118,sc=mw/W, mapO={x:L0.x-C0.x*sc,y:L0.y-14-C0.y*sc};
+  g+=`<rect x="${mapO.x}" y="${mapO.y}" width="${mw}" height="${mh}" fill="none" stroke="${INK}" stroke-width="3.6" stroke-dasharray="3 4"/><rect x="${mapO.x}" y="${mapO.y}" width="${mw}" height="${mh}" fill="none" stroke="${SKY}" stroke-width="1.4" stroke-dasharray="3 4"/>`;
+  const mc={x:mapO.x+s.C.x*sc,y:mapO.y+s.C.y*sc},ms=S*sc+2,h=ms/2;
+  const close=s.prog*h;
+  g+=`<path d="M${mc.x-h},${mc.y-h} h${ms} v${ms} h-${ms} Z M${mc.x-h+close},${mc.y-h+close} v${ms-2*close} h${ms-2*close} v-${ms-2*close} Z" fill="${P}" fill-rule="evenodd" opacity="${s.prog>0?1:0}"/>`;
+  g+=dl(`M${mc.x-h},${mc.y-h} h${ms} v${ms} h-${ms} Z`,{w:s.lp||s.prog>0?2.2:1.8,dash:(s.lp||s.rp)?null:DOT,round:true});
+  if(s.prog>0&&s.prog<1)g+=`<rect x="${mc.x-h+close}" y="${mc.y-h+close}" width="${ms-2*close}" height="${ms-2*close}" fill="none" stroke="${RED}" stroke-width="1.6"/>`;
+  // stem from mini to the pinch
+  g+=dl(`M${mc.x},${mc.y+h} L${s.L.x},${s.L.y}`,{w:1.6,dash:s.lp?null:DOT,round:true});g+=dot(s.L.x,s.L.y,3);
+  // right pinch marker
+  g+=s.rp?`<circle cx="${s.R.x}" cy="${s.R.y}" r="7" fill="none" stroke="${INK}" stroke-width="4.4"/><circle cx="${s.R.x}" cy="${s.R.y}" r="7" fill="none" stroke="${P}" stroke-width="2"/>`
+         :`<circle cx="${s.R.x}" cy="${s.R.y}" r="9" fill="none" stroke="${INK}" stroke-width="4.4" stroke-dasharray="2 4"/><circle cx="${s.R.x}" cy="${s.R.y}" r="9" fill="none" stroke="${P}" stroke-width="2" stroke-dasharray="2 4"/>`;
+  // big punch mirrors closing
+  if(s.prog>0&&!s.fired){const k=corners(s.C,S),cl=s.prog*S/2;
+   g+=`<path d="M${k.TL.x},${k.TL.y} h${S} v${S} h-${S} Z M${k.TL.x+cl},${k.TL.y+cl} v${S-2*cl} h${S-2*cl} v-${S-2*cl} Z" fill="#0B1228" fill-rule="evenodd" opacity=".45"/>`;
+   g+=`<rect x="${k.TL.x+cl}" y="${k.TL.y+cl}" width="${S-2*cl}" height="${S-2*cl}" fill="none" stroke="${RED}" stroke-width="1.8"/>`}
+  if(s.drag){g+=arrow({x:L0.x,y:L0.y-60},{x:L0.x-12,y:L0.y-70},SKY)}
+  return g}},
+ D:{name:'Slack Thread',draw(s){let g='';const k=corners(s.C,S);
+  function thread(a,b,taut,sag){if(taut)return `M${a.x},${a.y} L${b.x},${b.y}`;
+   const o=a.x<b.x?-1:1;return `M${a.x},${a.y} C${a.x+o*70},${a.y-40} ${b.x+o*90},${b.y+150} ${b.x},${b.y}`}
+  const lt=thread(s.L,k.BL,s.lp,90);
+  g+=dl(lt,{w:1.6,dash:s.lp?null:DOT,round:true});
+  let rt;
+  if(s.fired){rt=`M${s.R.x},${s.R.y} C${s.R.x-10},${s.R.y-80} ${k.BR.x+60},${k.BR.y+70} ${k.BR.x+30},${k.BR.y+120} S${k.BR.x+20},${k.BR.y+30} ${k.BR.x},${k.BR.y}`}
+  else rt=thread(s.R,k.BR,s.rp,90);
+  g+=dl(rt,{w:1.6,dash:(s.rp&&!s.fired)?null:DOT,round:true});
+  g+=dot(k.BL.x,k.BL.y,3);g+=dot(k.BR.x,k.BR.y,3);
+  // winding coils at right fingertip
+  if(s.rp){const n=3,done=s.fired?3:Math.floor(s.prog*n+0.01);
+   for(let i=0;i<n;i++){const cy=s.R.y-4-i*7,col=i<done?P:(i===done?RED:null);
+    if(!col)g+=`<ellipse cx="${s.R.x}" cy="${cy}" rx="9" ry="3.2" fill="none" stroke="${SKY}" stroke-width="1.4" stroke-dasharray="2 3"/>`;
+    else g+=`<ellipse cx="${s.R.x}" cy="${cy}" rx="9" ry="3.2" fill="none" stroke="${INK}" stroke-width="4"/><ellipse cx="${s.R.x}" cy="${cy}" rx="9" ry="3.2" fill="none" stroke="${col}" stroke-width="1.8"/>`}}
+  g+=dot(s.L.x,s.L.y,2.6);if(!s.rp)g+=dot(s.R.x,s.R.y,2.6);
+  return g}}
+};
+
+const LABEL={idle:'01 IDLE',drag:'02 L · DRAG',hold:'03 R · HOLD',fired:'04 FIRED',both:'L DRAG + R HOLD'};
+function panel(key,state){const s=layout(state);const id='pc'+(++uid);let g='';
+ g+=`<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}"><defs><clipPath id="${id}"><rect width="${W}" height="${H}"/></clipPath></defs><g clip-path="url(#${id})">`;
+ g+=`<image href="${BG}" x="0" y="0" width="${W}" height="${H}" preserveAspectRatio="xMidYMid slice"/>`;
+ g+=`<rect width="${W}" height="${H}" fill="#0B1228" opacity=".34"/>`;
+ g+=`<rect y="${H-200}" width="${W}" height="200" fill="url(#lapg)"/>`;
+ g+=reticle();
+ if(s.drag){g+=punch(C0,{ghost:true});g+=arrow({x:C0.x-6,y:C0.y-5},{x:s.C.x+6,y:s.C.y+5})}
+ g+=hand(s.L.x,s.L.y,'L',s.lp);g+=hand(s.R.x,s.R.y,'R',s.rp);
+ if(s.fired){g+=OPT[key].draw(s);g+=punch(s.C,{fired:true})}else{g+=punch(s.C,{thick:s.lp});g+=OPT[key].draw(s)}
+ // labels
+ g+=`<g class="w"><text x="14" y="28" font-size="14">${LABEL[state]}</text>`;
+ if(state==='hold'||state==='both')g+=`<text x="${W-14}" y="28" font-size="14" text-anchor="end">1.8 / 3.0 s</text>`;
+ if(state==='fired')g+=`<text x="${W-14}" y="28" font-size="14" text-anchor="end">3.0 s</text>`;
+ g+=`</g>`;
+ if(state!=='idle'&&state!=='drag'||state==='both')g+=`<circle cx="${W-14-(state==='fired'?54:108)}" cy="23" r="4.5" fill="${RED}" stroke="${INK}" stroke-width="1.5"/>`;
+ g+=`</g><rect x=".5" y=".5" width="${W-1}" height="${H-1}" fill="none" stroke="${INK}" stroke-width="1"/></svg>`;
+ return g}
+
+const CAP={
+ A:{idle:'<b>dotted leaders</b> from both pinch points',drag:'left leader goes <b>solid</b>, drags the punch like a rigid rod',hold:'right leader fills <b>white → red</b> from the hand up',fired:'line full red · square cut out'},
+ B:{idle:'<b>dotted knob</b> (left) and <b>dotted lever</b> (right)',drag:'knob solid in the pinch · punch follows the knob',hold:'pressing the lever = <b>blade descends</b> in the hole',fired:'full blade travel · square cut out'},
+ C:{idle:'<b>mini punch</b> on a dotted map, near the lap',drag:'move the mini · the big punch moves the same way',hold:'right pinch: the mini hole <b>closes</b>; the big one echoes',fired:'mini fully shut · square cut out'},
+ D:{idle:'<b>slack dotted threads</b> to two punch corners',drag:'left thread pulls <b>taut</b> and solid while dragging',hold:'right thread taut · <b>winds</b> round the fingertip',fired:'thread snaps slack · square cut out'}
+};
+const SUM={A:['drag = rigid rod from fingertip','fire = right line fills red'],B:['drag = grip knob in the pinch','fire = lever press = blade travel'],C:['drag = move a small copy on a map','fire = mini hole closes'],D:['drag = thread pulls taut','fire = thread winds on fingertip']};
+
+const DEFS=`<svg width="0" height="0" style="position:absolute"><defs><linearGradient id="lapg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0B1228" stop-opacity="0"/><stop offset="1" stop-color="#0B1228" stop-opacity=".45"/></linearGradient></defs></svg>`;
+function legend(){return `<div class="legend">
+ <span><svg width="44" height="10">${dl('M2,5 H42',{w:2,dash:DOT,round:true})}</svg>dotted = can grab</span>
+ <span><svg width="44" height="10">${dl('M2,5 H42',{w:2})}</svg>solid = grabbed</span>
+ <span><svg width="44" height="10"><path d="M2,5 H42" stroke="${RED}" stroke-width="3"/></svg>red = fire progress (one point)</span>
+ <span><svg width="44" height="10"><path d="M2,5 H42" stroke="${SKY}" stroke-width="2" stroke-dasharray="3 5"/></svg>sky = previous / reference</span>
+ <span style="margin-left:auto">seated · first person · hands ≤ 60 cm · bg = real capture</span></div>`}
+function mast(title,sub,sheet){return `<div class="mast"><div><h1>${title}</h1><div class="sub">${sub}</div></div>
+ <div class="tb">SHEET <b>${sheet}</b> · 2026-11-04<br>mood-picker · catch-make-1624<br>CAPTURE = CRAFT PUNCH B2</div></div>`}
+
+const q=new URLSearchParams(location.search).get('opt')||'A';
+const el=document.getElementById('sheet');
+if(q==='ALL'){
+ el.innerHTML=DEFS+mast('Hand <span class="k">↔</span> Punch · Four Links','LEFT PINCH DRAGS · RIGHT PINCH HELD 3 s FIRES · SAME MOMENT ACROSS A–D','HP-00')+
+  `<div class="row">${['A','B','C','D'].map(k=>`<div class="col">${panel(k,'both')}<div class="cap"><b>${k} · ${OPT[k].name}</b><br>${SUM[k][0]}<br>${SUM[k][1]}</div></div>`).join('')}</div>`+legend();
+}else{
+ el.innerHTML=DEFS+mast(`${q} <span class="k">·</span> ${OPT[q].name}`,`HAND ↔ PUNCH LINK · OPTION ${q} OF 4 · IDLE → LEFT DRAG → RIGHT HOLD → FIRED`,'HP-'+q)+
+  `<div class="row">${['idle','drag','hold','fired'].map(st=>`<div class="col">${panel(q,st)}<div class="cap">${CAP[q][st]}</div></div>`).join('')}</div>`+legend();
+}
+</script></body></html>
