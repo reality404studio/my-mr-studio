@@ -1,0 +1,10 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.SeamlessTileTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:54:21.292Z
+
+total=3 passed=3 failed=0
+  Passed  MoodPicker.Tests.SeamlessTileTests.Tile_MatchesMacLabWithinOneLevel
+  Passed  MoodPicker.Tests.SeamlessTileTests.Tile_RejectsWrongSizes
+  Passed  MoodPicker.Tests.SeamlessTileTests.Tile_TwoByTwoSeamNotAboveInteriorAndCenterIsOriginal
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

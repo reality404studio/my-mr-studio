@@ -1,0 +1,12 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabBucketTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T06:10:23.834Z
+
+total=5 passed=5 failed=0
+  Passed  MoodPicker.Tests.DabBucketTests.Bucket_EmptyFingertipChangesNothing
+  Passed  MoodPicker.Tests.DabBucketTests.Bucket_NewPaintReplacesOnNextTouchAndHoldingDoesNotRefill
+  Passed  MoodPicker.Tests.DabBucketTests.Bucket_OneTouchWithPaintFillsWholeObjectWithin300ms
+  Passed  MoodPicker.Tests.DabBucketTests.Bucket_RuntimeUsesPortalPaintAndSkipsWashedFingertip
+  Passed  MoodPicker.Tests.DabBucketTests.Bucket_SlowBringCountsHoverDoesNot
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

@@ -1,0 +1,18 @@
+[
+  {
+    "file": "check-2026-11-04T05-29-26-303Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-dab-shader.sh && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabOutlineTests → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:29:26.320Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-dab-shader.sh && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabOutlineTests",
+      "exit": 0
+    }
+  },
+  {
+    "file": "cel_render.png",
+    "memo": "광원 0개 배치 렌더: 2톤 + 뒷면 외곽선 #15317C (outlinePx=1575)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:29:36.767Z"
+  }
+]

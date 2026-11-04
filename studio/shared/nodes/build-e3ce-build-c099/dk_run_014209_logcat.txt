@@ -1,0 +1,169 @@
+11-04 01:45:57.862 19473 19521 I Unity   : [MP] build=a57449e-dirty-1104-014209
+11-04 01:45:57.909 19473 19521 I Unity   : [MP] kb start dsp=256 rate=24000 lead=40ms pressOnPredicted=True
+11-04 01:45:58.293 19473 19521 I Unity   : [MP] kb rect state=TooEarly progress=0.00
+11-04 01:45:59.114 19473 19521 I Unity   : [MP] kb rect state=None progress=0.00
+11-04 01:45:59.613 19473 19521 I Unity   : [MP] kb rect state=TooNarrow progress=0.00
+11-04 01:46:01.448 19473 19521 I Unity   : [MP] kb rect state=None progress=0.00
+11-04 01:46:02.017 19473 19521 I Unity   : [MP] kb rect state=Moving progress=0.00
+11-04 01:46:02.531 19473 19521 I Unity   : [MP] kb rect state=None progress=0.07
+11-04 01:46:03.031 19473 19521 I Unity   : [MP] kb rect state=Tilted progress=0.00
+11-04 01:46:03.531 19473 19521 I Unity   : [MP] kb rect state=None progress=0.17
+11-04 01:46:04.032 19473 19521 I Unity   : [MP] kb rect state=Tilted progress=0.00
+11-04 01:46:04.629 19473 19521 I Unity   : [MP] kb rect state=None progress=0.00
+11-04 01:46:05.142 19473 19521 I Unity   : [MP] kb rect state=Tilted progress=0.00
+11-04 01:46:07.073 19473 19521 I Unity   : [MP] kb rect state=None progress=0.00
+11-04 01:46:08.069 19473 19521 I Unity   : [MP] kb calib done height=-0.046 right=(0.99, 0.00, -0.15) width=0.321m
+11-04 01:46:10.295 19473 19521 I Unity   : [MP] kb grab start height=-0.046
+11-04 01:46:13.531 19473 19521 I Unity   : [MP] kb grab end height=-0.041 pos=(-0.047, -0.041, -0.038)
+11-04 01:46:14.851 19473 19521 I Unity   : [MP] kb tap n=1 finger=LeftIndex key=23 late=False leadMs=55 speed=0.15 lateTotal=0
+11-04 01:46:15.420 19473 19521 I Unity   : [MP] kb tap n=2 finger=LeftIndex key=13 late=False leadMs=84 speed=0.07 lateTotal=0
+11-04 01:46:15.559 19473 19521 I Unity   : [MP] kb tap n=3 finger=RightMiddle key=16 late=True leadMs=0 speed=0.07 lateTotal=1
+11-04 01:46:15.587 19473 19521 I Unity   : [MP] kb tap n=4 finger=RightRing key=17 late=True leadMs=0 speed=0.06 lateTotal=2
+11-04 01:46:15.879 19473 19521 I Unity   : [MP] kb tap n=5 finger=LeftRing key=2 late=False leadMs=333 speed=0.11 lateTotal=2
+11-04 01:46:15.948 19473 19521 I Unity   : [MP] kb tap n=6 finger=LeftMiddle key=3 late=False leadMs=389 speed=0.08 lateTotal=2
+11-04 01:46:15.948 19473 19521 I Unity   : [MP] kb tap n=7 finger=RightMiddle key=16 late=False leadMs=55 speed=0.07 lateTotal=2
+11-04 01:46:15.976 19473 19521 I Unity   : [MP] kb tap n=8 finger=LeftIndex key=13 late=False leadMs=28 speed=0.44 lateTotal=2
+11-04 01:46:16.184 19473 19521 I Unity   : [MP] kb tap n=9 finger=LeftRing key=2 late=False leadMs=42 speed=0.12 lateTotal=2
+11-04 01:46:16.198 19473 19521 I Unity   : [MP] kb tap n=10 finger=RightRing key=17 late=False leadMs=320 speed=0.05 lateTotal=2
+11-04 01:46:16.240 19473 19521 I Unity   : [MP] kb tap n=11 finger=LeftIndex key=13 late=False leadMs=41 speed=0.22 lateTotal=2
+11-04 01:46:16.545 19473 19521 I Unity   : [MP] kb tap n=12 finger=LeftRing key=2 late=False leadMs=69 speed=0.04 lateTotal=2
+11-04 01:46:16.615 19473 19521 I Unity   : [MP] kb tap n=13 finger=LeftIndex key=13 late=False leadMs=42 speed=0.08 lateTotal=2
+11-04 01:46:16.615 19473 19521 I Unity   : [MP] kb tap n=14 finger=RightMiddle key=16 late=False leadMs=55 speed=0.03 lateTotal=2
+11-04 01:46:17.087 19473 19521 I Unity   : [MP] kb tap n=15 finger=LeftMiddle key=12 late=False leadMs=903 speed=0.14 lateTotal=2
+11-04 01:46:17.170 19473 19521 I Unity   : [MP] kb tap n=16 finger=RightMiddle key=16 late=False leadMs=14 speed=0.18 lateTotal=2
+11-04 01:46:17.225 19473 19521 I Unity   : [MP] kb tap n=17 finger=RightRing key=17 late=False leadMs=652 speed=0.08 lateTotal=2
+11-04 01:46:17.420 19473 19521 I Unity   : [MP] kb tap n=18 finger=LeftRing key=12 late=True leadMs=0 speed=0.07 lateTotal=3
+11-04 01:46:17.990 19473 19521 I Unity   : [MP] kb tap n=19 finger=LeftMiddle key=12 late=True leadMs=0 speed=0.04 lateTotal=4
+11-04 01:46:18.142 19473 19521 I Unity   : [MP] kb tap n=20 finger=LeftIndex key=23 late=False leadMs=306 speed=0.23 lateTotal=4
+11-04 01:46:18.281 19473 19521 I Unity   : [MP] kb tap n=21 finger=RightMiddle key=16 late=False leadMs=15 speed=0.16 lateTotal=4
+11-04 01:46:18.323 19473 19521 I Unity   : [MP] kb tap n=22 finger=RightRing key=17 late=False leadMs=41 speed=0.08 lateTotal=4
+11-04 01:46:18.517 19473 19521 I Unity   : [MP] kb tap n=23 finger=LeftIndex key=14 late=False leadMs=42 speed=0.17 lateTotal=4
+11-04 01:46:19.559 19473 19521 I Unity   : [MP] kb tap n=24 finger=LeftMiddle key=13 late=False leadMs=111 speed=0.10 lateTotal=4
+11-04 01:46:19.587 19473 19521 I Unity   : [MP] kb tap n=25 finger=LeftIndex key=23 late=False leadMs=41 speed=0.12 lateTotal=4
+11-04 01:46:19.878 19473 19521 I Unity   : [MP] kb tap n=26 finger=LeftRing key=12 late=False leadMs=416 speed=0.03 lateTotal=4
+11-04 01:46:19.989 19473 19521 I Unity   : [MP] kb tap n=27 finger=RightIndex key=15 late=False leadMs=42 speed=0.15 lateTotal=4
+11-04 01:46:20.128 19473 19521 I Unity   : [MP] kb tap n=28 finger=RightMiddle key=6 late=False leadMs=0 speed=0.12 lateTotal=4
+11-04 01:46:20.156 19473 19521 I Unity   : [MP] kb tap n=29 finger=RightRing key=7 late=False leadMs=13 speed=0.10 lateTotal=4
+11-04 01:46:20.448 19473 19521 I Unity   : [MP] kb tap n=30 finger=LeftRing key=12 late=False leadMs=56 speed=0.05 lateTotal=4
+11-04 01:46:20.531 19473 19521 I Unity   : [MP] kb tap n=31 finger=LeftIndex key=23 late=False leadMs=28 speed=0.33 lateTotal=4
+11-04 01:46:21.086 19473 19521 I Unity   : [MP] kb tap n=32 finger=LeftIndex key=23 late=False leadMs=28 speed=0.43 lateTotal=4
+11-04 01:46:21.268 19473 19521 I Unity   : [MP] kb tap n=33 finger=RightMiddle key=16 late=False leadMs=28 speed=0.08 lateTotal=4
+11-04 01:46:21.281 19473 19521 I Unity   : [MP] kb tap n=34 finger=RightRing key=17 late=False leadMs=43 speed=0.09 lateTotal=4
+11-04 01:46:21.489 19473 19521 I Unity   : [MP] kb tap n=35 finger=LeftIndex key=23 late=False leadMs=28 speed=0.36 lateTotal=4
+11-04 01:46:21.768 19473 19521 I Unity   : [MP] kb tap n=36 finger=RightMiddle key=16 late=False leadMs=14 speed=0.13 lateTotal=4
+11-04 01:46:21.768 19473 19521 I Unity   : [MP] kb tap n=37 finger=RightRing key=17 late=False leadMs=0 speed=0.09 lateTotal=4
+11-04 01:46:21.809 19473 19521 I Unity   : [MP] kb tap n=38 finger=LeftRing key=12 late=False leadMs=1097 speed=0.15 lateTotal=4
+11-04 01:46:21.837 19473 19521 I Unity   : [MP] kb tap n=39 finger=LeftMiddle key=12 late=False leadMs=1431 speed=0.13 lateTotal=4
+11-04 01:46:21.962 19473 19521 I Unity   : [MP] kb tap n=40 finger=LeftIndex key=23 late=False leadMs=28 speed=0.39 lateTotal=4
+11-04 01:46:22.351 19473 19521 I Unity   : [MP] kb tap n=41 finger=LeftIndex key=23 late=False leadMs=14 speed=0.42 lateTotal=4
+11-04 01:46:23.086 19473 19521 I Unity   : [MP] kb tap n=42 finger=RightRing key=7 late=False leadMs=42 speed=0.10 lateTotal=4
+11-04 01:46:23.101 19473 19521 I Unity   : [MP] kb tap n=43 finger=RightMiddle key=6 late=False leadMs=514 speed=0.06 lateTotal=4
+11-04 01:46:23.781 19473 19521 I Unity   : [MP] kb tap n=44 finger=LeftMiddle key=22 late=False leadMs=1528 speed=0.11 lateTotal=4
+11-04 01:46:23.795 19473 19521 I Unity   : [MP] kb tap n=45 finger=RightMiddle key=16 late=False leadMs=28 speed=0.17 lateTotal=4
+11-04 01:46:23.822 19473 19521 I Unity   : [MP] kb tap n=46 finger=RightRing key=17 late=False leadMs=42 speed=0.13 lateTotal=4
+11-04 01:46:24.045 19473 19521 I Unity   : [MP] kb tap n=47 finger=LeftIndex key=23 late=False leadMs=14 speed=0.39 lateTotal=4
+11-04 01:46:24.976 19473 19521 I Unity   : [MP] kb tap n=48 finger=LeftRing key=12 late=False leadMs=2778 speed=0.11 lateTotal=4
+11-04 01:46:25.004 19473 19521 I Unity   : [MP] kb tap n=49 finger=RightMiddle key=16 late=True leadMs=0 speed=0.05 lateTotal=5
+11-04 01:46:25.004 19473 19521 I Unity   : [MP] kb tap n=50 finger=RightRing key=17 late=True leadMs=0 speed=0.01 lateTotal=6
+11-04 01:46:25.087 19473 19521 I Unity   : [MP] kb tap n=51 finger=LeftIndex key=23 late=False leadMs=14 speed=0.41 lateTotal=6
+11-04 01:46:26.837 19473 19521 I Unity   : [MP] kb tap n=52 finger=LeftIndex key=23 late=False leadMs=42 speed=0.51 lateTotal=6
+11-04 01:46:27.115 19473 19521 I Unity   : [MP] kb tap n=53 finger=LeftRing key=2 late=False leadMs=112 speed=0.02 lateTotal=6
+11-04 01:46:27.156 19473 19521 I Unity   : [MP] kb tap n=54 finger=RightMiddle key=15 late=True leadMs=0 speed=0.04 lateTotal=7
+11-04 01:46:27.170 19473 19521 I Unity   : [MP] kb tap n=55 finger=LeftMiddle key=13 late=False leadMs=153 speed=0.04 lateTotal=7
+11-04 01:46:27.240 19473 19521 I Unity   : [MP] kb tap n=56 finger=LeftIndex key=23 late=False leadMs=69 speed=0.07 lateTotal=7
+11-04 01:46:27.753 19473 19521 I Unity   : [MP] kb tap n=57 finger=LeftIndex key=13 late=False leadMs=28 speed=0.44 lateTotal=7
+11-04 01:46:28.587 19473 19521 I Unity   : [MP] kb tap n=58 finger=LeftIndex key=13 late=False leadMs=84 speed=0.11 lateTotal=7
+11-04 01:46:28.656 19473 19521 I Unity   : [MP] kb tap n=59 finger=RightMiddle key=16 late=False leadMs=83 speed=0.05 lateTotal=7
+11-04 01:46:28.698 19473 19521 I Unity   : [MP] kb tap n=60 finger=RightRing key=16 late=False leadMs=97 speed=0.03 lateTotal=7
+11-04 01:46:28.781 19473 19521 I Unity   : [MP] kb tap n=61 finger=LeftMiddle key=13 late=False leadMs=27 speed=0.25 lateTotal=7
+11-04 01:46:28.809 19473 19521 I Unity   : [MP] kb tap n=62 finger=LeftIndex key=14 late=False leadMs=14 speed=0.41 lateTotal=7
+11-04 01:46:29.864 19473 19521 I Unity   : [MP] kb grab start height=-0.041
+11-04 01:46:37.920 19473 19521 I Unity   : [MP] kb grab end height=-0.019 pos=(-0.060, -0.019, -0.018)
+11-04 01:46:37.922 19473 19521 I Unity   : [MP] kb tap n=63 finger=RightIndex key=6 late=True leadMs=0 speed=0.00 lateTotal=8
+11-04 01:46:37.923 19473 19521 I Unity   : [MP] kb tap n=64 finger=RightMiddle key=7 late=True leadMs=0 speed=-0.01 lateTotal=9
+11-04 01:46:37.923 19473 19521 I Unity   : [MP] kb tap n=65 finger=RightRing key=8 late=True leadMs=0 speed=0.00 lateTotal=10
+11-04 01:46:38.781 19473 19521 I Unity   : [MP] kb grab start height=-0.019
+11-04 01:46:40.698 19473 19521 I Unity   : [MP] kb grab end height=-0.046 pos=(-0.053, -0.046, -0.019)
+11-04 01:46:43.601 19473 19521 I Unity   : [MP] kb grab start height=-0.046
+11-04 01:46:54.601 19473 19521 I Unity   : [MP] kb grab end height=-0.059 pos=(-0.039, -0.059, 0.012)
+11-04 01:46:57.823 19473 19521 I Unity   : [MP] kb grab start height=-0.059
+11-04 01:47:01.920 19473 19521 I Unity   : [MP] kb grab end height=-0.051 pos=(-0.038, -0.051, 0.011)
+11-04 01:47:06.809 19473 19521 I Unity   : [MP] kb grab start height=-0.051
+11-04 01:47:08.851 19473 19521 I Unity   : [MP] kb grab end height=-0.031 pos=(-0.040, -0.031, 0.017)
+11-04 01:47:09.629 19473 19521 I Unity   : [MP] kb grab start height=-0.031
+11-04 01:47:11.240 19473 19521 I Unity   : [MP] kb grab end height=-0.041 pos=(-0.047, -0.041, 0.023)
+11-04 01:47:12.740 19473 19521 I Unity   : [MP] kb tap n=66 finger=RightMiddle key=16 late=True leadMs=0 speed=0.06 lateTotal=11
+11-04 01:47:12.851 19473 19521 I Unity   : [MP] kb tap n=67 finger=RightRing key=17 late=True leadMs=0 speed=0.02 lateTotal=12
+11-04 01:47:12.920 19473 19521 I Unity   : [MP] kb tap n=68 finger=LeftIndex key=23 late=False leadMs=14 speed=0.56 lateTotal=12
+11-04 01:47:13.184 19473 19521 I Unity   : [MP] kb tap n=69 finger=RightMiddle key=16 late=False leadMs=28 speed=0.09 lateTotal=12
+11-04 01:47:13.295 19473 19521 I Unity   : [MP] kb tap n=70 finger=RightRing key=17 late=True leadMs=0 speed=0.01 lateTotal=13
+11-04 01:47:13.712 19473 19521 I Unity   : [MP] kb tap n=71 finger=LeftIndex key=23 late=False leadMs=42 speed=0.33 lateTotal=13
+11-04 01:47:13.906 19473 19521 I Unity   : [MP] kb tap n=72 finger=RightMiddle key=16 late=False leadMs=42 speed=0.16 lateTotal=13
+11-04 01:47:13.920 19473 19521 I Unity   : [MP] kb tap n=73 finger=RightRing key=17 late=False leadMs=42 speed=0.10 lateTotal=13
+11-04 01:47:14.212 19473 19521 I Unity   : [MP] kb tap n=74 finger=LeftIndex key=23 late=False leadMs=69 speed=0.04 lateTotal=13
+11-04 01:47:14.587 19473 19521 I Unity   : [MP] kb tap n=75 finger=RightMiddle key=7 late=False leadMs=28 speed=0.16 lateTotal=13
+11-04 01:47:14.629 19473 19521 I Unity   : [MP] kb tap n=76 finger=RightRing key=17 late=True leadMs=0 speed=0.06 lateTotal=14
+11-04 01:47:15.573 19473 19521 I Unity   : [MP] kb tap n=77 finger=LeftIndex key=30 late=False leadMs=750 speed=0.04 lateTotal=14
+11-04 01:47:16.004 19473 19521 I Unity   : [MP] kb tap n=78 finger=RightMiddle key=16 late=True leadMs=0 speed=0.05 lateTotal=15
+11-04 01:47:16.045 19473 19521 I Unity   : [MP] kb tap n=79 finger=RightRing key=17 late=True leadMs=0 speed=0.04 lateTotal=16
+11-04 01:47:16.268 19473 19521 I Unity   : [MP] kb tap n=80 finger=RightIndex key=25 late=True leadMs=0 speed=0.01 lateTotal=17
+11-04 01:47:16.517 19473 19521 I Unity   : [MP] kb tap n=81 finger=LeftRing key=11 late=True leadMs=0 speed=0.06 lateTotal=18
+11-04 01:47:16.698 19473 19521 I Unity   : [MP] kb tap n=82 finger=LeftMiddle key=22 late=True leadMs=0 speed=0.02 lateTotal=19
+11-04 01:47:20.198 19473 19521 I Unity   : [MP] kb tap n=83 finger=RightMiddle key=7 late=False leadMs=28 speed=0.16 lateTotal=19
+11-04 01:47:20.226 19473 19521 I Unity   : [MP] kb tap n=84 finger=RightIndex key=16 late=False leadMs=56 speed=0.10 lateTotal=19
+11-04 01:47:21.531 19473 19521 I Unity   : [MP] kb tap n=85 finger=RightIndex key=5 late=False leadMs=83 speed=0.12 lateTotal=19
+11-04 01:47:21.850 19473 19521 I Unity   : [MP] kb tap n=86 finger=RightIndex key=15 late=False leadMs=56 speed=0.11 lateTotal=19
+11-04 01:47:21.976 19473 19521 I Unity   : [MP] kb tap n=87 finger=RightMiddle key=6 late=False leadMs=27 speed=0.22 lateTotal=19
+11-04 01:47:22.059 19473 19521 I Unity   : [MP] kb tap n=88 finger=RightRing key=17 late=False leadMs=1846 speed=0.06 lateTotal=19
+11-04 01:47:22.753 19473 19521 I Unity   : [MP] kb tap n=89 finger=RightMiddle key=17 late=False leadMs=28 speed=0.13 lateTotal=19
+11-04 01:47:22.781 19473 19521 I Unity   : [MP] kb tap n=90 finger=RightRing key=18 late=False leadMs=42 speed=0.07 lateTotal=19
+11-04 01:47:23.032 19473 19521 I Unity   : [MP] kb tap n=91 finger=LeftIndex key=4 late=False leadMs=28 speed=0.29 lateTotal=19
+11-04 01:47:26.573 19473 19521 I Unity   : [MP] kb tap n=92 finger=LeftRing key=11 late=False leadMs=778 speed=0.15 lateTotal=19
+11-04 01:47:26.989 19473 19521 I Unity   : [MP] kb tap n=93 finger=RightIndex key=15 late=False leadMs=28 speed=0.14 lateTotal=19
+11-04 01:47:27.253 19473 19521 I Unity   : [MP] kb tap n=94 finger=RightRing key=17 late=False leadMs=14 speed=0.08 lateTotal=19
+11-04 01:47:27.268 19473 19521 I Unity   : [MP] kb tap n=95 finger=RightMiddle key=6 late=True leadMs=0 speed=0.06 lateTotal=20
+11-04 01:47:27.489 19473 19521 I Unity   : [MP] kb tap n=96 finger=RightIndex key=15 late=False leadMs=28 speed=0.15 lateTotal=20
+11-04 01:47:27.725 19473 19521 I Unity   : [MP] kb tap n=97 finger=LeftRing key=22 late=False leadMs=41 speed=0.12 lateTotal=20
+11-04 01:47:28.101 19473 19521 I Unity   : [MP] kb tap n=98 finger=RightIndex key=25 late=False leadMs=83 speed=0.03 lateTotal=20
+11-04 01:47:28.892 19473 19521 I Unity   : [MP] kb tap n=99 finger=RightRing key=17 late=True leadMs=0 speed=0.03 lateTotal=21
+11-04 01:47:28.976 19473 19521 I Unity   : [MP] kb tap n=100 finger=RightMiddle key=16 late=False leadMs=1251 speed=0.05 lateTotal=21
+11-04 01:47:29.337 19473 19521 I Unity   : [MP] kb tap n=101 finger=RightIndex key=15 late=True leadMs=0 speed=0.06 lateTotal=22
+11-04 01:47:29.753 19473 19521 I Unity   : [MP] kb tap n=102 finger=RightIndex key=15 late=True leadMs=0 speed=0.04 lateTotal=23
+11-04 01:47:29.837 19473 19521 I Unity   : [MP] kb tap n=103 finger=LeftRing key=22 late=False leadMs=472 speed=0.07 lateTotal=23
+11-04 01:47:29.906 19473 19521 I Unity   : [MP] kb tap n=104 finger=LeftMiddle key=23 late=False leadMs=3138 speed=0.10 lateTotal=23
+11-04 01:47:30.268 19473 19521 I Unity   : [MP] kb tap n=105 finger=LeftIndex key=30 late=False leadMs=1555 speed=0.15 lateTotal=23
+11-04 01:47:30.684 19473 19521 I Unity   : [MP] kb tap n=106 finger=LeftIndex key=13 late=False leadMs=56 speed=0.07 lateTotal=23
+11-04 01:47:30.919 19473 19521 I Unity   : [MP] kb tap n=107 finger=RightMiddle key=6 late=False leadMs=28 speed=0.11 lateTotal=23
+11-04 01:47:30.920 19473 19521 I Unity   : [MP] kb tap n=108 finger=RightRing key=17 late=False leadMs=14 speed=0.08 lateTotal=23
+11-04 01:47:30.975 19473 19521 I Unity   : [MP] kb tap n=109 finger=RightIndex key=15 late=False leadMs=28 speed=0.26 lateTotal=23
+11-04 01:47:30.989 19473 19521 I Unity   : [MP] kb tap n=110 finger=LeftIndex key=13 late=False leadMs=29 speed=0.14 lateTotal=23
+11-04 01:47:32.142 19473 19521 I Unity   : [MP] kb tap n=111 finger=LeftIndex key=23 late=False leadMs=28 speed=0.19 lateTotal=23
+11-04 01:47:32.253 19473 19521 I Unity   : [MP] kb tap n=112 finger=RightRing key=8 late=True leadMs=0 speed=0.07 lateTotal=24
+11-04 01:47:32.268 19473 19521 I Unity   : [MP] kb tap n=113 finger=RightMiddle key=7 late=False leadMs=0 speed=0.10 lateTotal=24
+11-04 01:47:32.448 19473 19521 I Unity   : [MP] kb tap n=114 finger=RightIndex key=16 late=False leadMs=278 speed=0.04 lateTotal=24
+11-04 01:47:33.309 19473 19521 I Unity   : [MP] kb tap n=115 finger=RightRing key=17 late=False leadMs=27 speed=0.11 lateTotal=24
+11-04 01:47:33.351 19473 19521 I Unity   : [MP] kb tap n=116 finger=RightMiddle key=16 late=False leadMs=42 speed=0.09 lateTotal=24
+11-04 01:47:33.489 19473 19521 I Unity   : [MP] kb tap n=117 finger=LeftRing key=12 late=False leadMs=1277 speed=0.07 lateTotal=24
+11-04 01:47:33.739 19473 19521 I Unity   : [MP] kb tap n=118 finger=LeftRing key=12 late=False leadMs=42 speed=0.10 lateTotal=24
+11-04 01:47:34.642 19473 19521 I Unity   : [MP] kb tap n=119 finger=RightRing key=7 late=False leadMs=41 speed=0.04 lateTotal=24
+11-04 01:47:34.711 19473 19521 I Unity   : [MP] kb tap n=120 finger=RightIndex key=15 late=False leadMs=208 speed=0.06 lateTotal=24
+11-04 01:47:34.809 19473 19521 I Unity   : [MP] kb tap n=121 finger=RightMiddle key=6 late=False leadMs=208 speed=0.02 lateTotal=24
+11-04 01:47:35.058 19473 19521 I Unity   : [MP] kb tap n=122 finger=LeftRing key=12 late=False leadMs=27 speed=0.16 lateTotal=24
+11-04 01:47:35.309 19473 19521 I Unity   : [MP] kb tap n=123 finger=RightMiddle key=7 late=False leadMs=27 speed=0.21 lateTotal=24
+11-04 01:47:35.642 19473 19521 I Unity   : [MP] kb tap n=124 finger=RightIndex key=15 late=False leadMs=14 speed=0.11 lateTotal=24
+11-04 01:47:36.725 19473 19521 I Unity   : [MP] kb tap n=125 finger=RightIndex key=6 late=False leadMs=27 speed=0.19 lateTotal=24
+11-04 01:47:36.892 19473 19521 I Unity   : [MP] kb tap n=126 finger=LeftRing key=2 late=True leadMs=0 speed=0.06 lateTotal=25
+11-04 01:47:39.448 19473 19521 I Unity   : [MP] kb tap n=127 finger=RightMiddle key=7 late=False leadMs=15 speed=0.11 lateTotal=25
+11-04 01:47:39.795 19473 19521 I Unity   : [MP] kb tap n=128 finger=LeftRing key=12 late=True leadMs=0 speed=0.03 lateTotal=26
+11-04 01:47:40.059 19473 19521 I Unity   : [MP] kb tap n=129 finger=RightMiddle key=7 late=False leadMs=27 speed=0.11 lateTotal=26
+11-04 01:47:40.586 19473 19521 I Unity   : [MP] kb tap n=130 finger=LeftRing key=12 late=False leadMs=42 speed=0.15 lateTotal=26
+11-04 01:47:40.628 19473 19521 I Unity   : [MP] kb tap n=131 finger=RightRing key=8 late=False leadMs=55 speed=0.09 lateTotal=26
+11-04 01:47:40.698 19473 19521 I Unity   : [MP] kb tap n=132 finger=RightMiddle key=7 late=False leadMs=28 speed=0.46 lateTotal=26
+11-04 01:47:40.837 19473 19521 I Unity   : [MP] kb tap n=133 finger=RightIndex key=16 late=False leadMs=14 speed=0.11 lateTotal=26
+11-04 01:47:41.212 19473 19521 I Unity   : [MP] kb tap n=134 finger=LeftIndex key=14 late=False leadMs=417 speed=0.13 lateTotal=26
+11-04 01:47:41.671 19473 19521 I Unity   : [MP] kb tap n=135 finger=RightMiddle key=8 late=False leadMs=42 speed=0.14 lateTotal=26
+11-04 01:47:42.073 19473 19521 I Unity   : [MP] kb tap n=136 finger=RightRing key=9 late=True leadMs=0 speed=0.01 lateTotal=27
+11-04 01:47:42.892 19473 19521 I Unity   : [MP] kb tap n=137 finger=RightRing key=8 late=False leadMs=416 speed=0.01 lateTotal=27
+11-04 01:47:42.948 19473 19521 I Unity   : [MP] kb tap n=138 finger=RightMiddle key=7 late=False leadMs=56 speed=0.06 lateTotal=27
+11-04 01:47:44.656 19473 19521 I Unity   : [MP] kb tap n=139 finger=LeftIndex key=24 late=False leadMs=2917 speed=0.08 lateTotal=27
+11-04 01:47:45.018 19473 19521 I Unity   : [MP] kb tap n=140 finger=RightIndex key=16 late=False leadMs=125 speed=0.02 lateTotal=27

@@ -1,0 +1,9 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchRayTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:52:38.130Z
+
+total=2 passed=2 failed=0
+  Passed  MoodPicker.Tests.CatchRayTests.CatchRay_CenterLiesOnHeadForwardRay
+  Passed  MoodPicker.Tests.CatchRayTests.CatchRay_GazeAloneNeverCaptures
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

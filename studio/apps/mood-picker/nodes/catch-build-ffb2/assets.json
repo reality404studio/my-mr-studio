@@ -1,0 +1,22 @@
+[
+  {
+    "file": "check-2026-11-04T05-09-23-979Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchProjectionTests|MoodPicker.Tests.CatchCropTests → exit 127 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:09:23.987Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchProjectionTests|MoodPicker.Tests.CatchCropTests",
+      "exit": 127
+    }
+  },
+  {
+    "file": "check-2026-11-04T05-09-46-021Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchProjectionTests → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:09:46.026Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchProjectionTests",
+      "exit": 0
+    }
+  }
+]

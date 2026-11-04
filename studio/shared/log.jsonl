@@ -8,3 +8,68 @@
 {"ts":"2026-11-03T03:29:34.530Z","actor":"Claude Code","action":"node.create","nodeId":"decision-log","detail":"결정 기록: 정한 것 / 안 하기로 한 것"}
 {"ts":"2026-11-03T03:37:04.502Z","actor":"Claude Code","action":"node.update","nodeId":"unity-version-decide","detail":"status=done"}
 {"ts":"2026-11-03T03:37:04.723Z","actor":"Claude Code","action":"notes.append","nodeId":"platform","detail":"2026-11-03: Unity 버전 = **Unity 6** 으로 결정 (6000.0.66f2 이상, 6.1+ 권장). XR 플러그인은 Ope"}
+{"ts":"2026-11-03T14:11:40.410Z","actor":"Claude Code","action":"notes.append","nodeId":"unity-guardrails","detail":"실기에서 바뀐 것 (2026-11-03, Unity 6000.3.27f2 + Core 207.0.1, 파일로 확인): 생성된 AndroidMan"}
+{"ts":"2026-11-03T14:16:36.083Z","actor":"Claude Code","action":"notes.append","nodeId":"unity-guardrails","detail":"실기에서 바뀐 것 (2026-11-03, Core 207.0.1, 파일로 확인): OVRProjectConfig 에 Passthrough Cam"}
+{"ts":"2026-11-03T14:34:44.336Z","actor":"Claude Code","action":"notes.append","nodeId":"hand-patterns","detail":"mood-picker 2026-11-03 변경 (실기 검증 전): '핀치 간격 = 반경' 대신 **양손 핀치 = 정사각형 영역** (두 손 핀치"}
+{"ts":"2026-11-03T14:42:27.909Z","actor":"Claude Code","action":"notes.append","nodeId":"unity-guardrails","detail":"2026-11-03 사람 결정: §0 원칙 4 추가 — 실기 시연 전 수치·감각 결정은 베이스라인, 초안대로 구현하고 값은 한곳에 모아 실기에서"}
+{"ts":"2026-11-03T15:14:27.217Z","actor":"Claude Code","action":"notes.append","nodeId":"unity-guardrails","detail":"실기에서 바뀐 것 (2026-11-04, 실기 확인): ① metavr_unity_setup 으로 부트스트랩한 프로젝트는 URP 패키지만 있고 "}
+{"ts":"2026-11-03T15:15:57.014Z","actor":"Claude Code","action":"notes.append","nodeId":"perf-rules","detail":"2026-11-04 mood-picker: 72fps 는 빌드 목표 그대로. 이 앱의 합격선은 60fps 유지 + 5초 구간 드롭 ≤3프레임 ("}
+{"ts":"2026-11-03T15:26:53.334Z","actor":"Claude Code","action":"node.create","nodeId":"proof-gate","detail":"작업대 증명 게이트"}
+{"ts":"2026-11-03T15:26:53.412Z","actor":"Claude Code","action":"sub.create","nodeId":"proof-gate-verifier","detail":"증명 → 완료는 다른 이름만"}
+{"ts":"2026-11-03T15:26:53.486Z","actor":"Claude Code","action":"sub.create","nodeId":"proof-gate-lint","detail":"주석 린트 + 작업대 주석 정리"}
+{"ts":"2026-11-03T15:26:53.788Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-verifier","detail":"status=doing"}
+{"ts":"2026-11-03T15:26:53.862Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-verifier","detail":"status=proof"}
+{"ts":"2026-11-03T15:26:53.940Z","actor":"Claude Code","action":"asset.add","nodeId":"proof-gate-verifier","detail":"verifier-proof.txt"}
+{"ts":"2026-11-03T15:28:53.073Z","actor":"Verifier","action":"node.update","nodeId":"proof-gate-verifier","detail":"status=done"}
+{"ts":"2026-11-03T15:28:58.299Z","actor":"Verifier","action":"notes.append","nodeId":"proof-gate-verifier","detail":"검증(Verifier): npm test 11/11 재실행. server/store.mjs 439행(proofBy === actor 거절) 삭제"}
+{"ts":"2026-11-03T15:43:40.663Z","actor":"Claude Code","action":"sub.create","nodeId":"proof-gate-selfcheck","detail":"검증은 이 세션이: check 통과 로그로 done"}
+{"ts":"2026-11-03T15:43:40.736Z","actor":"Claude Code","action":"node.move","nodeId":"proof-gate-selfcheck","detail":"위로"}
+{"ts":"2026-11-03T15:43:40.812Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-selfcheck","detail":"status=doing"}
+{"ts":"2026-11-03T15:43:41.289Z","actor":"Claude Code","action":"asset.add","nodeId":"proof-gate-selfcheck","detail":"check-2026-11-03T15-43-41-288Z.log"}
+{"ts":"2026-11-03T15:43:41.290Z","actor":"Claude Code","action":"notes.append","nodeId":"proof-gate-selfcheck","detail":"check 실패 (exit 3): `npm test >/dev/null 2>&1 && exit 3`\n\n```\n\n```"}
+{"ts":"2026-11-03T15:43:51.845Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-selfcheck","detail":"status=proof"}
+{"ts":"2026-11-03T15:43:51.847Z","actor":"Claude Code","action":"asset.add","nodeId":"proof-gate-selfcheck","detail":"check-2026-11-03T15-43-51-844Z.log"}
+{"ts":"2026-11-03T15:44:11.896Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-selfcheck","detail":"status=doing"}
+{"ts":"2026-11-03T15:44:11.977Z","actor":"Claude Code","action":"notes.append","nodeId":"proof-gate-selfcheck","detail":"15:43 check 통과 로그는 무효: 뮤테이션 sed 가 board.mjs 문법을 깨서(파일 단위 실패) 게이트 로직이 테스트로 잡힌다는 증"}
+{"ts":"2026-11-03T15:44:15.375Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-selfcheck","detail":"status=proof"}
+{"ts":"2026-11-03T15:44:15.377Z","actor":"Claude Code","action":"asset.add","nodeId":"proof-gate-selfcheck","detail":"check-2026-11-03T15-44-15-373Z.log"}
+{"ts":"2026-11-03T15:44:24.434Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-selfcheck","detail":"status=done"}
+{"ts":"2026-11-03T15:48:13.743Z","actor":"Claude Code","action":"sub.create","nodeId":"proof-gate-git","detail":"커밋·푸시 규칙 git 훅"}
+{"ts":"2026-11-03T15:48:13.917Z","actor":"Claude Code","action":"node.move","nodeId":"proof-gate-git","detail":"위로"}
+{"ts":"2026-11-03T15:48:14.112Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-git","detail":"status=doing"}
+{"ts":"2026-11-03T15:48:27.540Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-git","detail":"status=proof"}
+{"ts":"2026-11-03T15:48:27.545Z","actor":"Claude Code","action":"asset.add","nodeId":"proof-gate-git","detail":"check-2026-11-03T15-48-27-534Z.log"}
+{"ts":"2026-11-03T15:48:51.684Z","actor":"Claude Code","action":"notes.append","nodeId":"proof-gate-git","detail":"check 15:48 통과. 임시 레포의 force-push 거절 줄은 main 보호와 겹쳐 force 규칙만 따로 증명하진 않음 → force"}
+{"ts":"2026-11-03T15:48:51.866Z","actor":"Claude Code","action":"node.update","nodeId":"proof-gate-git","detail":"status=done"}
+{"ts":"2026-11-03T16:05:55.518Z","actor":"Claude Code","action":"node.create","nodeId":"build-e3ce","detail":"책상 키보드 착시 실험"}
+{"ts":"2026-11-03T16:06:06.534Z","actor":"Claude Code","action":"sub.create","nodeId":"build-e3ce-build-6f1c","detail":"책상 평면 + 손끝 닿음·예측 탭 감지 (순수 C#)"}
+{"ts":"2026-11-03T16:06:06.735Z","actor":"Claude Code","action":"sub.create","nodeId":"build-e3ce-build-c099","detail":"실험 씬: 캘리브레이션 + 키보드 눌림 + 클릭 소리 + 손 가림막·글로우"}
+{"ts":"2026-11-03T16:06:06.949Z","actor":"Claude Code","action":"sub.create","nodeId":"build-e3ce-verify-f36b","detail":"실기: 진짜 키보드를 치는 느낌이 드는지"}
+{"ts":"2026-11-03T16:06:07.148Z","actor":"Claude Code","action":"sub.create","nodeId":"build-e3ce-analyze-a9f0","detail":"소리-탭 간격 측정 (마이크)"}
+{"ts":"2026-11-03T16:06:30.538Z","actor":"Claude Code","action":"node.update","nodeId":"build-e3ce-build-6f1c","detail":"status=doing"}
+{"ts":"2026-11-03T16:08:48.168Z","actor":"Claude Code","action":"node.update","nodeId":"build-e3ce-build-6f1c","detail":"status=proof"}
+{"ts":"2026-11-03T16:08:48.172Z","actor":"Claude Code","action":"asset.add","nodeId":"build-e3ce-build-6f1c","detail":"check-2026-11-03T16-08-48-153Z.log"}
+{"ts":"2026-11-03T16:08:48.527Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce","detail":"2026-11-04 build-6f1c: Assets/Scripts/Experiments/DeskKeyboard/Core (asmdef Mood"}
+{"ts":"2026-11-03T16:08:48.753Z","actor":"Claude Code","action":"node.update","nodeId":"build-e3ce-build-6f1c","detail":"status=done"}
+{"ts":"2026-11-03T16:09:27.188Z","actor":"Claude Code","action":"node.update","nodeId":"build-e3ce-build-c099","detail":"status=doing"}
+{"ts":"2026-11-03T16:29:50.142Z","actor":"Claude Code","action":"notes.append","nodeId":"calibration","detail":"2026-11-04 사람 결정 (DECIDED.md): 점 찍기(세 점 드웰) 대신 양손 사각형 높이로 책상 높이 설정. 실기에서 드웰은 공중에"}
+{"ts":"2026-11-03T16:30:57.689Z","actor":"Claude Code","action":"notes.append","nodeId":"unity-guardrails","detail":"실기에서 바뀐 것 (2026-11-04, 키보드 착시 실험 실기): ① 앱 시작 직후 OVRSkeleton 이 IsDataValid=true 인"}
+{"ts":"2026-11-03T16:50:33.259Z","actor":"Claude Code","action":"asset.add","nodeId":"build-e3ce-build-c099","detail":"check-2026-11-03T16-50-33-258Z.log"}
+{"ts":"2026-11-03T16:50:33.260Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce-build-c099","detail":"check 실패 (exit 2): `sh -c grep -q 'Build Finished, Result: Success' unity/mood-p"}
+{"ts":"2026-11-03T16:50:33.463Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce-build-c099","detail":"2026-11-04 빌드 a57449e-dirty-1104-014209: 양손 사각형 캘리브레이션(사람 결정) → 키 30 + 스페이스바, 왼손"}
+{"ts":"2026-11-03T16:50:33.873Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce-verify-f36b","detail":"2026-11-04 1차 사람 체감 (빌드 a57449e-dirty-1104-014209): \"일단 손 글로우 적당 소리 타이밍보다 키가 너무 "}
+{"ts":"2026-11-03T16:50:45.373Z","actor":"Claude Code","action":"asset.add","nodeId":"build-e3ce-build-c099","detail":"check-2026-11-03T16-50-45-371Z.log"}
+{"ts":"2026-11-03T16:50:45.373Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce-build-c099","detail":"check 실패 (exit 1): `sh unity/mood-picker/scripts/verify-device-log.sh unity/mood"}
+{"ts":"2026-11-03T16:50:54.010Z","actor":"Claude Code","action":"node.update","nodeId":"build-e3ce-build-c099","detail":"status=proof"}
+{"ts":"2026-11-03T16:50:54.012Z","actor":"Claude Code","action":"asset.add","nodeId":"build-e3ce-build-c099","detail":"check-2026-11-03T16-50-54-009Z.log"}
+{"ts":"2026-11-03T16:50:54.214Z","actor":"Claude Code","action":"node.update","nodeId":"build-e3ce-build-c099","detail":"status=done"}
+{"ts":"2026-11-03T16:59:33.747Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce-verify-f36b","detail":"2026-11-04 2차 사람 체감 (빌드 a57449e-dirty-1104-015208, 소리 A 24탭 → B 106탭에 정착): \"이번에 "}
+{"ts":"2026-11-03T16:59:33.950Z","actor":"Claude Code","action":"notes.append","nodeId":"build-e3ce","detail":"2026-11-04 오늘 종료. 실험 카드 4개 중 2개 done (6f1c 감지 코어, c099 실험 씬), f36b(사람 체감) 진행 중, "}
+{"ts":"2026-11-04T04:48:33.602Z","actor":"Claude Code","action":"node.create","nodeId":"sessions-panel","detail":"활성 세션 표시"}
+{"ts":"2026-11-04T04:48:33.809Z","actor":"Claude Code","action":"node.update","nodeId":"sessions-panel","detail":"status=doing"}
+{"ts":"2026-11-04T04:50:01.704Z","actor":"Claude Code","action":"asset.add","nodeId":"sessions-panel","detail":"check-2026-11-04T04-50-01-702Z.log","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-04T04:50:01.704Z","actor":"Claude Code","action":"notes.append","nodeId":"sessions-panel","detail":"check 실패 (exit 1): `sh -c npm test && npm run build`\n\n```\n    ping, pkg, prefix,","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-04T04:50:09.030Z","actor":"Claude Code","action":"node.update","nodeId":"sessions-panel","detail":"status=proof","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-04T04:50:09.032Z","actor":"Claude Code","action":"asset.add","nodeId":"sessions-panel","detail":"check-2026-11-04T04-50-09-029Z.log","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-04T04:50:15.379Z","actor":"Claude Code","action":"notes.append","nodeId":"sessions-panel","detail":"활성 세션 줄 붙임. /api/sessions 가 ~/.claude/sessions/<pid>.json 에서 이름·상태·cwd·시각만 읽고 (.","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-04T04:50:15.578Z","actor":"Claude Code","action":"node.update","nodeId":"sessions-panel","detail":"status=done","session":"my-vr-colorpicker-c7"}

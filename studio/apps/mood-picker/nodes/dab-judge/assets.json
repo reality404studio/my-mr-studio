@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-04T05-30-15-758Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabJudgeTests → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:30:15.774Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabJudgeTests",
+      "exit": 0
+    }
+  }
+]

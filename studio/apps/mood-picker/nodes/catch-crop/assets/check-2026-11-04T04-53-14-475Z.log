@@ -1,0 +1,11 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchCropTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:53:14.476Z
+
+total=4 passed=4 failed=0
+  Passed  MoodPicker.Tests.CatchCropTests.Crop_KnownWorldSquareMapsToExpectedPixelRect
+  Passed  MoodPicker.Tests.CatchCropTests.Crop_NearEdgeStaysInsideFrameAndOversizeShrinks
+  Passed  MoodPicker.Tests.CatchCropTests.Crop_PixelsAreSourcePixels
+  Passed  MoodPicker.Tests.CatchCropTests.Crop_RuntimeReadsOnlyTheCropRegionAsynchronously
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

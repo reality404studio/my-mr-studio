@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8">
+<title>인터페이스 언어 v0</title>
+<style>
+:root{
+  --paper:#F0EEE6; --ink:#15317C; --cobalt:#2559B4; --sky:#7FA6D9; --red:#D23A2C; --mute:#5F6472; --line:#C9C6BB;
+  --pt:#5E7180; /* passthrough stand-in */
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:#1d2230;font-family:"Pretendard Variable",Pretendard,sans-serif;font-size:15px;line-height:1.55}
+.wrap{width:1360px;margin:0 auto;padding:56px 56px 80px}
+.mast{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--ink);padding-bottom:14px}
+.mast h1{font-family:Fraunces;font-variation-settings:"opsz" 144,"SOFT" 0,"WONK" 0;font-weight:500;font-size:64px;line-height:1;margin:0;color:var(--ink)}
+.mast .no{font-family:Menlo,monospace;font-size:13px;text-align:right;color:var(--ink)}
+.mast .no b{color:var(--red)}
+h2{font-family:Fraunces;font-variation-settings:"opsz" 72;font-weight:500;font-size:30px;color:var(--ink);margin:56px 0 6px;display:flex;gap:14px;align-items:baseline}
+h2 .n{font-family:Menlo,monospace;font-size:13px;color:var(--red)}
+.lede{color:#4a5060;margin:0 0 18px;max-width:900px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{border-top:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{font-family:Menlo,monospace;font-size:11px;font-weight:400;color:var(--mute);letter-spacing:.06em;text-transform:uppercase}
+.tag{font-family:Menlo,monospace;font-size:11px;padding:1px 6px;border:1px solid currentColor;white-space:nowrap}
+.done{color:#2c7a4b}.open{color:var(--red)}.draft{color:var(--cobalt)}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:24px}
+.card{border:1px solid var(--line);background:#fff8;padding:18px}
+.card h3{margin:0 0 4px;font-size:16px}
+.card .axis{font-family:Menlo,monospace;font-size:11px;color:var(--mute)}
+.sw{display:flex;gap:6px;margin:12px 0}
+.sw div{flex:1;height:54px;position:relative}
+.sw span{position:absolute;bottom:-18px;left:0;font-family:Menlo,monospace;font-size:10px;color:#555}
+.pt{background:linear-gradient(160deg,#8EA3B4,#5E7180 55%,#39454f);height:150px;margin-top:28px;position:relative;overflow:hidden}
+.spec{font-family:Menlo,monospace;font-size:12px}
+.font-row{display:grid;grid-template-columns:150px 1fr 1fr 1fr;gap:18px;border-top:1px solid var(--line);padding:16px 0}
+.font-row .role{font-weight:600}
+.font-row .role small{display:block;font-weight:400;color:var(--mute);font-size:12px}
+.fs{font-size:12px;color:#555}
+.fs .big{font-size:30px;color:#111;line-height:1.15;display:block;margin-bottom:6px}
+.note{border-left:3px solid var(--red);padding:6px 12px;background:#fff6;margin:14px 0;font-size:14px}
+svg text{font-family:Menlo,monospace}
+.hl text{paint-order:stroke;stroke:#F0EEE6;stroke-width:3px;stroke-linejoin:round}
+text.hl{paint-order:stroke;stroke:#F0EEE6;stroke-width:3px;stroke-linejoin:round}
+.q{counter-reset:q}
+.q li{margin:6px 0}
+</style></head><body><div class="wrap">
+
+<div class="mast">
+  <h1>Interface Language</h1>
+  <div class="no">GAZE · CATCH · DAB — 모던 매지션<br>SHEET <b>IL-00</b> · 2026-11-03 · 확정용 v0<br>작성 Claude Code · 확정은 사람</div>
+</div>
+
+<h2><span class="n">00</span>요소 전체 목록</h2>
+<p class="lede">인터페이스 언어를 "확정"했다고 말하려면 아래 14개가 다 정해져 있어야 해요. 초록은 이미 사람이 정한 것, 파랑은 에이전트 초안(이 시트에 있음, 맞으면 그대로), 빨강은 사람이 골라야 하는 것.</p>
+<table>
+<tr><th>#</th><th>요소</th><th>상태</th><th>지금 내용</th></tr>
+<tr><td>1</td><td>정체성 · 마법이 보이는 방식</td><td><span class="tag done">정함</span></td><td>모던 매지션. 마법 = 도면이 스스로 그려지고 치수가 스스로 재지는 것</td></tr>
+<tr><td>2</td><td>감각 분담</td><td><span class="tag done">정함</span></td><td>눈 = 건축 도면 + 에디토리얼, 귀 = 동화</td></tr>
+<tr><td>3</td><td>여백의 정체 (MR)</td><td><span class="tag draft">초안</span></td><td><b>여백 = 패스스루(현실).</b> 흰 종이 패널을 깔지 않아요. 선과 글자만 현실 위에 떠요. 흰 면은 표제란·타일 라벨처럼 "인쇄물"일 때만</td></tr>
+<tr><td>4</td><td>색 토큰 (hex + 역할)</td><td><span class="tag open">고름</span></td><td>§01 의 세 안 중 하나</td></tr>
+<tr><td>5</td><td>오브제 셀 외곽선 색</td><td><span class="tag open">고름</span></td><td>예전 남색 <code>#2E3350</code> 은 CRT 팔레트 출신이라 같이 사라졌어요. §01 각 안에 대안 포함</td></tr>
+<tr><td>6</td><td>폰트 3역할</td><td><span class="tag open">고름</span></td><td>§02. 도면 레터링 / 에디토리얼 제목 / 한글</td></tr>
+<tr><td>7</td><td>UI 글자 언어</td><td><span class="tag open">고름</span></td><td>영문+숫자 위주(심사위원, 도면 관습) vs 한글 위주. 한글이 적을수록 TMP 아틀라스가 작아져요</td></tr>
+<tr><td>8</td><td>선 체계 (굵기·종류·화살촉)</td><td><span class="tag draft">초안</span></td><td>§03. 제도 관습 4종을 의미에 묶음</td></tr>
+<tr><td>9</td><td>크기 하한 (각도 기준)</td><td><span class="tag draft">초안</span></td><td>§03. Meta 가이드: 이탤릭 금지, 가는 굵기 피하기, 최소 14px. 실기에서 확인</td></tr>
+<tr><td>10</td><td>공간 배치 (무엇이 어디에 붙나)</td><td><span class="tag draft">초안</span></td><td>§04. 측량 원 = 시선 고정, 표제란 = 월드에 남음, 토글 = 손에 붙음</td></tr>
+<tr><td>11</td><td>컴포넌트: 실측 HUD</td><td><span class="tag draft">초안</span></td><td>§04. 측량 원, 응시 카운터, 빛 방향, 표제란, 모드 토글 (찰칵 / 루프 온)</td></tr>
+<tr><td>12</td><td>컴포넌트: 재료 타일 · 포탈 · 손끝 물감</td><td><span class="tag draft">초안</span></td><td>§05</td></tr>
+<tr><td>13</td><td>움직임 문법</td><td><span class="tag draft">초안</span></td><td>§06. "그려진다"는 순서와 시간</td></tr>
+<tr><td>14</td><td>소리 방향표 (동화)</td><td><span class="tag draft">초안</span></td><td>§07. 이벤트 5개</td></tr>
+<tr><td>15</td><td>번호 · 이름 짓는 법</td><td><span class="tag open">고름</span></td><td>§05. 도면번호 형식, 재료 이름을 누가 짓나</td></tr>
+<tr><td>16</td><td>예외 상태 (어두움, 손 놓침, 빈 포탈)</td><td><span class="tag draft">초안</span></td><td>§06 끝. 같은 도면 문법으로</td></tr>
+</table>
+
+<h2><span class="n">01</span>색 — 세 안 (서로 다른 축)</h2>
+<p class="lede">모두 레퍼런스에서 뽑은 값이에요 (r10 코발트 <code>#2559B4</code>, r9 클라인 <code>#15317C</code>, r9 종이 <code>#F0EEE6</code>, r4 하늘, r7·r10 빨강). 아래 회색 띠는 패스스루 대용. 차이는 "선이 무슨 색이냐"와 "빨강을 언제 쓰냐"예요.</p>
+<div class="grid3">
+  <div class="card"><div class="axis">축: 선의 색 = 잉크</div><h3>A · 클라인 잉크</h3>
+    <div class="sw"><div style="background:#15317C"><span>선 #15317C</span></div><div style="background:#2559B4"><span>면 #2559B4</span></div><div style="background:#F0EEE6;border:1px solid #ccc"><span>종이 #F0EEE6</span></div><div style="background:#D23A2C"><span>점 #D23A2C</span></div></div>
+    <div class="pt"><svg width="100%" height="150"><circle cx="190" cy="75" r="48" fill="none" stroke="#15317C" stroke-width="3"/><line x1="190" y1="75" x2="238" y2="75" stroke="#15317C" stroke-width="2"/><circle cx="190" cy="75" r="4" fill="#D23A2C"/><text x="246" y="79" fill="#15317C" font-size="13">00:17.4</text></svg></div>
+    <p class="fs">진짜 도면처럼 진한 잉크선. 밝은 하늘·낮 풍경에선 또렷, <b>밤 전철 창(어두움)에선 묻힘</b>. 외곽선 = 같은 잉크.</p></div>
+  <div class="card"><div class="axis">축: 선의 색 = 빛</div><h3>B · 흰 제도선</h3>
+    <div class="sw"><div style="background:#F0EEE6;border:1px solid #ccc"><span>선 #F0EEE6</span></div><div style="background:#2559B4"><span>표제 #2559B4</span></div><div style="background:#7FA6D9"><span>보조 #7FA6D9</span></div><div style="background:#D23A2C"><span>점 #D23A2C</span></div></div>
+    <div class="pt"><svg width="100%" height="150"><circle cx="190" cy="75" r="48" fill="none" stroke="#F0EEE6" stroke-width="3"/><line x1="190" y1="75" x2="238" y2="75" stroke="#F0EEE6" stroke-width="2"/><circle cx="190" cy="75" r="4" fill="#D23A2C"/><text x="246" y="79" fill="#F0EEE6" font-size="13">00:17.4</text></svg></div>
+    <p class="fs">청사진을 뒤집은 것. 어두운 창밖에서 강함, 흰 벽·하늘에선 약함 → <b>얇은 남색 그림자 테두리</b> 필요. 코발트는 표제란·타일 라벨 "인쇄물"에만. 외곽선 = 클라인.</p></div>
+  <div class="card"><div class="axis">축: 색이 상태를 말함</div><h3>C · 코발트 → 빨강</h3>
+    <div class="sw"><div style="background:#7FA6D9"><span>대기 #7FA6D9</span></div><div style="background:#2559B4"><span>응시 #2559B4</span></div><div style="background:#D23A2C"><span>담김 #D23A2C</span></div><div style="background:#F0EEE6;border:1px solid #ccc"><span>종이 #F0EEE6</span></div></div>
+    <div class="pt"><svg width="100%" height="150"><circle cx="110" cy="75" r="40" fill="none" stroke="#7FA6D9" stroke-width="3"/><circle cx="210" cy="75" r="40" fill="none" stroke="#2559B4" stroke-width="3"/><circle cx="310" cy="75" r="40" fill="none" stroke="#D23A2C" stroke-width="3"/><text x="84" y="132" fill="#F0EEE6" font-size="11">대기</text><text x="184" y="132" fill="#F0EEE6" font-size="11">응시</text><text x="284" y="132" fill="#F0EEE6" font-size="11">담김</text></svg></div>
+    <p class="fs">하늘색에서 시작해 오래 볼수록 코발트로 짙어지고, 담는 순간만 빨강. <b>색 = 응시 진하기</b>라 인과가 바로 보임. 대신 빨강이 "포인트 한 점"이 아니라 상태색이 됨.</p></div>
+</div>
+<div class="note">공통: 빨강은 화면에 <b>한 번에 한 점</b>만(r7·r10 규칙). 노랑(r10 SPACE 제목)은 넣지 않았어요 — 넣고 싶으면 말해 주세요. 대비 기준은 Meta 4.5:1(글자) / 3:1(선), 패스스루 위에선 실기로만 확인 가능.</div>
+
+<h2><span class="n">02</span>폰트 — 역할별 후보 (앱 임베드 가능한 라이선스 위주)</h2>
+<p class="lede">견본은 이 Mac에 깔린 폰트로 대신 찍었어요(Fraunces, Pretendard, 을유1945, Menlo). 표에 "대용"이라고 쓴 건 실제 후보와 모양이 달라요. Meta 기준: 이탤릭 금지, Light·Thin 피하기 → 에디토리얼 세리프는 <b>큰 제목에만</b>.</p>
+<div class="font-row"><div class="role">도면 레터링<small>치수, 타임코드, 표제란 숫자</small></div>
+  <div class="fs"><span class="big" style="font-family:Menlo">r 12° 00:17.4</span><b>a · 고정폭 (IBM Plex Mono, OFL)</b><br>숫자 폭이 같아 타임코드가 안 떨림. 가장 안전, 가장 흔함. 견본은 Menlo 대용</div>
+  <div class="fs"><span class="big" style="font-family:'DIN Alternate','Helvetica Neue';font-weight:500">r 12° 00:17.4</span><b>b · DIN 계열 (D-DIN, OFL)</b><br>표지판·도면 숫자. 좁고 단단함. 견본은 DIN Alternate 대용(앱엔 못 넣음)</div>
+  <div class="fs"><span class="big" style="font-family:'Avenir Next Condensed';letter-spacing:.04em">R 12° 00:17.4</span><b>c · ISO 3098 제도 글씨 (osifont, GPL+폰트 예외)</b><br>손으로 쓴 제도 레터링 그 자체. 가장 "도면". 굵기가 하나라 헤드셋에서 가늘 수 있음. 견본은 대용</div></div>
+<div class="font-row"><div class="role">에디토리얼 제목<small>재료 이름, 마스트헤드</small></div>
+  <div class="fs"><span class="big" style="font-family:Fraunces;font-variation-settings:'opsz' 144,'SOFT' 0;font-weight:500">Dangsan Dusk</span><b>a · Fraunces (OFL, 설치됨)</b><br>opsz 축이 커서 큰 제목이 날카로움. SOFT 축으로 "동화" 쪽으로 살짝 굴릴 여지</div>
+  <div class="fs"><span class="big" style="font-family:Fraunces;font-variation-settings:'opsz' 144,'SOFT' 100;font-weight:600">Dangsan Dusk</span><b>a′ · Fraunces SOFT 100</b><br>같은 폰트, 귀(동화)를 눈에 조금 섞은 버전. 글자 모서리가 둥글어짐</div>
+  <div class="fs"><span class="big" style="font-family:'Didot','Bodoni 72';font-weight:400">Dangsan Dusk</span><b>b · 고대비 디도 계열 (예: Bodoni Moda, OFL)</b><br>r10 SPACE 표지 쪽. 헤어라인이 26 PPD 에서 사라질 위험 큼 → 아주 크게만. 견본은 Didot 대용</div></div>
+<div class="font-row"><div class="role">한글<small>장소 이름, 안내 한 줄</small></div>
+  <div class="fs"><span class="big" style="font-family:'Pretendard Variable';font-weight:600">당산철교 노을</span><b>a · Pretendard (OFL, 설치됨)</b><br>가독성 최상, 도면 레터링 옆에서 무난. 가장 평균적인 선택</div>
+  <div class="fs"><span class="big" style="font-family:'Eulyoo1945';font-weight:600">당산철교 노을</span><b>b · 을유1945 (설치됨, 임베드 라이선스 확인 필요)</b><br>오래된 출판사 명조. 에디토리얼 세리프와 같은 결</div>
+  <div class="fs"><span class="big" style="font-family:'Pretendard Variable';font-weight:500;letter-spacing:.25em">당산 · 17:24</span><b>c · 한글 최소화</b><br>UI는 영문+숫자, 한글은 장소 이름에만. 쓰는 글자만 서브셋 → 아틀라스 작게</div></div>
+<div class="note">TMP 한글: 전체 11,172자를 굽지 말고 <b>쓰는 글자 서브셋 + 동적 아틀라스 보충</b>. 장소 이름을 사용자가 짓는다면(§05) 동적 아틀라스가 필요해요.</div>
+
+<h2><span class="n">03</span>선 체계와 크기 하한 <span class="tag draft">초안</span></h2>
+<div class="grid2">
+<div><svg width="600" height="230">
+  <g stroke="#15317C" fill="none">
+   <line x1="20" y1="30" x2="260" y2="30" stroke-width="4"/>
+   <line x1="20" y1="80" x2="260" y2="80" stroke-width="2"/><path d="M20 80 l10 -5 v10z M260 80 l-10 -5 v10z" fill="#15317C"/>
+   <line x1="20" y1="130" x2="260" y2="130" stroke-width="2" stroke-dasharray="10 6"/>
+   <line x1="20" y1="180" x2="260" y2="180" stroke-width="2" stroke-dasharray="22 5 3 5"/>
+  </g>
+  <g font-size="13" fill="#1d2230"><text x="280" y="34">외형선 · 담긴 것, 확정된 것</text><text x="280" y="84">치수선 · 재고 있는 값 (반경, 시간)</text><text x="280" y="134">숨은선 · 아직 아닌 것 (대기, 미리보기)</text><text x="280" y="184">중심선 · 시선, 빛 방향 축</text></g>
+</svg></div>
+<div><table>
+<tr><th>항목</th><th>하한 (시작값, 실기 확인)</th></tr>
+<tr><td>선 굵기</td><td>가는 선 ≥ 0.08° (약 2px), 외형선 ≥ 0.15°. 45cm에서 각각 약 0.6mm / 1.2mm</td></tr>
+<tr><td>숫자·라벨</td><td>글자 크기 ≥ 0.55° (Meta 최소 14px 상당), 읽는 글 ≥ 0.7°. 45cm에서 약 4.3mm / 5.5mm</td></tr>
+<tr><td>굵기</td><td>Regular 이상. Light·Thin·이탤릭 없음</td></tr>
+<tr><td>HUD 거리</td><td>시선 HUD 는 1.0m에 그림 (창밖은 멀지만 초점 피로 방지). 손에 붙는 건 손 위치 그대로</td></tr>
+</table></div></div>
+
+<h2><span class="n">04</span>실측 HUD — 찰칵 / 루프 온 <span class="tag draft">초안</span></h2>
+<p class="lede">색은 A안(클라인 잉크)을 흰 테두리로 받쳐 그렸어요 — 색 안을 고르면 다시 칠해요. 같은 측량 원인데, 루프 온은 원 둘레를 점선 링이 돌며 타임코드가 계속 올라가요.</p>
+<svg width="1248" height="480" viewBox="0 0 1248 480">
+  <defs>
+    <linearGradient id="win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E9B98A"/><stop offset=".55" stop-color="#9DB3C8"/><stop offset="1" stop-color="#4E6170"/></linearGradient>
+    <filter id="halo"><feMorphology operator="dilate" radius="1.2" in="SourceAlpha" result="d"/><feFlood flood-color="#F0EEE6"/><feComposite in2="d" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <marker id="ah" markerWidth="10" markerHeight="10" refX="9" refY="5" orient="auto"><path d="M0 1 L9 5 L0 9z" fill="#15317C"/></marker>
+  </defs>
+  <!-- 찰칵 -->
+  <g>
+    <rect x="0" y="0" width="610" height="420" fill="url(#win)"/>
+    <path d="M0 300 Q150 280 300 300 T610 295 V420 H0z" fill="#3E5260" opacity=".7"/>
+    <g filter="url(#halo)" stroke="#15317C" fill="none">
+      <circle cx="300" cy="200" r="90" stroke-width="3"/>
+      <line x1="285" y1="200" x2="315" y2="200" stroke-width="2"/><line x1="300" y1="185" x2="300" y2="215" stroke-width="2"/>
+      <line x1="300" y1="200" x2="388" y2="200" stroke-width="2" marker-end="url(#ah)"/>
+      <line x1="300" y1="80" x2="300" y2="106" stroke-width="2" stroke-dasharray="14 4 3 4"/>
+      <!-- 축척 막대 -->
+      <rect x="210" y="318" width="180" height="8" stroke-width="2"/>
+      <rect x="210" y="318" width="120" height="8" fill="#15317C"/>
+      <line x1="237" y1="312" x2="237" y2="332" stroke-width="2"/><line x1="390" y1="312" x2="390" y2="332" stroke-width="2"/>
+    </g>
+    <g class="hl" fill="#15317C" font-size="14">
+      <text x="342" y="192">r 12°</text>
+      <text x="210" y="306" font-size="22">00:13.6</text>
+      <text x="230" y="348" font-size="11">3s</text><text x="380" y="348" font-size="11">20s</text>
+    </g>
+    <!-- 토글 -->
+    <g transform="translate(70,350)">
+      <rect width="150" height="34" fill="none" stroke="#15317C" stroke-width="2"/>
+      <rect width="75" height="34" fill="#15317C"/>
+      <text x="14" y="22" fill="#F0EEE6" font-size="12">STILL</text><text x="92" y="22" fill="#15317C" font-size="12">LOOP</text>
+    </g>
+    <text x="70" y="406" fill="#F0EEE6" font-size="11">↑ 왼손목 위 (오른손으로 톡)</text>
+    <text x="16" y="28" fill="#15317C" font-size="13" class="hl">찰칵 · 응시 중</text>
+  </g>
+  <!-- 루프 온 + 담김 -->
+  <g transform="translate(638,0)">
+    <rect x="0" y="0" width="610" height="420" fill="url(#win)"/>
+    <path d="M0 300 Q150 280 300 300 T610 295 V420 H0z" fill="#3E5260" opacity=".7"/>
+    <g filter="url(#halo)" stroke="#15317C" fill="none">
+      <circle cx="300" cy="200" r="90" stroke-width="4"/>
+      <circle cx="300" cy="200" r="102" stroke-width="2" stroke-dasharray="8 8"/>
+      <line x1="285" y1="200" x2="315" y2="200" stroke-width="2"/><line x1="300" y1="185" x2="300" y2="215" stroke-width="2"/>
+      <!-- 빛 방향 -->
+      <line x1="300" y1="200" x2="232" y2="140" stroke-width="2" stroke-dasharray="14 4 3 4" marker-end="url(#ah)"/>
+    </g>
+    <circle cx="300" cy="200" r="5" fill="#D23A2C"/>
+    <text x="196" y="132" fill="#15317C" font-size="12" class="hl">☼ 312°</text>
+    <!-- 표제란 -->
+    <g transform="translate(395,262)">
+      <rect width="200" height="128" fill="#F0EEE6" stroke="#15317C" stroke-width="2"/>
+      <line x1="0" y1="44" x2="200" y2="44" stroke="#15317C" stroke-width="1.5"/>
+      <line x1="0" y1="72" x2="200" y2="72" stroke="#15317C" stroke-width="1"/><line x1="0" y1="100" x2="200" y2="100" stroke="#15317C" stroke-width="1"/>
+      <line x1="100" y1="72" x2="100" y2="128" stroke="#15317C" stroke-width="1"/>
+      <text x="10" y="30" fill="#15317C" font-size="20" style="font-family:Fraunces;font-variation-settings:'opsz' 144">Dangsan Dusk</text>
+      <text x="10" y="63" fill="#15317C" font-size="11">No. GCD-1105-03</text><text x="176" y="63" fill="#D23A2C" font-size="11">●</text>
+      <text x="10" y="91" fill="#15317C" font-size="11">11.05 17:24</text><text x="110" y="91" fill="#15317C" font-size="11">GAZE 17.4s</text>
+      <text x="10" y="119" fill="#15317C" font-size="11">LOOP 24f</text><text x="110" y="119" fill="#15317C" font-size="11">☼ 312°</text>
+    </g>
+    <text x="16" y="28" fill="#15317C" font-size="13" class="hl">루프 온 · 담긴 순간</text>
+  </g>
+  <g font-size="12" fill="#4a5060" style="font-family:'Pretendard Variable'">
+    <text x="0" y="442">측량 원 = 시선 따라옴(부드럽게) · 반경 치수 = 엄지-검지 간격</text>
+    <text x="0" y="462">축척 막대 = 3초(옅게)~20초(깊게), 진하기·루프 길이와 같은 값</text>
+    <text x="638" y="442">담김: 외형선이 굵어짐 + 빨간 점 한 개 + 빛 방향 중심선</text>
+    <text x="638" y="462">+ 표제란이 옆에 인쇄됨 (월드에 2초 남았다가 접힘)</text>
+  </g>
+</svg>
+<div class="note">걸리는 점: <b>모드 토글 위치</b>. 전철에선 한 손이 무릎 위에서 핀치 중이라 같은 손으로 토글할 수 없어요. 초안은 "왼손목 위, 오른손으로 톡". 대안: 왼손바닥 포탈 가장자리에 붙이기, 또는 두 손가락 핀치(중지) 같은 제스처. 사람이 고를 것.</div>
+
+<h2><span class="n">05</span>재료 타일 · 포탈 · 이름 <span class="tag draft">초안</span></h2>
+<svg width="1248" height="300" viewBox="0 0 1248 300">
+  <defs><pattern id="wave" width="24" height="12" patternUnits="userSpaceOnUse"><path d="M0 6 Q6 0 12 6 T24 6" stroke="#F0EEE6" stroke-width="2" fill="none"/></pattern>
+  <pattern id="knit" width="10" height="10" patternUnits="userSpaceOnUse"><rect width="10" height="10" fill="#C9A66B"/><rect width="5" height="5" fill="#8C6A3A"/></pattern></defs>
+  <g transform="translate(0,20)">
+    <rect width="160" height="160" fill="#E08A4E"/><rect width="160" height="160" fill="url(#wave)" opacity=".9"/><rect width="160" height="160" fill="none" stroke="#15317C" stroke-width="3"/>
+    <rect y="160" width="160" height="62" fill="#F0EEE6" stroke="#15317C" stroke-width="2"/>
+    <text x="10" y="186" font-size="16" fill="#15317C" style="font-family:Fraunces;font-variation-settings:'opsz' 144">Dangsan Dusk</text>
+    <text x="10" y="206" font-size="10" fill="#15317C">GCD-1105-03 · LOOP</text><circle cx="146" cy="202" r="4" fill="#D23A2C"/>
+  </g>
+  <g transform="translate(190,20)">
+    <rect width="160" height="160" fill="url(#knit)"/><rect width="160" height="160" fill="none" stroke="#15317C" stroke-width="3"/>
+    <rect y="160" width="160" height="62" fill="#F0EEE6" stroke="#15317C" stroke-width="2"/>
+    <text x="10" y="186" font-size="16" fill="#15317C" style="font-family:Fraunces;font-variation-settings:'opsz' 144">Coat, 2-car</text>
+    <text x="10" y="206" font-size="10" fill="#15317C">GCD-1105-04 · STILL</text>
+  </g>
+  <g font-size="13" fill="#1d2230">
+    <text x="390" y="40" font-weight="600">타일 = 견본 카드</text>
+    <text x="390" y="62">위: 2톤으로 바뀐 재료(루프면 움직임). 정사각. 외곽선 = 외형선</text>
+    <text x="390" y="84">아래: 표제란 라벨. 이름 / 도면번호 · 모드 / 오늘 것이면 빨간 점</text>
+    <text x="390" y="124" font-weight="600">포탈 = 왼손바닥 위 7cm, 타일 3×N 격자</text>
+    <text x="390" y="146">펼쳐질 때 도면 격자가 먼저 그어지고, 칸마다 타일이 "꽂힘". 타일 한 변 ≈ 3.5cm(≥ 48dp 히트)</text>
+    <text x="390" y="168">오른손가락을 넣었다 빼면 그 타일 재료가 손끝에 묻음 — 손끝에 작은 원 + 치수 꼬리표</text>
+    <text x="390" y="208" font-weight="600" fill="#D23A2C">고를 것: 이름은 누가 짓나</text>
+    <text x="390" y="230">a. 자동 = 장소 + 시간대 ("Dangsan Dusk", 위치 권한 필요 → 프라이버시)</text>
+    <text x="390" y="252">b. 자동 = 번호만 ("GCD-1105-03"), 이름은 집에서 원할 때만</text>
+    <text x="390" y="274">c. 자동 = 색·재질 묘사 ("Amber Ripple", 위치 없이 CelExtract 결과로)</text>
+  </g>
+</svg>
+
+<h2><span class="n">06</span>움직임 문법 — "도면이 스스로 그려진다" <span class="tag draft">초안</span></h2>
+<table>
+<tr><th>순간</th><th>그려지는 순서</th><th>시간</th></tr>
+<tr><td>응시 시작</td><td>중심 십자 → 숨은선 원이 한 바퀴 그어짐(시계 방향, 12시에서)</td><td>0.35s</td></tr>
+<tr><td>응시 누적</td><td>숨은선이 실선으로 메워짐 · 축척 막대가 참 · 선이 아주 조금 굵어짐</td><td>3~20s, 계속</td></tr>
+<tr><td>반경 조절</td><td>치수선이 늘었다 줄어듦, 숫자가 따라 굴러감 (이징 없이 손 그대로)</td><td>실시간</td></tr>
+<tr><td>담기</td><td>외형선으로 "탁" 굵어짐 → 빨간 점 → 빛 방향 중심선이 뻗음 → 표제란 줄이 위에서 아래로 그어짐</td><td>0.6s</td></tr>
+<tr><td>포탈 열기</td><td>격자선 → 타일 꽂힘 (가까운 것부터 0.04s 간격)</td><td>0.4s</td></tr>
+<tr><td>푝</td><td>접촉점에 작은 치수 원 → 재료가 번짐 (셀 셰이더 쪽) → 원이 사라짐</td><td>0.5~1.2s</td></tr>
+</table>
+<p class="fs" style="margin-top:12px"><b>예외 상태도 같은 문법:</b> 너무 어두움 = 표제란에 "LOW LIGHT" 스탬프(그래도 담김) · 손 놓침 = 측량 원이 숨은선으로 돌아가 기다림 · 빈 포탈 = 빈 격자 + 기본 재료 3칸 + "내 방에서 담아 보기" 한 줄.</p>
+
+<h2><span class="n">07</span>소리 방향표 — 동화 <span class="tag draft">초안</span></h2>
+<table>
+<tr><th>이벤트</th><th>소리</th><th>잔향 · 빈도</th><th>이유</th></tr>
+<tr><td>응시 누적</td><td>유리 오르골 음이 하나씩 쌓임 (3초마다 한 음, 펜타토닉)</td><td>길게, 겹쳐도 화음</td><td>응시 시간이 귀로도 쌓임 = 관측 가능성</td></tr>
+<tr><td>담기</td><td>작은 종 한 번 + 종이에 도장 찍는 듯한 둥근 "톡"</td><td>짧게</td><td>동화(종) + 인쇄(도장)를 한 소리에</td></tr>
+<tr><td>포탈 열기</td><td>낡은 상자 뚜껑의 부드러운 바람 소리 (나무 삐걱임 없이)</td><td>중간</td><td>생활 소음 금지 규칙 지킴</td></tr>
+<tr><td>타일 꺼내기</td><td>타일마다 음높이가 다른 작은 글로켄슈필</td><td>짧게</td><td>재료마다 음 하나 = 재료의 이름표</td></tr>
+<tr><td>푝</td><td>물감 방울 "퐁" + 번지는 동안 아주 옅은 바람</td><td>번짐 길이만큼</td><td>"푝" 이라는 이름과 소리를 맞춤</td></tr>
+</table>
+
+<h2><span class="n">08</span>사람이 고를 것 (이것만 정하면 확정)</h2>
+<ol class="q">
+<li><b>색</b>: A 클라인 잉크 / B 흰 제도선 / C 코발트→빨강 (상태색)</li>
+<li><b>오브제 외곽선 색</b>: 클라인 <code>#15317C</code> / 코발트 <code>#2559B4</code> / 재료의 그림자 톤에서 자동</li>
+<li><b>폰트</b>: 도면 a·b·c / 제목 a·a′·b / 한글 a·b·c</li>
+<li><b>UI 글자 언어</b>: 영문+숫자 위주 / 한글 위주</li>
+<li><b>모드 토글 위치</b>: 왼손목 / 포탈 가장자리 / 제스처</li>
+<li><b>재료 이름</b>: 장소+시간 / 번호만 / 색·재질 묘사</li>
+<li>나머지(선 체계, 크기 하한, 배치, 움직임, 소리)는 초안 그대로 가도 되는지</li>
+</ol>
+</div></body></html>

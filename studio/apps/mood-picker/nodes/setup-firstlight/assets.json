@@ -1,0 +1,14 @@
+[
+  {
+    "file": "firstlight_f0bcc74_logcat.txt",
+    "memo": "빌드 f0bcc74-dirty-1104-000702 의 [MP] logcat: build= 가 게이트 ID 와 같음, OpenXRLoader, passthrough=True, bgAlpha 0, PCA 1280x960, 손 L/R 추적, 72fps",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:14:12.849Z"
+  },
+  {
+    "file": "firstlight_f0bcc74.png",
+    "memo": "같은 빌드 기기 스크린샷: 방(패스스루) + 하늘색 Unlit 큐브 + PCA 쿼드(실시간 카메라 영상). 손은 화면 밖",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:14:13.063Z"
+  }
+]

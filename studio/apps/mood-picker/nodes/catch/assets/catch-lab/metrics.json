@@ -1,0 +1,17 @@
+{
+  "source": "IMG_4398.MOV",
+  "t": 5.0,
+  "crop": [
+    720,
+    560,
+    480
+  ],
+  "tile_seam_ratio_raw": 11.163,
+  "tile_seam_ratio_seamless": 0.476,
+  "tile_interior_unchanged": 1.0,
+  "tile_overlap_px": 60,
+  "loop_seam_ratio_raw": 2.162,
+  "loop_seam_ratio_crossfade": 1.24,
+  "loop_frames": 24,
+  "loop_fps": 12
+}

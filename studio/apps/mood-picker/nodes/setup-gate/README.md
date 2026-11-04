@@ -1,0 +1,5 @@
+
+---
+**Claude Code** · 2026-11-03 14:52
+
+2026-11-03 unity/shared/BuildGate/ (UPM 로컬 패키지 com.reality404.buildgate, mood-picker manifest 에 file:../../shared/BuildGate). Editor/GateFileChecks.cs = 파일만 읽는 검사 (UnityEngine 의존 없음, 사전 점검과 같은 파일): XR Android 로더 1개 / 매니페스트 HEADSET_CAMERA / 빌드 씬마다 Skybox None · 직접 놓은 Camera 0개 · OVRCameraRig 1개 / 이름에 outline 이 든 .mat 의 _Cull 1 / 런타임 .cs 의 금지 API(Shader.Find·ReadPixels·WebCamTexture·OVRInput, 주석·문자열 제외). Editor/BuildGate.cs = IPreprocessBuildWithReport, 실패 1건이라도 BuildFailedException. Development Build 꺼짐은 경고만. 통과하면 빌드 ID(git 짧은 해시[-dirty]-MMdd-HHmmss[-rel]) → Assets/BuildGateGenerated/Resources/build_id.txt (gitignore) + Library/BuildGate_last_id.txt. Runtime/BuildIdLog.cs 가 BeforeSceneLoad 에 '[MP] build=<id>'. 설정은 ProjectSettings/BuildGate.json. 메뉴 Tools > Build Gate > Run Checks. 음성 테스트: UnityEngine.Shader.Find·WebCamTexture 넣으면 FAIL 2건, 주석·문자열 속 이름은 통과 확인. 아직 Unity 안에서 실제 빌드로 돌려 보진 않음 (에디터가 열려 있어서) → setup-device 첫 빌드에서 확인. 주의: shared 폴더는 my-mr-studio 레포에 있어서 meta-mr-picker 만 따로 클론하면 이 패키지가 없다.

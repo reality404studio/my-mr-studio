@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="2" result="Passed" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.0282137">
+  <test-suite type="TestSuite" id="1000" name="mood-picker" fullname="mood-picker" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.028214" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1004" name="MoodPicker.Tests.EditMode.dll" fullname="/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/ScriptAssemblies/MoodPicker.Tests.EditMode.dll" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.024605" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="91728" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1005" name="MoodPicker" fullname="MoodPicker" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.024442" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1006" name="Tests" fullname="MoodPicker.Tests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.024340" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="BuildGateProjectTests" fullname="MoodPicker.Tests.BuildGateProjectTests" classname="MoodPicker.Tests.BuildGateProjectTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.023883" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1003" name="GateConfigUsesMoodPickerLogTag" fullname="MoodPicker.Tests.BuildGateProjectTests.GateConfigUsesMoodPickerLogTag" methodname="GateConfigUsesMoodPickerLogTag" classname="MoodPicker.Tests.BuildGateProjectTests" runstate="Runnable" seed="146692005" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.007710" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1002" name="ProjectPassesBuildGateFileChecks" fullname="MoodPicker.Tests.BuildGateProjectTests.ProjectPassesBuildGateFileChecks" methodname="ProjectPassesBuildGateFileChecks" classname="MoodPicker.Tests.BuildGateProjectTests" runstate="Runnable" seed="2038827127" result="Passed" start-time="2026-11-03 15:31:43Z" end-time="2026-11-03 15:31:43Z" duration="0.008884" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: /Users/rafaela/Library/Application Support/DefaultCompany/mood-picker/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

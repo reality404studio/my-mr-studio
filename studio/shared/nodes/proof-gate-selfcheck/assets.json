@@ -1,0 +1,32 @@
+[
+  {
+    "file": "check-2026-11-03T15-43-41-288Z.log",
+    "memo": "$ npm test >/dev/null 2>&1 && exit 3 → exit 3 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:43:41.289Z",
+    "check": {
+      "cmd": "npm test >/dev/null 2>&1 && exit 3",
+      "exit": 3
+    }
+  },
+  {
+    "file": "check-2026-11-03T15-43-51-844Z.log",
+    "memo": "$ npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && npm run build 2>&1 | tail -1 && sh test/mutation-check.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:43:51.847Z",
+    "check": {
+      "cmd": "npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && npm run build 2>&1 | tail -1 && sh test/mutation-check.sh",
+      "exit": 0
+    }
+  },
+  {
+    "file": "check-2026-11-03T15-44-15-373Z.log",
+    "memo": "$ npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && npm run build 2>&1 | tail -1 && sh test/mutation-check.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:44:15.377Z",
+    "check": {
+      "cmd": "npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && npm run build 2>&1 | tail -1 && sh test/mutation-check.sh",
+      "exit": 0
+    }
+  }
+]

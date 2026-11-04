@@ -1,0 +1,12 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabMaskTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:29:56.828Z
+
+total=5 passed=5 failed=0
+  Passed  MoodPicker.Tests.DabMaskTests.Mask_PeaksAtContactAndFallsWithDistance
+  Passed  MoodPicker.Tests.DabMaskTests.Mask_RadiusGrowsOverTime
+  Passed  MoodPicker.Tests.DabMaskTests.Mask_ResolutionIsCapped
+  Passed  MoodPicker.Tests.DabMaskTests.Mask_RuntimeTakesPaintFromPortal
+  Passed  MoodPicker.Tests.DabMaskTests.Mask_WrapsAroundBottleSeam
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

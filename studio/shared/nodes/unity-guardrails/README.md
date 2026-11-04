@@ -7,13 +7,19 @@
 
 ---
 
-## 0. 원칙 세 줄
+## 0. 원칙 네 줄
 
 1. **에디터는 거짓말한다.** 에디터는 패스스루를 그리지 않고, 카메라가 y=0(Quest는 바닥 기준)이고, 폴백 폰트·셰이더로 멀쩡해 보인다.
    → "된다"는 **기기 스크린샷에 방(현실)과 가상이 함께 보일 때만** 보고한다. 에디터 화면, 시뮬레이터는 근거가 아니다.
 2. **Mac에서는 Link가 없다.** Passthrough over Link 불가. Meta XR Simulator에서는 **카메라 접근(PCA)이 안 돈다.**
    → 패스스루·PCA·손끝 정확도·72fps는 전부 **APK 실기**에서만 확인된다. 실기 루프는 하루 몇 번으로 묶는다.
 3. **관찰은 MQDH 캐스팅이 기본.** 녹화는 사람이 요청했거나 시간 흐름이 필요한 버그일 때만 짧게.
+4. **실기 시연 전의 수치·감각 결정은 전부 베이스라인이다.** (사람 결정 2026-11-03)
+   선 굵기, 글자 크기, 거리·배치, 타이밍(기록 시간 등), 움직임, 소리, 손 판정 임계값처럼 헤드셋에서 봐야 아는 것은
+   초안 값으로 **바로 구현하고 진행한다.** 사람에게 미리 확정을 묻지 않는다. 대신:
+   - 값은 한곳(설정 에셋·상수 파일)에 모아 **실기에서 바로 바꿀 수 있게** 둔다. 코드 여기저기 하드코딩 금지
+   - 문서·메모에는 `베이스라인` 으로 표시하고, 실기 확인 뒤 사람이 정한 값만 `확정` 으로 바꾼다
+   - 확정은 실기 검증 하위 과업에서 사람이 한다 (빌드 ID 찍힌 증거와 함께)
 
 ---
 
@@ -138,3 +144,28 @@
 ## 실기에서 바뀐 것
 
 _실기에서 다르게 나온 항목을 날짜와 함께 덧붙인다._
+
+---
+**Claude Code** · 2026-11-03 14:11
+
+실기에서 바뀐 것 (2026-11-03, Unity 6000.3.27f2 + Core 207.0.1, 파일로 확인): 생성된 AndroidManifest 의 액티비티가 com.unity3d.player.UnityPlayerGameActivity 다 (GameActivity). §6 의 am start -n <PKG>/com.unity3d.player.UnityPlayerActivity 는 이 프로젝트에선 <PKG>/com.unity3d.player.UnityPlayerGameActivity 로. 실기에서 한 번 더 확인할 것.
+
+---
+**Claude Code** · 2026-11-03 14:16
+
+실기에서 바뀐 것 (2026-11-03, Core 207.0.1, 파일로 확인): OVRProjectConfig 에 Passthrough Camera Access 를 켜 두면 OVRManifestPreprocessor.GenerateOrUpdateAndroidManifest 가 HEADSET_CAMERA 를 자동으로 넣는다 (§3 의 '다시 만들면 빠진다'는 이 버전에선 안 그랬음). 다만 손으로 매니페스트를 고쳤다면 매번 grep 으로 확인.
+
+---
+**Claude Code** · 2026-11-03 14:42
+
+2026-11-03 사람 결정: §0 원칙 4 추가 — 실기 시연 전 수치·감각 결정은 베이스라인, 초안대로 구현하고 값은 한곳에 모아 실기에서 조정
+
+---
+**Claude Code** · 2026-11-03 15:14
+
+실기에서 바뀐 것 (2026-11-04, 실기 확인): ① metavr_unity_setup 으로 부트스트랩한 프로젝트는 URP 패키지만 있고 **URP 파이프라인 에셋이 없다** (Graphics·Quality 모두 None) → 에디터에선 티가 덜 나고 기기에선 URP 머티리얼이 전부 마젠타. 빌드 게이트 render-pipeline 검사가 이제 막는다. ② 아무도 참조하지 않는 런타임 asmdef(예: [RuntimeInitializeOnLoadMethod] 만 있는 것)는 IL2CPP 스트리핑이 어셈블리째 지운다 → [assembly: AlwaysLinkAssembly]. 게이트 후처리가 BuildGate 런타임 어셈블리 누락을 막는다. ③ PCA 는 install -g 로 깔면 권한 창 없이 바로 1280x960 으로 돈다 (권한 창 흐름은 별도 확인).
+
+---
+**Claude Code** · 2026-11-03 16:30
+
+실기에서 바뀐 것 (2026-11-04, 키보드 착시 실험 실기): ① 앱 시작 직후 OVRSkeleton 이 IsDataValid=true 인데 뼈가 전부 트래킹 원점(0,0,0)에 있는 프레임이 나온다 → 손 데이터는 OVRHand.IsTracked && IsDataHighConfidence 일 때만 쓴다 (OvrHandInput, 테스트 OvrHandInput_OnlyReportsTrackedHighConfidenceHands 가 강제). ② '손끝 0.6초 정지' 드웰은 공중에서 잠깐 멈춘 손도 잡는다 → 세 점 평면이 53° 기울어짐. 책상은 트래킹 공간 up(중력) 기준 수평으로 두고, 사람 결정대로 양손 사각형 높이로 잡는다 (RectCalibrator: 네 손끝 높이 차 2cm 이내, 손 간격 12~70cm, 1초 유지, 시작 1초 무시. 테스트가 기울어진 사각형·한 손을 거부). ③ Quest 오디오 출력 샘플레이트가 24000 으로 나옴 (DSP 버퍼 256).

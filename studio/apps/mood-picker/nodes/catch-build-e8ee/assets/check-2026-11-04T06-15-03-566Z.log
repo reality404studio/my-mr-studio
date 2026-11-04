@@ -1,0 +1,23 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PunchLeverSizeTests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PunchCueTests && sh unity/mood-picker/scripts/render-lever.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T06:15:03.581Z
+
+total=4 passed=4 failed=0
+  Passed  MoodPicker.Tests.PunchLeverSizeTests.Lever_CoversThumbTipToIndexTip(0.8f)
+  Passed  MoodPicker.Tests.PunchLeverSizeTests.Lever_CoversThumbTipToIndexTip(1.0f)
+  Passed  MoodPicker.Tests.PunchLeverSizeTests.Lever_CoversThumbTipToIndexTip(1.25f)
+  Passed  MoodPicker.Tests.PunchLeverSizeTests.Lever_GrowsWithHand
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+total=8 passed=8 failed=0
+  Passed  MoodPicker.Tests.PunchCueTests.Cue_HiddenForSystemGestureUntrackedOrPortalOpen
+  Passed  MoodPicker.Tests.PunchCueTests.LeftPinch_LeaderGoesSolidAndDragsPunchLikeRigidRod
+  Passed  MoodPicker.Tests.PunchCueTests.Lever_IsLegibleAtArmLength
+  Passed  MoodPicker.Tests.PunchCueTests.Rest_LeaderLeverAndBladeAreDotted
+  Passed  MoodPicker.Tests.PunchCueTests.RightHold_FiresAtThreeSecondsWithBladeAtBottom
+  Passed  MoodPicker.Tests.PunchCueTests.RightHold_LeverAndBladeTrackHoldOverThreeSeconds(0.6f)
+  Passed  MoodPicker.Tests.PunchCueTests.RightHold_LeverAndBladeTrackHoldOverThreeSeconds(1.5f)
+  Passed  MoodPicker.Tests.PunchCueTests.RightHold_LeverAndBladeTrackHoldOverThreeSeconds(2.4f)
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+[MP] lever-render coverageMin=100 % linePx=16859 out=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/PunchLever/lever.png
+[MP] lever-render PASS

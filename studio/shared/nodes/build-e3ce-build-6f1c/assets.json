@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-03T16-08-48-153Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T16:08:48.172Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh",
+      "exit": 0
+    }
+  }
+]

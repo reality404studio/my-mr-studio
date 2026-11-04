@@ -1,0 +1,12 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PaintStoreTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:54:48.155Z
+
+total=5 passed=5 failed=0
+  Passed  MoodPicker.Tests.PaintStoreTests.Store_DiskFullFailsAndKeepsExistingChips
+  Passed  MoodPicker.Tests.PaintStoreTests.Store_LoopModeIsNotSavedAsSnap
+  Passed  MoodPicker.Tests.PaintStoreTests.Store_NumbersAreNotReusedAfterDeleteOfOlder
+  Passed  MoodPicker.Tests.PaintStoreTests.Store_RestartKeepsChips
+  Passed  MoodPicker.Tests.PaintStoreTests.Store_SaveLoadRoundTrip
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

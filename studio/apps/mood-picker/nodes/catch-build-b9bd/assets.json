@@ -1,0 +1,24 @@
+[
+  {
+    "file": "check-2026-11-04T04-54-21-283Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.SeamlessTileTests → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T04:54:21.298Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.SeamlessTileTests",
+      "exit": 0
+    }
+  },
+  {
+    "file": "tile_raw.png",
+    "memo": "전: 윤슬 크롭 원본을 2x2 로 이어 붙임 (이음매/안쪽 비율 11.2)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T04:55:04.839Z"
+  },
+  {
+    "file": "tile_seamless.png",
+    "memo": "후: 60px 겹침 띠 크로스페이드 (0.48), 띠 밖 픽셀 원본 그대로",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T04:55:05.041Z"
+  }
+]

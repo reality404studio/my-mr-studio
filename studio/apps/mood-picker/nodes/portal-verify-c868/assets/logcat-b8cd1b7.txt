@@ -1,0 +1,9 @@
+[MP] build=b8cd1b7-1104-145038
+[MP] catch ready paints=4 hold=3s punch=12cm@0.45m cue=leader+lever lever=7cm
+[MP] dab ready mask=128px tris=768 paint=none
+[MP] dab bottle at (0.00, -0.35, 0.45)
+[MP] portal washed t=212.140
+[MP] portal dip No.006 id=paint_20261104_145736_006 t=215.182 → dab paint No.006
+[MP] portal washed t=250.515
+[MP] portal dip No.001 t=261.613 → dab paint No.001
+[MP] portal dip No.002 t=267.696 → dab paint No.002

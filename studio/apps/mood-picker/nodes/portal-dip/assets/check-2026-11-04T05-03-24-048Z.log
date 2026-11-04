@@ -1,0 +1,12 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalDipTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:03:24.049Z
+
+total=5 passed=5 failed=0
+  Passed  MoodPicker.Tests.PortalDipTests.Dip_HoverOrSideEntryDoesNotPaint
+  Passed  MoodPicker.Tests.PortalDipTests.Dip_InAndOutPaintsFingertipWithin300ms
+  Passed  MoodPicker.Tests.PortalDipTests.Dip_NoChipsNoPaint
+  Passed  MoodPicker.Tests.PortalDipTests.Gate_PinchesWhilePortalOpenNeverReachCatchOrToggle
+  Passed  MoodPicker.Tests.PortalDipTests.Gate_ReleasesAfterCloseAndCooldown
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

@@ -1,0 +1,20 @@
+$ sh unity/mood-picker/scripts/verify-punch-cue.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:40:50.950Z
+
+== 1. preflight
+PASS  preflight
+== 2. EditMode
+total=21 passed=21 failed=0
+== 3. 배치 렌더
+[MP] cue-render drag leader=Solid lever=Dotted blade=Dotted progress=0.000 angle=28.0 offset=(6.0,4.0)cm white=44 red=0
+[MP] cue-render drag px white=9546 navy=5129 red=0 magenta=0 corner=0.00
+[MP] cue-render hold leader=Dotted lever=Solid blade=Solid progress=0.597 angle=11.3 offset=(0.0,0.0)cm white=36 red=2
+[MP] cue-render hold px white=10110 navy=4897 red=1686 magenta=0 corner=0.00
+[MP] cue-render idle leader=Dotted lever=Dotted blade=Dotted progress=0.000 angle=28.0 offset=(0.0,0.0)cm white=68 red=0
+[MP] cue-render idle px white=8711 navy=4746 red=0 magenta=0 corner=0.00
+[MP] cue-render out=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/PunchCue/punch_cue.png
+[MP] cue-render PASS
+PASS  배치 렌더
+== 결과: PASS

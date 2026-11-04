@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-04T05-35-00-986Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabObjectTests && sh unity/mood-picker/scripts/build-catch-apk.sh dab-dev.apk → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:35:01.010Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabObjectTests && sh unity/mood-picker/scripts/build-catch-apk.sh dab-dev.apk",
+      "exit": 0
+    }
+  }
+]

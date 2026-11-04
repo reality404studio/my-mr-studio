@@ -1,0 +1,15 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T15:55:29.107Z
+
+total=8 passed=8 failed=0
+  Passed  MoodPicker.Tests.BuildGateProjectTests.GateConfigUsesMoodPickerLogTag
+  Passed  MoodPicker.Tests.BuildGateProjectTests.ProjectPassesBuildGateFileChecks
+  Passed  MoodPicker.Tests.HandInputTests.GestureScripts_DoNotReadOvrHandDirectly
+  Passed  MoodPicker.Tests.HandInputTests.HandsCoreAssembly_DoesNotReferenceOculus
+  Passed  MoodPicker.Tests.HandInputTests.RecordedDeviceFixtures_HaveAtLeastOnePinchPair
+  Passed  MoodPicker.Tests.HandInputTests.SyntheticFixture_RightPinchStartsAndEnds
+  Passed  MoodPicker.Tests.HandInputTests.SyntheticFixture_TrackingLossEndsPinch
+  Passed  MoodPicker.Tests.HandInputTests.TrajectoryJson_RoundTrips
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

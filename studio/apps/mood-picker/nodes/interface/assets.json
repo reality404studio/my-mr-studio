@@ -1,0 +1,22 @@
+[
+  {
+    "file": "interface-sheet-v0.html",
+    "memo": "IL-00 시트 원본 (브라우저로 열기)"
+  },
+  {
+    "file": "interface-sheet-v0-2.png",
+    "memo": "IL-00 확정용 시트 v0: 요소 16개 목록, 색 3안, 폰트 역할별 후보, 선 체계·크기 하한, 실측 HUD(찰칵/루프 온), 타일·포탈, 움직임, 소리, 사람이 고를 것 6개",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T14:16:55.717Z"
+  },
+  {
+    "file": "interface-sheet-v1.html",
+    "memo": ""
+  },
+  {
+    "file": "interface-sheet-v1.png",
+    "memo": "IL-01 확정본: 결정 반영(B 흰 제도선, Plex Mono/Fraunces, 영어, 정사각형 양손 핀치, 자동 담기, 핀치 1회 토글, 컬러 차트 칩 × 즉석 사진, 이름 규칙). 열린 것: 기록 시간",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T14:36:11.896Z"
+  }
+]

@@ -1,0 +1,14 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPunchHoldTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:21:37.918Z
+
+total=7 passed=7 failed=0
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_CropRectMatchesHoleWithinFivePercent(0.0f,0.0f)
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_CropRectMatchesHoleWithinFivePercent(0.08f,-0.05f)
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_FalseFixturesSnapAtMostOneInTen
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_LongPressAndLeftTapDoNotToggle
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_ReleaseAt2_9sSavesNothing
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_TapOnlyToggles
+  Passed  MoodPicker.Tests.CatchPunchHoldTests.Hold_ThreeSecondsSnapsOnceWithVisibleProgress
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

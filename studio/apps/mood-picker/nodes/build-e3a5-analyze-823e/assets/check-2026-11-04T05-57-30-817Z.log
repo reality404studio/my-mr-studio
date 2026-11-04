@@ -1,0 +1,18 @@
+$ node studio/apps/mood-picker/nodes/build-e3a5/assets/check-readme.mjs analyze
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:57:30.818Z
+
+ok  선례 표 행 ≥8 (지금 12)
+ok  선례 표 열: 형태·기능·MR 적합성
+ok  MR 제약 표 행 ≥8 (지금 14)
+ok  MR 제약에 FoV
+ok  MR 제약에 손 닿는
+ok  MR 제약에 라벨 글자
+ok  MR 제약에 공간 앵커
+ok  MR 제약에 드로우콜
+ok  MR 제약에 텍스처 메모리
+ok  Best Reason to Come Back 각도
+ok  출처 링크 ≥10 (지금 25)
+ok  Meta 문서 링크 ≥5
+PASS analyze

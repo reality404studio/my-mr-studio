@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-04T06-15-43-327Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPunchL2Tests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPunchDragTests → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T06:15:43.347Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPunchL2Tests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPunchDragTests",
+      "exit": 0
+    }
+  }
+]

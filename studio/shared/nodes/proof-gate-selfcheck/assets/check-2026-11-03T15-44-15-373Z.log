@@ -1,0 +1,21 @@
+$ npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && npm run build 2>&1 | tail -1 && sh test/mutation-check.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T15:44:15.374Z
+
+ℹ pass 12
+ℹ fail 0
+✓ built in 805ms
+== mutated: check 로그 조건 → true (문법 정상)
+✖ 검증 명령 기록이 없는 파일은 증거가 아니다 (2.806541ms)
+✖ 실패한 검증 로그(exit≠0)는 증거가 아니다 (2.089583ms)
+ℹ pass 10
+ℹ fail 2
+✖ failing tests:
+✖ 검증 명령 기록이 없는 파일은 증거가 아니다 (2.806541ms)
+✖ 실패한 검증 로그(exit≠0)는 증거가 아니다 (2.089583ms)
+== restored
+ℹ pass 12
+ℹ fail 0
+board.mjs 원본과 동일
+MUTATION KILLED by targeted tests

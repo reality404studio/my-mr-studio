@@ -1,0 +1,13 @@
+11-04 14:22:19.251 I Unity : [MP] build=0e124c6-1104-140402
+11-04 14:22:19.337 I Unity : [MP] catch ready paints=3
+(포탈 열림/닫힘 6회, dip 13회 — 발췌)
+11-04 14:24:06.309 I Unity : [MP] portal dip No.002 id=paint_20261104_140211_002 t=106.760
+11-04 14:24:07.017 I Unity : [MP] portal dip No.002 id=paint_20261104_140211_002 t=107.468
+11-04 14:24:07.990 I Unity : [MP] portal dip No.003 id=paint_20261104_140230_003 t=108.441
+11-04 14:24:11.283 I Unity : [MP] portal dip No.001 id=paint_20261104_140155_001 t=111.732
+11-04 14:24:16.698 I Unity : [MP] portal closed t=117.148 open=31.05s
+11-04 14:24:19.143 I Unity : [MP] portal open t=119.592 chips=3
+11-04 14:24:27.016 I Unity : [MP] portal dip No.002 id=paint_20261104_140211_002 t=127.466
+11-04 14:24:32.057 I Unity : [MP] portal closed t=132.508 open=12.92s
+11-04 14:25:27.774 I Unity : [MP] portal open t=188.223 chips=3
+11-04 14:25:33.633 I Unity : [MP] portal closed t=194.084 open=5.86s

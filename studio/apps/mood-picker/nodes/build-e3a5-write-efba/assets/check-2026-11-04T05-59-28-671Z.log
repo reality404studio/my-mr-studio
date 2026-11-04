@@ -1,0 +1,13 @@
+$ node studio/apps/mood-picker/nodes/build-e3a5/assets/check-readme.mjs write
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:59:28.671Z
+
+ok  기준선 설명 있음
+ok  태깅 표 행 ≥10 (지금 16)
+ok  태깅 표 열: 관습 이름·기능·확신도
+ok  모든 행 확신도 상/중/하 (16/16)
+ok  기준선 PNG >20KB (1172137 B)
+ok  README 가 PNG 를 가리킴
+ok  기준선 절에 대안 없음
+PASS write

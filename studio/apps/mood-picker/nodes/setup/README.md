@@ -15,3 +15,56 @@
 ## 가드레일에서 뽑은 이번 체크리스트
 
 _setup-guardrails 하위 과업에서 에이전트가 덧붙인다._
+
+---
+**Claude Code** · 2026-11-03 13:56
+
+### 이번 셋업 체크리스트 (2026-11-03, Unity 6000.3.27f2 / Apple Silicon 기준, setup-guardrails)
+
+설치 상태: Unity 6000.3.27f2 + Android(SDK 34~37·NDK·OpenJDK) 설치됨. 2022.3 에디터는 삭제. 이 버전이면 가드레일 §2 표의 "Unity 6 → **OpenXR**" 행.
+
+**setup-project (프로젝트·패키지)**
+- [ ] 6000.3.27f2 로 URP 프로젝트 → `unity/mood-picker/` 로 옮기기 (레포라 비어 있지 않음)
+- [ ] Android Switch Platform, Texture Compression **ASTC**
+- [ ] IL2CPP + **ARM64 만**
+- [ ] 패키지: `com.meta.xr.sdk.core` + `com.meta.xr.mrutilitykit` (PCA 가 MRUK 안). 최신으로. Operator 쓰려면 Core **v207+**
+- [ ] XR Plug-in Management Android: **OpenXR 하나만** (Meta Quest feature group). Oculus 패키지가 깔려 있으면 Remove
+- [ ] Operator 쓸 거면 OpenXR Plugin **1.17.0+** (Meta 자동 셋업 스크립트는 1.16.1 로 고정 → 셋업 뒤 올리기)
+- [ ] Project Setup Tool → 빨강·노랑 0 될 때까지 Fix All (DUC·App ID 는 Mark as Fixed)
+
+**setup-files (에이전트가 파일로 확인)**
+- [ ] `ProjectSettings.asset`: `scriptingBackend Android: 1`, `AndroidTargetArchitectures: 2`
+- [ ] `manifest.json` 에 URP, `packages-lock.json` 에 core·MRUK
+- [ ] `Assets/XR/XRGeneralSettingsPerBuildTarget.asset` 의 Android 로더 **정확히 1개 (OpenXR)**
+- [ ] AndroidManifest 에 `horizonos.permission.HEADSET_CAMERA` (Update AndroidManifest 하면 빠짐 → 다시 넣기)
+
+**setup-scene (패스스루 + PCA)**
+- [ ] OVRCameraRig 하나, 기본 Main Camera 삭제
+- [ ] OVRManager: Passthrough Support = Required, Enable Passthrough, **Enable Passthrough Camera Access**
+- [ ] OVRPassthroughLayer 하나, Skybox = None, CenterEye `SolidColor` + `Color.clear`(알파 0), Post Processing 끔
+- [ ] `PassthroughCameraAccess` 컴포넌트, 1280×960 요청 + `CurrentResolution` 로그. 권한 요청은 한 곳만
+- [ ] 손 추적 켬, 컨트롤러 입력 코드 없음
+
+**First Light 스크립트·빌드 (gate / preflight / firstlight)**
+- [ ] 머티리얼은 SerializeField `.mat` (Shader.Find 금지), 큐브 **Unlit**, 정면 60cm (yaw-only, `yield return null` 뒤)
+- [ ] Development Build, `[MP] build=<해시+시각>` 첫 로그, 로더·패스스루·clearFlags·알파·PCA 해상도·손 상태 로그
+- [ ] 실기 확인: force-stop → logcat -c → am start → `[MP]` grep → 스크린샷 (방+큐브+카메라 쿼드+손끝 점)
+
+**Mac 에서 안 되는 것:** Link 패스스루 불가, XR Simulator 에서 PCA 안 됨 → 패스스루·PCA·손·72fps 는 APK 실기에서만.
+
+**새 도구 (2026-11-03 조사):** Meta XR Unity MCP Extension(Unity 6000.0.66f2+, SDK v78+, Unity MCP 패키지 위에), Meta XR Operator(Core v207+, OpenXR 1.17+, Mac 은 XR Simulator, 실험). setup-project 는 metavr `metavr_unity_setup`(apply)으로 에이전트가 대신 돌릴 수 있음 — 사람 하위 과업이라 사람 승인 후.
+
+---
+**Claude Code** · 2026-11-03 14:45
+
+2026-11-03 23:45 패스스루만 확인한 짧은 실기 빌드 (게이트·빌드 ID 없음 → setup-device 통과 아님). 사람: 패스스루 보임. 액티비티 com.DefaultCompany.moodpicker/com.unity3d.player.UnityPlayerGameActivity 로 실행됨. VrApi: FPS 72/72, CPU/GPU 레벨 2/2, App 1.7ms, CPU&GPU 3.5ms, GPU 24% CPU 19%. thermalservice Status 0, SoC 39°C, 배터리 32°C. 사람이 발열을 느낌 → 수치상 정상 범위, 빈 씬 기준선으로 남김.
+
+---
+**Claude Code** · 2026-11-03 15:17
+
+2026-11-04 setup-firstlight 는 증명 게이트 도입 전 경로로 done 됨 (proof 단계·성공 조건 없이). 증거 파일(firstlight_f0bcc74_logcat.txt, .png)과 사람 실기 확인(setup-device)이 있어 되돌리지 않음.
+
+---
+**Claude Code** · 2026-11-03 15:20
+
+2026-11-04 정정: 위 메모("setup-firstlight 는 증명 게이트 도입 전 경로로 done")는 틀렸다. 로그상 success → proof → 증거 2개 → done 으로 게이트를 정상 통과했다. 이후 Claude Code 일괄 스크립트가 done 된 카드의 성공 조건을 덮어썼고, 원문으로 복구함. 재발 방지: done 된 에이전트 카드의 success 변경을 저장소가 거절 (test/proof-gate.test.mjs).

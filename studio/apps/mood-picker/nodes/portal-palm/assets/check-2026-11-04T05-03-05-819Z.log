@@ -1,0 +1,10 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalPalmTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:03:05.820Z
+
+total=3 passed=3 failed=0
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_ClosesOnPalmDownOrTrackingLoss
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_FaceAndShakeFixturesFalseOpenAtMostOneInTen
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_SkyPalmOpensWithin300msAboveThePalm
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

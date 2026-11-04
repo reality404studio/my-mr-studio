@@ -1,0 +1,10 @@
+$ sh unity/mood-picker/scripts/verify-device-log.sh unity/mood-picker/Library/dk_build5.log studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt kb.calib.done kb.tap kb.grab.end
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T16:50:54.010Z
+
+gate build=a57449e-dirty-1104-014209
+PASS 기기 build=a57449e-dirty-1104-014209 일치
+PASS 'kb.calib.done' 1줄
+PASS 'kb.tap' 140줄
+PASS 'kb.grab.end' 7줄

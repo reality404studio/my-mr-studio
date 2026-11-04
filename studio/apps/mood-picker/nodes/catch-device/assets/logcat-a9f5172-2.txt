@@ -1,0 +1,13 @@
+11-04 14:00:01.384 I Unity : [MP] build=a9f5172-dirty-1104-135526
+11-04 14:00:01.503 I Unity : [MP] catch ready paints=0 still=3s loop=4s
+11-04 14:01:12.122 I Unity : [MP] catch sizing t=70.416
+11-04 14:01:20.135 I Unity : [MP] catch cancelled: tracking lost while sizing
+11-04 14:01:52.298 I Unity : [MP] catch rec mode=Still size=16.1cm duration=3.0s
+11-04 14:01:55.312 I Unity : [MP] catch readback rect=(x:320, y:0, width:960, height:960) side=853 overlap=107 res=(1280, 960) latency=4.85s
+11-04 14:01:55.579 I Unity : [MP] catch saved No.001 id=paint_20261104_140155_001 mode=Still size=853px
+11-04 14:02:08.865 I Unity : [MP] catch rec mode=Still size=17.0cm duration=3.0s
+11-04 14:02:11.878 I Unity : [MP] catch readback rect=(x:320, y:0, width:960, height:960) side=853 overlap=107 res=(1280, 960) latency=7.29s
+11-04 14:02:12.165 I Unity : [MP] catch saved No.002 id=paint_20261104_140211_002 mode=Still size=853px
+11-04 14:02:27.294 I Unity : [MP] catch rec mode=Still size=11.6cm duration=3.0s
+11-04 14:02:30.308 I Unity : [MP] catch readback rect=(x:502, y:266, width:683, height:683) side=607 overlap=76 res=(1280, 960) latency=6.36s
+11-04 14:02:30.458 I Unity : [MP] catch saved No.003 id=paint_20261104_140230_003 mode=Still size=607px

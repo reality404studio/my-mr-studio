@@ -1,0 +1,12 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CelExtractTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:53:33.752Z
+
+total=5 passed=5 failed=0
+  Passed  MoodPicker.Tests.CelExtractTests.Cel_DoesNotTouchSourcePixels
+  Passed  MoodPicker.Tests.CelExtractTests.Cel_LightDirectionSignFollowsBrightSide
+  Passed  MoodPicker.Tests.CelExtractTests.Cel_SameInputSameResult
+  Passed  MoodPicker.Tests.CelExtractTests.Cel_TwoOrThreeTonesOrderedDarkToLight
+  Passed  MoodPicker.Tests.CelExtractTests.Cel_YunseulMatchesMacLab
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

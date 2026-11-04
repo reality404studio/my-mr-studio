@@ -1,0 +1,18 @@
+$ npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && npm run build 2>&1 | tail -1 && sh test/mutation-check.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T15:43:51.844Z
+
+ℹ pass 12
+ℹ fail 0
+✓ built in 768ms
+== mutated: check 로그 조건 제거
+✖ test/proof-gate.test.mjs (82.805208ms)
+ℹ pass 0
+ℹ fail 1
+✖ test/proof-gate.test.mjs (82.805208ms)
+== restored
+ℹ pass 12
+ℹ fail 0
+board.mjs 원본과 동일
+MUTATION KILLED

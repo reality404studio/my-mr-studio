@@ -1,0 +1,15 @@
+11-04 00:13:18.670 11964 12002 I Unity   : [MP] build=f0bcc74-dirty-1104-000702
+11-04 00:13:18.792 11964 12002 I Unity   : [MP] pca CurrentResolution=1280x960 texture=1280x960
+11-04 00:13:18.792 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=False R=False fps=10000
+11-04 00:13:18.995 11964 12002 I Unity   : [MP] loader=OpenXRLoader Android passthrough=True layer=True clear=SolidColor bgAlpha=0.00 handTracking=False
+11-04 00:13:18.996 11964 12002 I Unity   : [MP] pca requested=(1280, 960) enabled=True
+11-04 00:13:23.770 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:28.784 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:33.797 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:38.796 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:43.810 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:48.823 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:53.836 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:13:58.850 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:14:03.863 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72
+11-04 00:14:08.876 11964 12002 I Unity   : [MP] status pca=playing (1280, 960) hands L=True R=True fps=72

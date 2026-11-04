@@ -1,0 +1,18 @@
+[
+  {
+    "file": "check-2026-11-04T05-40-50-938Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-punch-cue.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:40:50.961Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-punch-cue.sh",
+      "exit": 0
+    }
+  },
+  {
+    "file": "punch-cue-render.png",
+    "memo": "배치 렌더: idle(점선) / L drag(지시선 실선) / R hold 1.8s(레버·칼날 0.6, 빨강 진행)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:40:51.427Z"
+  }
+]

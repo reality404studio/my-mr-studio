@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<test-run id="2" testcasecount="8" result="Passed" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0" engine-version="3.5.0.0" clr-version="4.0.30319.42000" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.0597626">
+  <test-suite type="TestSuite" id="1000" name="mood-picker" fullname="mood-picker" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.059763" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+    <properties>
+      <property name="platform" value="EditMode" />
+    </properties>
+    <test-suite type="Assembly" id="1011" name="MoodPicker.Tests.EditMode.dll" fullname="/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/ScriptAssemblies/MoodPicker.Tests.EditMode.dll" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.055194" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+      <properties>
+        <property name="_PID" value="97010" />
+        <property name="_APPDOMAIN" value="Unity Child Domain" />
+        <property name="platform" value="EditMode" />
+        <property name="EditorOnly" value="True" />
+      </properties>
+      <test-suite type="TestSuite" id="1012" name="MoodPicker" fullname="MoodPicker" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.054886" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+        <properties />
+        <test-suite type="TestSuite" id="1013" name="Tests" fullname="MoodPicker.Tests" runstate="Runnable" testcasecount="8" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.054764" total="8" passed="8" failed="0" inconclusive="0" skipped="0" asserts="0">
+          <properties />
+          <test-suite type="TestFixture" id="1001" name="BuildGateProjectTests" fullname="MoodPicker.Tests.BuildGateProjectTests" classname="MoodPicker.Tests.BuildGateProjectTests" runstate="Runnable" testcasecount="2" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.031058" total="2" passed="2" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1003" name="GateConfigUsesMoodPickerLogTag" fullname="MoodPicker.Tests.BuildGateProjectTests.GateConfigUsesMoodPickerLogTag" methodname="GateConfigUsesMoodPickerLogTag" classname="MoodPicker.Tests.BuildGateProjectTests" runstate="Runnable" seed="265063924" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.009965" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1002" name="ProjectPassesBuildGateFileChecks" fullname="MoodPicker.Tests.BuildGateProjectTests.ProjectPassesBuildGateFileChecks" methodname="ProjectPassesBuildGateFileChecks" classname="MoodPicker.Tests.BuildGateProjectTests" runstate="Runnable" seed="1288995377" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.013221" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+          </test-suite>
+          <test-suite type="TestFixture" id="1004" name="HandInputTests" fullname="MoodPicker.Tests.HandInputTests" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" testcasecount="6" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.023084" total="6" passed="6" failed="0" inconclusive="0" skipped="0" asserts="0">
+            <properties />
+            <test-case id="1010" name="GestureScripts_DoNotReadOvrHandDirectly" fullname="MoodPicker.Tests.HandInputTests.GestureScripts_DoNotReadOvrHandDirectly" methodname="GestureScripts_DoNotReadOvrHandDirectly" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" seed="1591674067" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.002039" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1009" name="HandsCoreAssembly_DoesNotReferenceOculus" fullname="MoodPicker.Tests.HandInputTests.HandsCoreAssembly_DoesNotReferenceOculus" methodname="HandsCoreAssembly_DoesNotReferenceOculus" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" seed="1754895428" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.001941" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1007" name="RecordedDeviceFixtures_HaveAtLeastOnePinchPair" fullname="MoodPicker.Tests.HandInputTests.RecordedDeviceFixtures_HaveAtLeastOnePinchPair" methodname="RecordedDeviceFixtures_HaveAtLeastOnePinchPair" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" seed="373567386" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.011504" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1005" name="SyntheticFixture_RightPinchStartsAndEnds" fullname="MoodPicker.Tests.HandInputTests.SyntheticFixture_RightPinchStartsAndEnds" methodname="SyntheticFixture_RightPinchStartsAndEnds" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" seed="857087093" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.003214" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1006" name="SyntheticFixture_TrackingLossEndsPinch" fullname="MoodPicker.Tests.HandInputTests.SyntheticFixture_TrackingLossEndsPinch" methodname="SyntheticFixture_TrackingLossEndsPinch" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" seed="1987312026" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.000767" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+            </test-case>
+            <test-case id="1008" name="TrajectoryJson_RoundTrips" fullname="MoodPicker.Tests.HandInputTests.TrajectoryJson_RoundTrips" methodname="TrajectoryJson_RoundTrips" classname="MoodPicker.Tests.HandInputTests" runstate="Runnable" seed="980821754" result="Passed" start-time="2026-11-03 15:54:32Z" end-time="2026-11-03 15:54:32Z" duration="0.002314" asserts="0">
+              <properties>
+                <property name="retryIteration" value="0" />
+                <property name="repeatIteration" value="0" />
+              </properties>
+              <output><![CDATA[Saving results to: /Users/rafaela/Library/Application Support/DefaultCompany/mood-picker/TestResults.xml
+]]></output>
+            </test-case>
+          </test-suite>
+        </test-suite>
+      </test-suite>
+    </test-suite>
+  </test-suite>
+</test-run>

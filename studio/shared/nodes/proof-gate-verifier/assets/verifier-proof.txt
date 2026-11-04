@@ -1,0 +1,32 @@
+npm test (전체 11개)
+
+> my-mr-studio@0.1.0 test
+> node --test test/*.test.mjs
+
+✔ doing → done 직행은 거절된다 (9.549792ms)
+✔ 성공 조건 없이는 done 불가 (10.493583ms)
+✔ proof 이전에 붙인 파일은 증거로 치지 않는다 (16.106ms)
+✔ 메모 없는 파일은 증거가 아니다 (5.119ms)
+✔ 성공 조건 + proof + 이후 증거 → done 통과, 과업 상태도 계산된다 (5.047791ms)
+✔ 시작된 에이전트 카드를 사람 카드로 바꿔 게이트를 우회할 수 없다 (5.645834ms)
+✔ 에이전트 카드를 done 상태로 바로 만들 수 없다 (2.031458ms)
+✔ 사람 결정 카드는 게이트 밖이다 (4.840167ms)
+✔ UI 상태 목록이 서버와 같다 (증명 칼럼 포함) (1.936875ms)
+✔ done 된 에이전트 카드의 성공 조건은 덮어쓸 수 없다 (6.156625ms)
+✔ 증명에 올린 이름은 직접 done 할 수 없다, 다른 이름은 된다 (3.79825ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 188.945458
+
+--- 뮤테이션: store.mjs 에서 "node.proofBy === actor" 줄 삭제 후 npm test ---
+✖ 증명에 올린 이름은 직접 done 할 수 없다, 다른 이름은 된다
+ℹ pass 10
+ℹ fail 1
+--- 복구 후 ---
+ℹ pass 11
+ℹ fail 0

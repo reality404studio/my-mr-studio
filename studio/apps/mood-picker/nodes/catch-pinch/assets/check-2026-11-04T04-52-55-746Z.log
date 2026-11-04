@@ -1,0 +1,13 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPinchTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:52:55.748Z
+
+total=6 passed=6 failed=0
+  Passed  MoodPicker.Tests.CatchPinchTests.Pinch_BothHandsShowSquareWithin300ms
+  Passed  MoodPicker.Tests.CatchPinchTests.Pinch_NearMissFixturesFalsePositiveAtMostOneInTen
+  Passed  MoodPicker.Tests.CatchPinchTests.Pinch_ReleaseRecordsThenCatchesOnceAfterSettingsTime
+  Passed  MoodPicker.Tests.CatchPinchTests.Pinch_ShortTrackingBlipStillCaptures
+  Passed  MoodPicker.Tests.CatchPinchTests.Pinch_SquareKeepsSizeAfterRelease
+  Passed  MoodPicker.Tests.CatchPinchTests.Pinch_TrackingLossCancelsWithoutCapture
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

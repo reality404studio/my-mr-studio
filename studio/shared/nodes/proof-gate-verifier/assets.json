@@ -1,0 +1,8 @@
+[
+  {
+    "file": "verifier-proof.txt",
+    "memo": "npm test 11/11 + 게이트 줄 제거 시 해당 테스트 실패 (뮤테이션)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:26:53.939Z"
+  }
+]

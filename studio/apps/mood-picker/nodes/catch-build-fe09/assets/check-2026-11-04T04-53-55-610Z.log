@@ -1,0 +1,9 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchToggleTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:53:55.619Z
+
+total=2 passed=2 failed=0
+  Passed  MoodPicker.Tests.CatchToggleTests.Toggle_FalseFixturesAtMostOneInTen
+  Passed  MoodPicker.Tests.CatchToggleTests.Toggle_SingleTapSwitchesModeWithin300ms
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

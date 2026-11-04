@@ -1,0 +1,14 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalHeightTests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalPalmTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T06:08:55.135Z
+
+total=1 passed=1 failed=0
+  Passed  MoodPicker.Tests.PortalHeightTests.Height_ShippedAssetAndDefaultAre7cm
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+total=4 passed=4 failed=0
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_CenterSits7cmAlongTiltedPalmNormal
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_ClosesOnPalmDownOrTrackingLoss
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_FaceAndShakeFixturesFalseOpenAtMostOneInTen
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_SkyPalmOpensWithin300msAboveThePalm
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

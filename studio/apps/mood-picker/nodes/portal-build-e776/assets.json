@@ -1,0 +1,22 @@
+[
+  {
+    "file": "check-2026-11-04T05-48-05-099Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-portal.sh → exit 2 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:48:05.120Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-portal.sh",
+      "exit": 2
+    }
+  },
+  {
+    "file": "check-2026-11-04T05-48-36-117Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-portal.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T05:48:36.134Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-portal.sh",
+      "exit": 0
+    }
+  }
+]

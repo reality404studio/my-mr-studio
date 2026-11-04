@@ -1,0 +1,24 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalWheelSizeTests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalWheelTests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PortalWellTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T06:10:06.617Z
+
+total=2 passed=2 failed=0
+  Passed  MoodPicker.Tests.PortalWheelSizeTests.Wheel_WobblyFrontDipsPickNineOfTenWithoutSweepOrWash
+  Passed  MoodPicker.Tests.PortalWheelSizeTests.Wheel_WobblyWellDipsWashWithoutPick
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+total=7 passed=7 failed=0
+  Passed  MoodPicker.Tests.PortalWheelTests.Dip_OnlyFrontSlotPaints
+  Passed  MoodPicker.Tests.PortalWheelTests.Layout_ZeroOneTwelvePaintsFitOnRim(0)
+  Passed  MoodPicker.Tests.PortalWheelTests.Layout_ZeroOneTwelvePaintsFitOnRim(1)
+  Passed  MoodPicker.Tests.PortalWheelTests.Layout_ZeroOneTwelvePaintsFitOnRim(12)
+  Passed  MoodPicker.Tests.PortalWheelTests.Sweep_FollowsFingerWhileOnRimAndSmallSweepSnapsBack
+  Passed  MoodPicker.Tests.PortalWheelTests.Sweep_RimBySlotRotatesOneSlotAndSnaps(1.0f)
+  Passed  MoodPicker.Tests.PortalWheelTests.Sweep_RimBySlotRotatesOneSlotAndSnaps(-1.0f)
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+total=4 passed=4 failed=0
+  Passed  MoodPicker.Tests.PortalWellTests.Well_CenterDipWashesOnceAndClearsPaint
+  Passed  MoodPicker.Tests.PortalWellTests.Well_EdgeDipPicksPaint
+  Passed  MoodPicker.Tests.PortalWellTests.Well_NoFalseEventsAcrossTwoCentimetreBoundary
+  Passed  MoodPicker.Tests.PortalWellTests.Well_WashesWithZeroPaints
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

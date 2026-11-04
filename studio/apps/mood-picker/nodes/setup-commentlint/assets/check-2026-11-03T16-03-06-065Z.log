@@ -1,0 +1,23 @@
+$ sh unity/mood-picker/scripts/verify-rule-gates.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T16:03:06.070Z
+
+== 0. 깨끗한 상태
+PASS  preflight 통과
+== 1. 되돌리기 (뮤테이션 6개를 한 번에)
+PASS  preflight 가 새 주석 줄에서 실패
+PASS  preflight 가 ControllersOnly 에서 실패
+PASS  되돌리면 실패: ProjectPassesBuildGateFileChecks
+PASS  되돌리면 실패: HandTracking_IsNotControllersOnly
+PASS  되돌리면 실패: CameraPermission_IsRequestedOnlyByOvrManager
+PASS  되돌리면 실패: RuntimeScripts_DoNotHardcodeCameraResolution
+PASS  되돌리면 실패: PcaGetTexture_IsGuardedByIsPlaying
+PASS  되돌리면 실패: BatchEntry_WaitsForMetaEditorReady(&quot;Editor/MoodPickerBuild.cs
+== 2. 빌드 게이트가 주석에서 빌드를 막는다
+PASS  빌드 게이트가 주석 줄에서 빌드 실패 (exit 1)
+== 3. 원복 후 배치 빌드
+[BuildGate] 통과. build=5349df4-dirty-1104-010142
+[MP] build result=Succeeded errors=0 size=1232MB time=76s path=Builds/mood-picker-dev.apk
+PASS  배치 빌드 exit 0
+== 결과: PASS

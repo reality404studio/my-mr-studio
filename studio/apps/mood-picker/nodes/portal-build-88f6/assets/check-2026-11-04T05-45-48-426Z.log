@@ -1,0 +1,25 @@
+$ sh unity/mood-picker/scripts/verify-portal.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 2
+# at: 2026-11-04T05:45:48.437Z
+
+PASS  preflight
+total=17 passed=16 failed=1
+  Passed  MoodPicker.Tests.PortalDipTests.Dip_HoverOrSideEntryDoesNotPaint
+  Passed  MoodPicker.Tests.PortalDipTests.Dip_InAndOutPaintsFingertipWithin300ms
+  Passed  MoodPicker.Tests.PortalDipTests.Dip_NoChipsNoPaint
+  Passed  MoodPicker.Tests.PortalDipTests.Gate_PinchesWhilePortalOpenNeverReachCatchOrToggle
+  Passed  MoodPicker.Tests.PortalDipTests.Gate_ReleasesAfterCloseAndCooldown
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_CenterSits14cmAlongTiltedPalmNormal
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_ClosesOnPalmDownOrTrackingLoss
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_FaceAndShakeFixturesFalseOpenAtMostOneInTen
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_ShippedSettingsAssetUses14cm
+  Passed  MoodPicker.Tests.PortalPalmTests.Portal_SkyPalmOpensWithin300msAboveThePalm
+  Passed  MoodPicker.Tests.PortalWheelTests.Dip_OnlyFrontSlotPaints
+  Passed  MoodPicker.Tests.PortalWheelTests.Layout_ZeroOneTwelvePaintsFitOnRim(0)
+  Failed  MoodPicker.Tests.PortalWheelTests.Layout_ZeroOneTwelvePaintsFitOnRim(1)
+  Passed  MoodPicker.Tests.PortalWheelTests.Layout_ZeroOneTwelvePaintsFitOnRim(12)
+  Passed  MoodPicker.Tests.PortalWheelTests.Sweep_FollowsFingerWhileOnRimAndSmallSweepSnapsBack
+  Passed  MoodPicker.Tests.PortalWheelTests.Sweep_RimBySlotRotatesOneSlotAndSnaps(1.0f)
+  Passed  MoodPicker.Tests.PortalWheelTests.Sweep_RimBySlotRotatesOneSlotAndSnaps(-1.0f)
+exit=2  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

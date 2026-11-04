@@ -1,0 +1,14 @@
+$ npm test 2>&1 | grep -E '^ℹ (pass|fail)' && npm test >/dev/null 2>&1 && sh test/git-hooks-check.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T15:48:27.536Z
+
+ℹ pass 19
+ℹ fail 0
+ok   no: git commit -q -m 그냥 고침
+ok   no: git commit -q -m no-such-card: 무언가
+ok   ok: git commit -q -m proof-gate-selfcheck: 임시 레포 훅 확인
+ok   no: git push -q origin work:main
+ok   no: git push -q origin work:other
+ok   ok: git push -q origin work:main
+ok   no: git push -q -f origin work:main

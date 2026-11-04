@@ -1,0 +1,12 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.DabObjectTests && sh unity/mood-picker/scripts/build-catch-apk.sh dab-dev.apk
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:35:00.994Z
+
+total=2 passed=2 failed=0
+  Passed  MoodPicker.Tests.DabObjectTests.Bottle_InCatchSceneWithCelMaterialsAndColliders
+  Passed  MoodPicker.Tests.DabObjectTests.Bottle_WithinPolyBudgetWithUvAndRoughBottleSize
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+[BuildGate] 통과. build=387ff89-dirty-1104-143058
+[MP] build result=Succeeded errors=0 size=1237MB time=236s path=Builds/catch-dev.apk
+copied → Builds/dab-dev.apk

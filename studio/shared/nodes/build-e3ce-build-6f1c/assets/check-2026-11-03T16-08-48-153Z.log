@@ -1,0 +1,27 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-03T16:08:48.164Z
+
+total=20 passed=20 failed=0
+  Passed  MoodPicker.Tests.BuildGateProjectTests.GateConfigUsesMoodPickerLogTag
+  Passed  MoodPicker.Tests.BuildGateProjectTests.ProjectPassesBuildGateFileChecks
+  Passed  MoodPicker.Tests.DeskKeyboardTests.Calibration_ThreeDwells_RecoverTiltedDeskPlane
+  Passed  MoodPicker.Tests.DeskKeyboardTests.Taps_ContactCountsPerFinger_HoverDoesNotTouch
+  Passed  MoodPicker.Tests.DeskKeyboardTests.Taps_PredictedFiresLeadBeforeContact(0.04f)
+  Passed  MoodPicker.Tests.DeskKeyboardTests.Taps_PredictedFiresLeadBeforeContact(0.06f)
+  Passed  MoodPicker.Tests.HandInputTests.GestureScripts_DoNotReadOvrHandDirectly
+  Passed  MoodPicker.Tests.HandInputTests.HandsCoreAssembly_DoesNotReferenceOculus
+  Passed  MoodPicker.Tests.HandInputTests.RecordedDeviceFixtures_HaveAtLeastOnePinchPair
+  Passed  MoodPicker.Tests.HandInputTests.SyntheticFixture_RightPinchStartsAndEnds
+  Passed  MoodPicker.Tests.HandInputTests.SyntheticFixture_TrackingLossEndsPinch
+  Passed  MoodPicker.Tests.HandInputTests.TrajectoryJson_RoundTrips
+  Passed  MoodPicker.Tests.ProjectRuleTests.BatchEntry_WaitsForMetaEditorReady(&quot;Editor/MoodPickerBuild.cs&quot;,&quot;BuildDevApkBatch&quot;,&quot;BuildDevApk&quot;)
+  Passed  MoodPicker.Tests.ProjectRuleTests.BatchEntry_WaitsForMetaEditorReady(&quot;Editor/MoodPickerSceneSetup.cs&quot;,&quot;RunBatch&quot;,&quot;Run&quot;)
+  Passed  MoodPicker.Tests.ProjectRuleTests.CameraPermission_IsRequestedOnlyByOvrManager
+  Passed  MoodPicker.Tests.ProjectRuleTests.CommentLint_FlagsCommentsButNotUsageHeaderOrStrings
+  Passed  MoodPicker.Tests.ProjectRuleTests.CommentLint_HeaderWithoutUsageIsFlagged
+  Passed  MoodPicker.Tests.ProjectRuleTests.HandTracking_IsNotControllersOnly
+  Passed  MoodPicker.Tests.ProjectRuleTests.PcaGetTexture_IsGuardedByIsPlaying
+  Passed  MoodPicker.Tests.ProjectRuleTests.RuntimeScripts_DoNotHardcodeCameraResolution
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

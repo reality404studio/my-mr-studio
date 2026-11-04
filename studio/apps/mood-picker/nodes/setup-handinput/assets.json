@@ -1,0 +1,24 @@
+[
+  {
+    "file": "setup-handinput_editmode.xml",
+    "memo": "배치모드 EditMode: total=8 passed=8 failed=0 exit 0. RecordedDeviceFixtures_HaveAtLeastOnePinchPair = 실기 녹화 궤적(빌드 be7f0be-1104-004625, 15s 1082프레임)을 재생해 핀치 시작·끝 이벤트 받음. 🔒 GestureScripts_DoNotReadOvrHandDirectly + HandsCoreAssembly_DoesNotReferenceOculus 통과",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:54:54.407Z"
+  },
+  {
+    "file": "hand_device_be7f0be_1104-005348.json",
+    "memo": "실기 녹화 픽스처 원본 (OvrHandInput → HandTrajectoryRecorder, 트래킹 공간 좌표, build 필드 = be7f0be-1104-004625)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:54:54.616Z"
+  },
+  {
+    "file": "check-2026-11-03T15-55-29-096Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:55:29.114Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh",
+      "exit": 0
+    }
+  }
+]

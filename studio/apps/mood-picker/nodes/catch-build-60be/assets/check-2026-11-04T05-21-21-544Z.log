@@ -1,0 +1,11 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchPunchDragTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:21:21.545Z
+
+total=4 passed=4 failed=0
+  Passed  MoodPicker.Tests.CatchPunchDragTests.Drag_FollowsHoleAxesWhenHeadTurns
+  Passed  MoodPicker.Tests.CatchPunchDragTests.Drag_IgnoredWhilePortalOpenOrPalmFacesHead
+  Passed  MoodPicker.Tests.CatchPunchDragTests.Drag_LeftPinchMovesHoleByHandDeltaAndStopsOnRelease
+  Passed  MoodPicker.Tests.CatchPunchDragTests.Drag_OffsetIsClamped
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

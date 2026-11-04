@@ -1,0 +1,9 @@
+$ sh -c grep -q 'Build Finished, Result: Success' unity/mood-picker/Library/dk_build5.log && grep -q '\[BuildGate\] 통과. build=a57449e-dirty-1104-014209' unity/mood-picker/Library/dk_build5.log && grep -q '\[MP\] build=a57449e-dirty-1104-014209' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && grep -q '\[MP\] kb calib done' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && test $(grep -c '\[MP\] kb tap' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt) -gt 0 && grep -E 'build=|calib done|grab|kb tap n=1 ' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && echo taps=$(grep -c 'kb tap' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt)
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 2
+# at: 2026-11-03T16:50:33.258Z
+
+usage: grep [-abcdDEFGHhIiJLlMmnOopqRSsUVvwXxZz] [-A num] [-B num] [-C[num]]
+	[-e pattern] [-f file] [--binary-files=value] [--color=when]
+	[--context[=num]] [--directories=action] [--label] [--line-buffered]
+	[--null] [pattern] [file ...]

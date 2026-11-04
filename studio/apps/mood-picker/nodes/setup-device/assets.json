@@ -1,0 +1,14 @@
+[
+  {
+    "file": "setup-device_f0bcc74_logcat_all.txt",
+    "memo": "빌드 f0bcc74-dirty-1104-000702 (pid 11964) [MP] logcat: build= 가 게이트 ID 와 일치, OpenXRLoader, 패스스루, PCA 1280x960, 양손 추적, 72fps",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:17:08.810Z"
+  },
+  {
+    "file": "setup-device_f0bcc74.png",
+    "memo": "같은 실행 스크린샷: 방 + 하늘색 큐브 + 왼손 검지 끝 점 (카메라 쿼드는 이전 스크린샷 firstlight_f0bcc74.png)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T15:17:09.034Z"
+  }
+]

@@ -1,0 +1,18 @@
+[
+  {
+    "file": "check-2026-11-04T06-15-03-566Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PunchLeverSizeTests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PunchCueTests && sh unity/mood-picker/scripts/render-lever.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T06:15:03.591Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PunchLeverSizeTests && sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.PunchCueTests && sh unity/mood-picker/scripts/render-lever.sh",
+      "exit": 0
+    }
+  },
+  {
+    "file": "lever.png",
+    "memo": "배치 렌더: 작은·보통·큰 손(0.8/1/1.25배)에서 레버(흰 받침+팔)가 엄지 끝~검지 끝(빨강)을 100% 덮음",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T06:15:56.713Z"
+  }
+]

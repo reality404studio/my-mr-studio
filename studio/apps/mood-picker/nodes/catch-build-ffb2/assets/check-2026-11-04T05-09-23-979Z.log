@@ -1,0 +1,6 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh MoodPicker.Tests.CatchProjectionTests|MoodPicker.Tests.CatchCropTests
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 127
+# at: 2026-11-04T05:09:23.984Z
+
+sh: MoodPicker.Tests.CatchCropTests: command not found

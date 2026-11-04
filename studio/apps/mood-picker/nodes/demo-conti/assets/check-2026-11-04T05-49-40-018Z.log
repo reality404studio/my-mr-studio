@@ -1,0 +1,7 @@
+$ node studio/apps/mood-picker/nodes/demo-conti/check-conti.mjs
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T05:49:40.019Z
+
+shots=12 total=170s a1In20=true
+PASS

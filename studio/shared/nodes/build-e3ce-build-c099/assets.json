@@ -1,0 +1,32 @@
+[
+  {
+    "file": "check-2026-11-03T16-50-33-258Z.log",
+    "memo": "$ sh -c grep -q 'Build Finished, Result: Success' unity/mood-picker/Library/dk_build5.log && grep -q '\\[BuildGate\\] 통과. build=a57449e-dirty-1104-014209' unity/mood-picker/Library/dk_build5.log && grep -q '\\[MP\\] build=a57449e-dirty-1104-014209' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && grep -q '\\[MP\\] kb calib done' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && test $(grep -c '\\[MP\\] kb tap' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt) -gt 0 && grep -E 'build=|calib done|grab|kb tap n=1 ' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && echo taps=$(grep -c 'kb tap' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt) → exit 2 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T16:50:33.259Z",
+    "check": {
+      "cmd": "sh -c grep -q 'Build Finished, Result: Success' unity/mood-picker/Library/dk_build5.log && grep -q '\\[BuildGate\\] 통과. build=a57449e-dirty-1104-014209' unity/mood-picker/Library/dk_build5.log && grep -q '\\[MP\\] build=a57449e-dirty-1104-014209' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && grep -q '\\[MP\\] kb calib done' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && test $(grep -c '\\[MP\\] kb tap' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt) -gt 0 && grep -E 'build=|calib done|grab|kb tap n=1 ' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt && echo taps=$(grep -c 'kb tap' studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt)",
+      "exit": 2
+    }
+  },
+  {
+    "file": "check-2026-11-03T16-50-45-371Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-device-log.sh unity/mood-picker/Library/dk_build5.log studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt [MP] kb calib done [MP] kb tap [MP] kb grab end → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T16:50:45.372Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-device-log.sh unity/mood-picker/Library/dk_build5.log studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt [MP] kb calib done [MP] kb tap [MP] kb grab end",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-03T16-50-54-009Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-device-log.sh unity/mood-picker/Library/dk_build5.log studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt kb.calib.done kb.tap kb.grab.end → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-03T16:50:54.012Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-device-log.sh unity/mood-picker/Library/dk_build5.log studio/shared/nodes/build-e3ce-build-c099/dk_run_014209_logcat.txt kb.calib.done kb.tap kb.grab.end",
+      "exit": 0
+    }
+  }
+]
