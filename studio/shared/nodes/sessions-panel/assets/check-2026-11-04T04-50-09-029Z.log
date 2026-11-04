@@ -1,0 +1,46 @@
+$ npm test && npm run build
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:50:09.030Z
+
+✔ 커밋: card-id: 관찰 가능한 변화 형식만 (1.070084ms)
+✔ 커밋: 게이트 통과(done) 카드만 (0.089792ms)
+✔ 푸시: 지정 브랜치는 자동 (0.901333ms)
+✔ 푸시: 지정 아닌 브랜치는 거절 (0.074ms)
+✔ 푸시: main 직푸시는 승인 없이 거절, 승인 있으면 통과 (0.081875ms)
+✔ 푸시: force-push 는 지정 브랜치라도 승인 없이 거절 (0.070875ms)
+✔ 푸시: 브랜치 삭제 줄(로컬 sha 0)은 건드리지 않는다 (0.059375ms)
+✔ doing → done 직행은 거절된다 (4.525625ms)
+✔ 성공 조건 없이는 done 불가 (2.67325ms)
+✔ proof 이전에 붙인 로그는 증거로 치지 않는다 (8.819667ms)
+✔ 검증 명령 기록이 없는 파일은 증거가 아니다 (2.213083ms)
+✔ 실패한 검증 로그(exit≠0)는 증거가 아니다 (1.748375ms)
+✔ 성공 조건 + proof + 이후 증거 → done 통과, 과업 상태도 계산된다 (3.309083ms)
+✔ 시작된 에이전트 카드를 사람 카드로 바꿔 게이트를 우회할 수 없다 (1.308584ms)
+✔ 에이전트 카드를 done 상태로 바로 만들 수 없다 (0.807333ms)
+✔ 사람 결정 카드는 게이트 밖이다 (1.285958ms)
+✔ UI 상태 목록이 서버와 같다 (증명 칼럼 포함) (1.332125ms)
+✔ done 된 에이전트 카드의 성공 조건은 덮어쓸 수 없다 (2.65125ms)
+✔ 같은 세션이 통과 로그로 직접 done 할 수 있다 (1.957583ms)
+✔ 죽은 pid 는 빠진다 (3.026667ms)
+✔ 상위 폴더 밖 cwd 는 빠지고, 안쪽은 상대 경로로 나온다 (1.136208ms)
+✔ .key 파일과 소켓 경로는 노출하지 않는다 (0.881208ms)
+✔ 세션 이름이 찍힌 가장 최근 로그 줄이 붙는다 (옛 줄은 무시) (1.596875ms)
+✔ CLI 쪽: 세션 이름을 찾고, 로그 줄에 session 이 붙는다 (actor 그대로) (3.194834ms)
+ℹ tests 24
+ℹ suites 0
+ℹ pass 24
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 126.042708
+vite v5.4.21 building for production...
+transforming...
+✓ 202 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.96 kB │ gzip:   0.55 kB
+dist/assets/index-C6sobvGK.css   49.65 kB │ gzip:   9.22 kB
+dist/assets/index-BsCNSY9C.js   403.87 kB │ gzip: 131.82 kB
+✓ built in 738ms

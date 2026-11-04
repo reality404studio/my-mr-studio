@@ -4,6 +4,7 @@ import { LaneNode, AddLaneNode, TaskNode, G, taskHeight } from './BoardNodes.jsx
 import Inspector from './Inspector.jsx';
 import { projectApi, studioApi } from './api.js';
 import { useStudioEvents } from './events.js';
+import SessionStrip from './Sessions.jsx';
 import { TYPES, KINDS, actorLabel, actionLabel, isAgent, timeAgo } from './constants.js';
 
 const nodeTypes = { lane: LaneNode, addLane: AddLaneNode, task: TaskNode };
@@ -233,6 +234,7 @@ function Project({ pid, initialNode }) {
           <button className={`ghost${panel === 'log' ? ' is-on' : ''}`} onClick={() => setPanel((v) => (v === 'log' ? null : 'log'))} aria-expanded={panel === 'log'}>기록</button>
           <button className="primary" onClick={() => setAddFor(pipeline?.stages[0]?.id || null)}>과업 추가</button>
         </div>
+        <SessionStrip pid={pid} onSelect={setSelectedId} />
       </header>
 
       <main className="canvas">

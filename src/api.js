@@ -13,6 +13,7 @@ export const studioApi = {
   projects: () => call('GET', '/api/projects'),
   templates: () => call('GET', '/api/templates'),
   createApp: (body) => call('POST', '/api/projects', body),
+  sessions: () => call('GET', '/api/sessions'),
 };
 
 // pid = "shared" 또는 앱 id

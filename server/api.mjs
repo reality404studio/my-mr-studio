@@ -5,12 +5,14 @@
 //   POST /api/projects                    새 앱 { id, name, subtitle, template }
 //   GET  /api/templates                   모드 목록
 //   GET  /api/events                      파일 변경 알림 (SSE)
+//   GET  /api/sessions                    작업대 상위 폴더 안에서 살아 있는 Claude Code 세션 + 마지막으로 만진 카드
 //   /api/p/<pid>/pipeline | next | log | stages/... | nodes/... | edges/...   pid = "shared" 또는 앱 id
 //   /files/<studio/ 아래 상대 경로>       첨부 파일
 import fs from 'node:fs';
 import path from 'node:path';
 import chokidar from 'chokidar';
 import { createStudio } from './store.mjs';
+import { listSessions } from './sessions.mjs';
 
 const MIME = {
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif',
@@ -23,6 +25,7 @@ const MIME = {
 
 export function studioApi(root) {
   const studio = createStudio(root);
+  const scopeDir = path.dirname(path.resolve(root));
   const clients = new Set();
 
   let pending = new Set();
@@ -72,6 +75,7 @@ export function studioApi(root) {
       if (top === 'projects' && m === 'GET') return send(200, studio.projects());
       if (top === 'projects' && m === 'POST') return send(201, studio.createApp(actor, await readJson(req)));
       if (top === 'templates' && m === 'GET') return send(200, studio.templates());
+      if (top === 'sessions' && m === 'GET') return send(200, listSessions({ scopeDir, studioDir: studio.studioDir }));
 
       if (top === 'p' && parts[2]) {
         const store = studio.project(parts[2]);

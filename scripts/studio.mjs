@@ -32,14 +32,16 @@
 //
 // kind: decide(결정) collect(수집) analyze(분석) write(작성) make(생성) build(구현) verify(검증)
 // 누가 했는지는 --as 이름 또는 STUDIO_ACTOR 환경변수로 남긴다. 기본값은 "agent".
+// CLAUDE_CODE_SESSION_ID 가 있으면 로그 줄마다 session (세션 이름, 없으면 id) 이 붙는다.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createStudio, NODE_TYPES, STATUSES, KINDS, ACTORS } from '../server/store.mjs';
+import { sessionLabel } from '../server/sessions.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const studio = createStudio(root);
+const studio = createStudio(root, { session: sessionLabel(process.env.CLAUDE_CODE_SESSION_ID) });
 
 const BOOL_FLAGS = new Set(['feedback']);
 const all = process.argv.slice(2);

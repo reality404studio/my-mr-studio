@@ -759,3 +759,21 @@ a.link-chip { color: var(--ink); text-decoration: none; }
 
 .react-flow__attribution { background: transparent; font-size: 10px; opacity: 0.6; }
 .react-flow__attribution a { color: var(--ink-2); }
+
+/* ---------- 활성 세션 ---------- */
+.sessions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-2); }
+.home .sessions { margin: -16px 0 24px; }
+.bar:has(.sessions) { flex-wrap: wrap; row-gap: 8px; }
+.bar .sessions { flex-basis: 100%; }
+.sessions__label { font-size: 11.5px; letter-spacing: 0.02em; }
+.sessions__list { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.session-chip {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 3px 10px; border-radius: 999px;
+  border: 1px solid var(--line); background: var(--paper);
+}
+.session-chip strong { color: var(--ink); font-weight: 600; }
+.session-chip .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--status-todo); }
+.session-chip.is-busy .dot { background: var(--status-doing); box-shadow: 0 0 0 3px color-mix(in srgb, var(--status-doing) 22%, transparent); }
+.session-chip__card { font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 11.5px; color: var(--accent); text-decoration: none; }
+.session-chip__card:hover { text-decoration: underline; }

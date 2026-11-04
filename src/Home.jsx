@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { studioApi } from './api.js';
 import { useStudioEvents } from './events.js';
+import SessionStrip from './Sessions.jsx';
 import { STATUSES, actorLabel, isAgent, timeAgo } from './constants.js';
 
 export default function Home() {
@@ -36,6 +37,8 @@ export default function Home() {
         </div>
         <span className={`live is-${live}`}><span className="dot" aria-hidden="true" />{live === 'live' ? '실시간 연결됨' : live === 'down' ? '연결 끊김' : '연결 중'}</span>
       </header>
+
+      <SessionStrip />
 
       {data?.shared && <SharedBand shared={data.shared} />}
 

@@ -21,7 +21,7 @@ export const SHARED_ID = 'shared';
 
 const RESERVED = new Set([SHARED_ID, 'templates', 'apps', 'new']);
 
-export function createStudio(root) {
+export function createStudio(root, { session = null } = {}) {
   const studioDir = path.resolve(root, 'studio');
   const appsDir = path.join(studioDir, 'apps');
   const sharedDir = path.join(studioDir, 'shared');
@@ -91,7 +91,7 @@ export function createStudio(root) {
     },
 
     project(pid) {
-      return createProjectStore(projectDir(pid), pid, { studioDir, sharedSummary, sharedUsage });
+      return createProjectStore(projectDir(pid), pid, { studioDir, sharedSummary, sharedUsage, session });
     },
 
     projects() {
@@ -154,7 +154,7 @@ export function createStudio(root) {
       const specSrc = [path.join(tplDir, 'scene_spec.yaml'), path.join(sharedDir, 'scene_spec.template.yaml')].find((f) => fs.existsSync(f));
       if (specSrc) fs.writeFileSync(path.join(dir, 'scene_spec.yaml'), fs.readFileSync(specSrc, 'utf8').replace(/^(\s*title:).*$/m, `$1 ${name.trim()}`));
 
-      fs.writeFileSync(path.join(dir, 'log.jsonl'), JSON.stringify({ ts: now, actor, action: 'app.create', nodeId: null, detail: `${meta.name || template} 모드로 생성` }) + '\n');
+      fs.writeFileSync(path.join(dir, 'log.jsonl'), JSON.stringify({ ts: now, actor, action: 'app.create', nodeId: null, detail: `${meta.name || template} 모드로 생성`, ...(session ? { session } : {}) }) + '\n');
       return { id: appId };
     },
   };
@@ -218,6 +218,7 @@ function createProjectStore(dir, pid, ctx) {
   function appendLog(actor, action, nodeId, detail) {
     const entry = { ts: new Date().toISOString(), actor: actor || 'human', action, nodeId: nodeId ?? null };
     if (detail) entry.detail = detail;
+    if (ctx.session) entry.session = ctx.session;
     fs.appendFileSync(logPath, JSON.stringify(entry) + '\n');
   }
 

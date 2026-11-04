@@ -1,0 +1,22 @@
+[
+  {
+    "file": "check-2026-11-04T04-50-01-702Z.log",
+    "memo": "$ sh -c npm test && npm run build → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T04:50:01.703Z",
+    "check": {
+      "cmd": "sh -c npm test && npm run build",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-04T04-50-09-029Z.log",
+    "memo": "$ npm test && npm run build → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-04T04:50:09.032Z",
+    "check": {
+      "cmd": "npm test && npm run build",
+      "exit": 0
+    }
+  }
+]
