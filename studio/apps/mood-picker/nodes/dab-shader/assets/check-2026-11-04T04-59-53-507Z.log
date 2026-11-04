@@ -1,0 +1,20 @@
+$ sh unity/mood-picker/scripts/verify-dab-shader.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-04T04:59:53.509Z
+
+== 1. preflight
+PASS  preflight
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 3개)
+== 2. 셰이더 게이트 픽스처
+PASS  게이트가 ColorMask RGB 를 거절
+PASS  RGBA / 0 / 주석 줄은 통과
+== 3. 광원 0개 배치 렌더
+[MP] cel-render coverage=0.166 partialAlpha=0 magenta=0 cornerAlpha=0.00
+[MP] cel-render lit=#B6ADA2 lum=0.682 std=0.0120 d(light)=0.124 d(shadow)=0.354
+[MP] cel-render out=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/CelRender/cel_render.png
+[MP] cel-render PASS
+[MP] cel-render pipeline=URP_Quest device=Metal lights=0 lightDir=(0.07, 0.75, -0.65) lightTone=#CDBFAE shadowTone=#737A81
+[MP] cel-render shadow=#7E8287 lum=0.508 std=0.0329 d(shadow)=0.058 d(light)=0.421
+PASS  배치 렌더 + 2톤·알파 검사 (exit 0)
+== 결과: PASS

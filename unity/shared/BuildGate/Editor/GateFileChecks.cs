@@ -55,6 +55,7 @@ namespace Reality404.BuildGate
             string rigGuid = FindCameraRigGuid(projectRoot);
             foreach (string scene in scenes ?? EnabledScenes(projectRoot)) CheckScene(projectRoot, scene, rigGuid, r);
             CheckOutlineMaterials(projectRoot, r);
+            CheckShaderColorMask(projectRoot, r);
             CheckForbiddenApis(projectRoot, cfg.ForbiddenApis, r);
             CheckHandTracking(projectRoot, r);
             CheckComments(projectRoot, r);
@@ -245,6 +246,57 @@ namespace Reality404.BuildGate
                 if (!m.Success) Add(r, GateLevel.Fail, "outline-cull", rel + ": _Cull 속성 없음");
                 else if (m.Groups[1].Value != "1") Add(r, GateLevel.Fail, "outline-cull", $"{rel}: _Cull {m.Groups[1].Value} (1 = Back 이어야 함. Front 면 검은 덩어리)");
             }
+        }
+
+        static readonly Regex ColorMaskStatement = new Regex(@"(?<!\w)ColorMask\s+(\[[^\]]*\]|\w+)");
+
+        public static List<KeyValuePair<int, string>> ColorMaskViolations(string[] lines, out List<int> propertyDriven)
+        {
+            var bad = new List<KeyValuePair<int, string>>();
+            propertyDriven = new List<int>();
+            bool inBlock = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string code = StripComments(lines[i], ref inBlock);
+                foreach (Match m in ColorMaskStatement.Matches(code))
+                {
+                    string v = m.Groups[1].Value;
+                    if (v.StartsWith("[")) { propertyDriven.Add(i + 1); continue; }
+                    if (v == "0" || v.ToUpperInvariant().IndexOf('A') >= 0) continue;
+                    bad.Add(new KeyValuePair<int, string>(i + 1, v));
+                }
+            }
+            return bad;
+        }
+
+        static IEnumerable<string> ShaderRoots(string root)
+        {
+            yield return Path.Combine(root, "Assets");
+            yield return Path.GetFullPath(Path.Combine(root, "..", "shared"));
+        }
+
+        static void CheckShaderColorMask(string root, List<GateResult> r)
+        {
+            int files = 0, hits = 0;
+            foreach (string dir in ShaderRoots(root))
+            {
+                if (!Directory.Exists(dir)) continue;
+                foreach (string sh in Directory.GetFiles(dir, "*.shader", SearchOption.AllDirectories))
+                {
+                    string n = sh.Replace('\\', '/');
+                    if (n.Contains("~/")) continue;
+                    files++;
+                    List<int> prop;
+                    foreach (var v in ColorMaskViolations(File.ReadAllLines(sh), out prop))
+                    {
+                        Add(r, GateLevel.Fail, "shader-colormask", $"{Display(root, sh)}:{v.Key} ColorMask {v.Value} → 알파를 안 써서 패스스루 위에서 사라짐 (RGBA 로 쓰거나 줄을 지울 것)");
+                        hits++;
+                    }
+                    foreach (int line in prop)
+                        Add(r, GateLevel.Warn, "shader-colormask", $"{Display(root, sh)}:{line} ColorMask 가 속성값 → 머티리얼에서 알파가 빠지지 않는지 확인");
+                }
+            }
+            if (hits == 0) Add(r, GateLevel.Info, "shader-colormask", $"알파를 빼는 ColorMask 없음 (셰이더 {files}개)");
         }
 
         static void CheckForbiddenApis(string root, string[] apis, List<GateResult> r)
