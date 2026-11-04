@@ -55,6 +55,7 @@ namespace Reality404.BuildGate
             string rigGuid = FindCameraRigGuid(projectRoot);
             foreach (string scene in scenes ?? EnabledScenes(projectRoot)) CheckScene(projectRoot, scene, rigGuid, r);
             CheckOutlineMaterials(projectRoot, r);
+            CheckOutlineShaders(projectRoot, r);
             CheckShaderColorMask(projectRoot, r);
             CheckForbiddenApis(projectRoot, cfg.ForbiddenApis, r);
             CheckHandTracking(projectRoot, r);
@@ -246,6 +247,48 @@ namespace Reality404.BuildGate
                 if (!m.Success) Add(r, GateLevel.Fail, "outline-cull", rel + ": _Cull 속성 없음");
                 else if (m.Groups[1].Value != "1") Add(r, GateLevel.Fail, "outline-cull", $"{rel}: _Cull {m.Groups[1].Value} (1 = Back 이어야 함. Front 면 검은 덩어리)");
             }
+        }
+
+        static readonly Regex CullStatement = new Regex(@"(?<!\w)Cull\s+(\[[^\]]*\]|\w+)");
+        static readonly Regex CullPropertyDefault = new Regex(@"(?<!\w)_Cull\s*\([^)]*\)\s*=\s*(\d+)");
+
+        public static List<KeyValuePair<int, string>> OutlineCullViolations(string[] lines)
+        {
+            var bad = new List<KeyValuePair<int, string>>();
+            bool inBlock = false, any = false;
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string code = StripComments(lines[i], ref inBlock);
+                var d = CullPropertyDefault.Match(code);
+                if (d.Success && d.Groups[1].Value != "1") bad.Add(new KeyValuePair<int, string>(i + 1, "_Cull 기본값 " + d.Groups[1].Value));
+                foreach (Match m in CullStatement.Matches(code))
+                {
+                    any = true;
+                    string v = m.Groups[1].Value;
+                    if (v == "Front" || v == "[_Cull]") continue;
+                    bad.Add(new KeyValuePair<int, string>(i + 1, "Cull " + v));
+                }
+            }
+            if (!any) bad.Add(new KeyValuePair<int, string>(0, "Cull 줄 없음 (기본 Back → 외곽선이 앞면을 덮음)"));
+            return bad;
+        }
+
+        static void CheckOutlineShaders(string root, List<GateResult> r)
+        {
+            int files = 0;
+            foreach (string dir in ShaderRoots(root))
+            {
+                if (!Directory.Exists(dir)) continue;
+                foreach (string sh in Directory.GetFiles(dir, "*.shader", SearchOption.AllDirectories))
+                {
+                    if (sh.Replace('\\', '/').Contains("~/")) continue;
+                    if (Path.GetFileName(sh).IndexOf("outline", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    files++;
+                    foreach (var v in OutlineCullViolations(File.ReadAllLines(sh)))
+                        Add(r, GateLevel.Fail, "outline-shader", $"{Display(root, sh)}:{v.Key} {v.Value} → 외곽선은 뒷면만 (Cull Front 또는 [_Cull] 기본 1)");
+                }
+            }
+            if (files > 0) Add(r, GateLevel.Info, "outline-shader", $"외곽선 셰이더 {files}개 검사");
         }
 
         static readonly Regex ColorMaskStatement = new Regex(@"(?<!\w)ColorMask\s+(\[[^\]]*\]|\w+)");
