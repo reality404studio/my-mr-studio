@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-05T15-54-00-750Z.log",
+    "memo": "$ sh unity/mood-picker/tools/orion-glb/verify.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T15:54:00.764Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/tools/orion-glb/verify.sh",
+      "exit": 0
+    }
+  }
+]

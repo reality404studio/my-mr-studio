@@ -1,0 +1,22 @@
+{"ts":"2026-11-05T15:14:45.624Z","actor":"Claude Code","action":"app.create","nodeId":null,"detail":"영상 우선 모드로 생성","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:38.239Z","actor":"Claude Code","action":"notes.append","nodeId":"brief","detail":"2026-11-06 ORION 인수인계(앱 레포 handoff/2026-11-05-orion-demo.md)로 대체됨. 템플릿 카드라 웹에서 지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:38.626Z","actor":"Claude Code","action":"notes.append","nodeId":"concept","detail":"2026-11-06 ORION 인수인계(앱 레포 handoff/2026-11-05-orion-demo.md)로 대체됨. 템플릿 카드라 웹에서 지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:39.018Z","actor":"Claude Code","action":"notes.append","nodeId":"moodboard","detail":"2026-11-06 ORION 인수인계(앱 레포 handoff/2026-11-05-orion-demo.md)로 대체됨. 템플릿 카드라 웹에서 지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:39.403Z","actor":"Claude Code","action":"notes.append","nodeId":"space-photo","detail":"2026-11-06 ORION 인수인계(앱 레포 handoff/2026-11-05-orion-demo.md)로 대체됨. 템플릿 카드라 웹에서 지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:39.792Z","actor":"Claude Code","action":"notes.append","nodeId":"video","detail":"2026-11-06 ORION 인수인계(앱 레포 handoff/2026-11-05-orion-demo.md)로 대체됨. 템플릿 카드라 웹에서 지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:39.988Z","actor":"Claude Code","action":"node.create","nodeId":"build-dce1","detail":"시험 녹화: 패스스루에서 맥북 화면이 읽히는지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:40.187Z","actor":"Claude Code","action":"node.create","nodeId":"build-402f","detail":"ORION.glb 글자 오브제 (Unbounded Black)","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:40.391Z","actor":"Claude Code","action":"node.create","nodeId":"build-7c8f","detail":"맥북 화면·키보드 앵커","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:59.135Z","actor":"Claude Code","action":"sub.create","nodeId":"build-dce1-build-60db","detail":"녹화용 빌드 준비: 패스스루만 켜진 최소 씬 + 녹화 방법 확인","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:59.337Z","actor":"Claude Code","action":"sub.create","nodeId":"build-dce1-verify-f3a3","detail":"실기: 맥북 앞에서 30초 녹화, 화면 글자가 읽히는지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:59.535Z","actor":"Claude Code","action":"sub.create","nodeId":"build-402f-make-098a","detail":"ORION.glb: Unbounded Black 을 블렌더 배치모드로 부풀림, 글자 5개 별도 오브제","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:59.730Z","actor":"Claude Code","action":"sub.create","nodeId":"build-7c8f-build-f55b","detail":"맥북 앵커: 양손 사각형으로 화면 모서리를 잡아 화면 사각형 고정","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:20:59.924Z","actor":"Claude Code","action":"sub.create","nodeId":"build-7c8f-verify-a375","detail":"실기: 맥북 화면에 사각형이 붙어 있는지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:21:11.768Z","actor":"Claude Code","action":"notes.append","nodeId":"spec","detail":"2026-11-06 ORION 인수인계로 대체. 템플릿 카드라 웹에서 지워도 됨","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:21:12.250Z","actor":"Claude Code","action":"notes.append","nodeId":"build","detail":"2026-11-06 ORION 인수인계로 대체. 템플릿 카드라 웹에서 지워도 됨","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:21:12.583Z","actor":"Claude Code","action":"notes.append","nodeId":"review","detail":"2026-11-06 ORION 인수인계로 대체. 템플릿 카드라 웹에서 지워도 됨","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:21:12.817Z","actor":"Claude Code","action":"notes.append","nodeId":"use-calibration","detail":"2026-11-06 ORION 인수인계로 대체. 템플릿 카드라 웹에서 지워도 됨","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:22:05.278Z","actor":"Claude Code","action":"node.update","nodeId":"build-402f-make-098a","detail":"status=doing","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:54:00.759Z","actor":"Claude Code","action":"node.update","nodeId":"build-402f-make-098a","detail":"status=proof","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:54:00.764Z","actor":"Claude Code","action":"asset.add","nodeId":"build-402f-make-098a","detail":"check-2026-11-05T15-54-00-750Z.log","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T15:54:06.014Z","actor":"Claude Code","action":"node.update","nodeId":"build-402f-make-098a","detail":"status=done","session":"my-vr-colorpicker-c7"}

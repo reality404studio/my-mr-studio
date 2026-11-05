@@ -1,0 +1,54 @@
+# 장면 명세서 — 영상 → 구현의 계약서
+# 영상 분석 에이전트가 처음 쓰고, Unity 구현은 이 파일만 보고 만들고, 검수 결과도 여기에 적는다.
+# 아래 값은 형식을 보여주는 예시예요. 실제 값은 spec 단계에서 채웁니다.
+
+meta:
+  title: ORION
+  source_video: studio/nodes/reference-video/assets/final.mp4
+  duration_s: 60          # 예시
+  bpm: null               # BGM이 정해지면
+
+desk:
+  origin: front_edge_center   # 책상 앞 모서리 중앙
+  axes: { x: right, y: up, z: into_desk }
+  units: m
+  size_m: [1.05, 0.50]        # IKEA MICKE
+  height_m: 0.75
+  surface_offset_mm: 0        # 캘리브레이션에서 런타임에 갱신
+  calibration:
+    fingertip_pad_offset_mm: 6   # 초기 추정치
+    touch_enter_mm: 5
+    touch_exit_mm: 12
+
+objects:
+  # 예시 한 개. 필드 형식만 참고
+  - id: cd_player
+    role: BGM 재생 장치, 투어 마지막 포인트
+    pos_m: [0.30, 0.0, 0.22]
+    size_m: [0.14, 0.05, 0.14]
+    appear: { t_s: 41.0, beat: null, how: "구름 속에서 떠올라 착지" }
+    idle: "디스크가 천천히 회전"
+    ref_frames: ["final.mp4@00:41.2"]
+
+timeline:
+  # - { t_s: 0.0, beat: null, event: "책상 표면에 핑크 안개가 번짐" }
+  []
+
+interactions:
+  # gesture: fingertip_tap | poke | pinch | palm_up | hover
+  # - { target: cd_player, gesture: fingertip_tap, response: "BGM 트랙 변경", sfx: sfx/cd_click.wav }
+  []
+
+perf:
+  # tag: ok | costly | impossible
+  - { target: pink_clouds, tag: costly, fallback: "반투명 겹침 대신 불투명 메시 + 디더링, 개수 제한" }
+  - { target: desk_lamp, tag: costly, fallback: "실시간 조명·그림자 대신 발광 재질 + 가짜 그림자" }
+
+unknowns:
+  # 영상만으로 정할 수 없는 것. 사람이 답을 적는다
+  []
+
+review:
+  # 검수 때 헤드셋 녹화와 원본의 차이
+  # - { t_s: 12.0, what: "물고기", diff: "영상보다 1.5배 빠름", fix: "swim_speed 0.6으로" }
+  []

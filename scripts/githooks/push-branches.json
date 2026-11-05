@@ -1,4 +1,8 @@
 {
-  ".": ["mood-picker-setup"],
-  "unity/mood-picker": []
+  ".": [
+    "mood-picker-setup"
+  ],
+  "unity/mood-picker": [
+    "orion"
+  ]
 }

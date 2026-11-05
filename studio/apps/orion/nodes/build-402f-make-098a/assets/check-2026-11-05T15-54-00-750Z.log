@@ -1,0 +1,18 @@
+$ sh unity/mood-picker/tools/orion-glb/verify.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T15:54:00.756Z
+
+PASS O1: chi=0 holes=1 triangles=6400 pivot=bottom-center
+PASS R: chi=0 holes=1 triangles=3100 pivot=bottom-center
+PASS I: chi=2 holes=0 triangles=76 pivot=bottom-center
+PASS O2: chi=0 holes=1 triangles=6400 pivot=bottom-center
+PASS N: chi=2 holes=0 triangles=196 pivot=bottom-center
+PASS dimensions: width=0.614645m height=0.120000m depth=0.021000m
+PASS identical copies sha256=e5fa2010a2bf758832c412e1aad6df7d2e92e598e9bf115dc4edcc61af62e23a
+PASS GLTFLoader: Mesh=5 names=O1,R,I,O2,N copies=2
+total=1 passed=1 failed=0
+  Passed  MoodPicker.Tests.OrionGlbTests.OrionGlb_ImportsFiveSeparateNamedLetterChildren
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml
+PASS Unity EditMode: OrionGlbTests passed=1
+PASS: GLB + three.js + Unity EditMode
