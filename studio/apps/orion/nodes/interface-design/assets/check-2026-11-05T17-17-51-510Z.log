@@ -1,0 +1,5 @@
+$ test -s studio/apps/orion/nodes/interface-design/assets/orion-design-tokens-v1.png && grep -q 'hysteresis.touch.dab' studio/apps/orion/nodes/interface-design/README.md
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T17:17:51.511Z
+

@@ -1,0 +1,5 @@
+$ test -s studio/apps/orion/nodes/interface-design/assets/zone1_monitor_pullout_sheet.png && test -s studio/apps/orion/nodes/interface-design/assets/blueprint_uv_atlas_sheet.png && test -s studio/apps/orion/nodes/interface-design/assets/web_editor_loader_sheet.png && grep -q 'UV \[06\]' studio/apps/orion/nodes/interface-design/README.md
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T18:04:44.750Z
+

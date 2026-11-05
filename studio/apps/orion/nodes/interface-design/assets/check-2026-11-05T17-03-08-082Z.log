@@ -1,0 +1,5 @@
+$ test -s studio/apps/orion/nodes/interface-design/README.md && test -s studio/apps/orion/nodes/interface-design/assets/orion-interface-design-v1.png && test -s studio/apps/orion/nodes/interface-design/assets/chip_concepts_sheet.png && grep -q 'CHIP 3' studio/apps/orion/nodes/interface-design/README.md
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T17:03:08.083Z
+

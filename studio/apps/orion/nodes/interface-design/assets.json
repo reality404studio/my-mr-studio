@@ -1,0 +1,90 @@
+[
+  {
+    "file": "orion-interface-design-v1.png",
+    "memo": "ORION 공간 인터페이스 최종 확정 시트 (3+4 칩, A+C 폴리오, 4-Zone, 명도 3단계)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:01:55.510Z"
+  },
+  {
+    "file": "chip_concepts_sheet.png",
+    "memo": "A+C 병풍 아코디언 스펙 폴리오 및 컬러 칩 1~4 비교 시트",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:01:55.596Z"
+  },
+  {
+    "file": "quest_shot_2.png",
+    "memo": "Quest 3S 실기 스켈레톤 상태 캡처 (진단 기준)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:01:55.682Z"
+  },
+  {
+    "file": "check-2026-11-05T17-03-08-082Z.log",
+    "memo": "$ test -s studio/apps/orion/nodes/interface-design/README.md && test -s studio/apps/orion/nodes/interface-design/assets/orion-interface-design-v1.png && test -s studio/apps/orion/nodes/interface-design/assets/chip_concepts_sheet.png && grep -q 'CHIP 3' studio/apps/orion/nodes/interface-design/README.md → exit 0",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:03:08.085Z",
+    "check": {
+      "cmd": "test -s studio/apps/orion/nodes/interface-design/README.md && test -s studio/apps/orion/nodes/interface-design/assets/orion-interface-design-v1.png && test -s studio/apps/orion/nodes/interface-design/assets/chip_concepts_sheet.png && grep -q 'CHIP 3' studio/apps/orion/nodes/interface-design/README.md",
+      "exit": 0
+    }
+  },
+  {
+    "file": "orion-design-tokens-v1.png",
+    "memo": "ORION MR 공간 디자인 원칙 및 7대 디자인 토큰 명세 시트 (v1)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:17:51.421Z"
+  },
+  {
+    "file": "check-2026-11-05T17-17-51-510Z.log",
+    "memo": "$ test -s studio/apps/orion/nodes/interface-design/assets/orion-design-tokens-v1.png && grep -q 'hysteresis.touch.dab' studio/apps/orion/nodes/interface-design/README.md → exit 0",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:17:51.513Z",
+    "check": {
+      "cmd": "test -s studio/apps/orion/nodes/interface-design/assets/orion-design-tokens-v1.png && grep -q 'hysteresis.touch.dab' studio/apps/orion/nodes/interface-design/README.md",
+      "exit": 0
+    }
+  },
+  {
+    "file": "props_design_sheet.png",
+    "memo": "ORION 소품 4종(라이카 루페 스탬프, 각기둥 피펫, 피그먼트 바, 올인원 데스크 콘솔) 확정 시트",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:30:53.971Z"
+  },
+  {
+    "file": "check-2026-11-05T17-30-54-145Z.log",
+    "memo": "$ test -s studio/apps/orion/nodes/interface-design/assets/props_design_sheet.png && grep -q 'ORION_Props_Atlas_Unlit' studio/apps/orion/nodes/interface-design/README.md → exit 0",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T17:30:54.149Z",
+    "check": {
+      "cmd": "test -s studio/apps/orion/nodes/interface-design/assets/props_design_sheet.png && grep -q 'ORION_Props_Atlas_Unlit' studio/apps/orion/nodes/interface-design/README.md",
+      "exit": 0
+    }
+  },
+  {
+    "file": "zone1_monitor_pullout_sheet.png",
+    "memo": "Zone 1 가상 모니터(F1 접이식 도면 표제란) 및 Pull-Out/Throw-Back 3단계 연출 시트",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T18:04:44.423Z"
+  },
+  {
+    "file": "blueprint_uv_atlas_sheet.png",
+    "memo": "외부 에셋 제작 블루프린트 및 1024x1024 단일 아틀라스 UV 6분할 설계도",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T18:04:44.521Z"
+  },
+  {
+    "file": "web_editor_loader_sheet.png",
+    "memo": "Three.js 웹 에디터(Before) 및 히어로 로더(After) 레이아웃 & 훅 파동 연출 시트",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T18:04:44.619Z"
+  },
+  {
+    "file": "check-2026-11-05T18-04-44-749Z.log",
+    "memo": "$ test -s studio/apps/orion/nodes/interface-design/assets/zone1_monitor_pullout_sheet.png && test -s studio/apps/orion/nodes/interface-design/assets/blueprint_uv_atlas_sheet.png && test -s studio/apps/orion/nodes/interface-design/assets/web_editor_loader_sheet.png && grep -q 'UV \\[06\\]' studio/apps/orion/nodes/interface-design/README.md → exit 0",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-05T18:04:44.752Z",
+    "check": {
+      "cmd": "test -s studio/apps/orion/nodes/interface-design/assets/zone1_monitor_pullout_sheet.png && test -s studio/apps/orion/nodes/interface-design/assets/blueprint_uv_atlas_sheet.png && test -s studio/apps/orion/nodes/interface-design/assets/web_editor_loader_sheet.png && grep -q 'UV \\[06\\]' studio/apps/orion/nodes/interface-design/README.md",
+      "exit": 0
+    }
+  }
+]

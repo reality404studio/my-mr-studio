@@ -1,0 +1,22 @@
+[
+  {
+    "file": "check-2026-11-05T17-25-46-208Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -5; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out)\" -gt 0 ] → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T17:25:46.222Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -5; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out)\" -gt 0 ]",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-05T17-26-38-886Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -5; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out)\" -gt 0 ] → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T17:26:38.907Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -5; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.HandState\" /tmp/em.out)\" -gt 0 ]",
+      "exit": 0
+    }
+  }
+]

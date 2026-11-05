@@ -1,0 +1,5 @@
+$ test -s studio/apps/orion/nodes/interface-design/assets/props_design_sheet.png && grep -q 'ORION_Props_Atlas_Unlit' studio/apps/orion/nodes/interface-design/README.md
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T17:30:54.145Z
+

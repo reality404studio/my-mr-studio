@@ -1,0 +1,7 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E "^total=" /tmp/em.out; grep -c "Passed  MoodPicker.Tests.PullOut" /tmp/em.out; ! grep -q "Failed" /tmp/em.out && grep -q "failed=0" /tmp/em.out && [ "$(grep -c "Passed  MoodPicker.Tests.PullOut" /tmp/em.out)" -gt 0 ]
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T17:13:04.006Z
+
+total=179 passed=179 failed=0
+25

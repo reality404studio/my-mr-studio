@@ -1,0 +1,60 @@
+[
+  {
+    "file": "check-2026-11-05T18-19-51-976Z.log",
+    "memo": "$ node --test unity/mood-picker/web/orion/test/*.test.mjs → exit 0",
+    "addedBy": "Cursor Fable",
+    "addedAt": "2026-11-05T18:19:51.981Z",
+    "check": {
+      "cmd": "node --test unity/mood-picker/web/orion/test/*.test.mjs",
+      "exit": 0
+    }
+  },
+  {
+    "file": "editor.png",
+    "memo": "headless Chrome 1280x720 ?mode=editor (L2)",
+    "addedBy": "Cursor Fable",
+    "addedAt": "2026-11-05T18:20:03.384Z"
+  },
+  {
+    "file": "hero.png",
+    "memo": "headless Chrome 1280x720 ?mode=hero (L2)",
+    "addedBy": "Cursor Fable",
+    "addedAt": "2026-11-05T18:20:03.589Z"
+  },
+  {
+    "file": "look-web.png",
+    "memo": "headless Chrome 1280x720 ?mode=look (L2)",
+    "addedBy": "Cursor Fable",
+    "addedAt": "2026-11-05T18:20:03.813Z"
+  },
+  {
+    "file": "check-2026-11-05T23-41-05-116Z.log",
+    "memo": "$ cd unity/mood-picker && node --test web/orion/test/ → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:41:05.118Z",
+    "check": {
+      "cmd": "cd unity/mood-picker && node --test web/orion/test/",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-05T23-41-20-128Z.log",
+    "memo": "$ cd unity/mood-picker/web/orion && node --test test/*.test.mjs → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:41:20.137Z",
+    "check": {
+      "cmd": "cd unity/mood-picker/web/orion && node --test test/*.test.mjs",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-05T23-43-24-348Z.log",
+    "memo": "$ cd unity/mood-picker/web/orion && node --test test/*.test.mjs → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:43:24.355Z",
+    "check": {
+      "cmd": "cd unity/mood-picker/web/orion && node --test test/*.test.mjs",
+      "exit": 0
+    }
+  }
+]

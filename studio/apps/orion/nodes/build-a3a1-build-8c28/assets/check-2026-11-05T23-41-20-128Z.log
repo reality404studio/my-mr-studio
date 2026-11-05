@@ -1,0 +1,66 @@
+$ cd unity/mood-picker/web/orion && node --test test/*.test.mjs
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 1
+# at: 2026-11-05T23:41:20.135Z
+
+✖ browser: editor presets, sliders -> quest relay, hero GLB export (8251.178958ms)
+✔ natural width of the GLB is the 0.615 m baseline (1.833417ms)
+✔ tracking 1 reproduces the GLB positions (1.042459ms)
+✔ center span scales linearly with tracking (0.313167ms)
+✔ tracking widens the word extent by the center span delta (0.101833ms)
+✔ thickness maps to Z scale only, rotation to radians (0.108792ms)
+✔ letter offsets are added after tracking (0.112833ms)
+✔ missing word values fall back to settings defaults (0.116708ms)
+✔ missing bounds throw (0.348833ms)
+✔ ORION.glb parses into the five named letter meshes (11.926ms)
+✔ sample JSON + PNG tiles apply chip/gradient/clay materials per letter (6.472917ms)
+✔ all-clay document uses one shared clay material and the group holds 5 letters (1.376792ms)
+✔ setWord relayouts: tracking changes X, thickness changes Z scale, rotation spins the group (1.33275ms)
+✔ invalid document is rejected before touching materials (1.489084ms)
+✔ non-null loop applies as still tile with a warning (2.765042ms)
+✔ tile URLs resolve relative to the JSON file (0.106375ms)
+✔ parseHexColor accepts upper and lower case hex (1.682042ms)
+✔ parseHexColor rejects bad hex (0.252417ms)
+✔ srgbToLinear endpoints (0.080333ms)
+✔ normalizeDir normalizes and falls back on zero vector (0.161833ms)
+✔ chipUniforms converts colors to linear and normalizes lightDir (0.130834ms)
+✔ lightDir comes from Unity (left-handed): z is negated for three.js (0.068958ms)
+✔ chipUniforms rejects clay (0.062916ms)
+✔ materialKindFor branches clay vs chip vs gradient (0.058625ms)
+✔ createClayMaterial is matte #E7E7E7 standard material (0.521042ms)
+✔ createChipMaterial is a GLSL3 triplanar shader with 3 tones (0.34175ms)
+✔ createOutlineMaterial renders back faces in outline color (0.148541ms)
+✔ sample export passes (9.02675ms)
+✔ clay default export passes (1.142375ms)
+✔ wrong letter count fails with path (1.624458ms)
+✔ unknown letter name fails with index path (1.138ms)
+✔ duplicate letter name fails (0.988084ms)
+✔ paint.kind mismatch fails with path (0.783791ms)
+✔ missing tile path fails with path (0.806958ms)
+✔ tile path escaping the JSON folder fails (0.509875ms)
+✔ clay with color fields fails with path (0.834125ms)
+✔ bad hex, zero lightDir, missing loop fail with paths (0.7345ms)
+✔ non-null loop is a warning, not an error (3.293375ms)
+✔ version and word validation (1.011333ms)
+✔ assertExport throws with all messages (0.840709ms)
+✔ ws frame codec round-trips short, medium and long payloads (1.668042ms)
+✔ upload name whitelist and size limits (0.193041ms)
+✔ slider relays mac -> quest and is replayed to late joiners (188.266125ms)
+✔ messages before hello and unknown roles are rejected (155.705792ms)
+✔ upload: bad name rejected, oversize rejected, good upload stored and announced as export (174.5765ms)
+✔ static files: index.html, vendor three, GLB and samples are served (7.007875ms)
+✔ resolveUnder never escapes its root (0.172292ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 46
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8484.7405
+
+✖ failing tests:
+
+test at test/browser.test.mjs:63:1
+✖ browser: editor presets, sliders -> quest relay, hero GLB export (8251.178958ms)
+  [Error: ENOTEMPTY: directory not empty, rmdir '/var/folders/n_/8p5lyp65519c7k__7vz83jgm0000gn/T/orion-chrome-MYveKn/Default'] { errno: -66, code: 'ENOTEMPTY', syscall: 'rmdir', path: '/var/folders/n_/8p5lyp65519c7k__7vz83jgm0000gn/T/orion-chrome-MYveKn/Default' }

@@ -1,0 +1,60 @@
+$ cd unity/mood-picker/web/orion && node --test test/*.test.mjs
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T23:43:24.350Z
+
+✔ browser: editor presets, sliders -> quest relay, hero GLB export (6820.798292ms)
+✔ natural width of the GLB is the 0.615 m baseline (0.94075ms)
+✔ tracking 1 reproduces the GLB positions (0.933417ms)
+✔ center span scales linearly with tracking (0.257333ms)
+✔ tracking widens the word extent by the center span delta (0.07975ms)
+✔ thickness maps to Z scale only, rotation to radians (0.097375ms)
+✔ letter offsets are added after tracking (0.100084ms)
+✔ missing word values fall back to settings defaults (0.112708ms)
+✔ missing bounds throw (0.223041ms)
+✔ ORION.glb parses into the five named letter meshes (14.516417ms)
+✔ sample JSON + PNG tiles apply chip/gradient/clay materials per letter (6.520916ms)
+✔ all-clay document uses one shared clay material and the group holds 5 letters (1.474709ms)
+✔ setWord relayouts: tracking changes X, thickness changes Z scale, rotation spins the group (1.29675ms)
+✔ invalid document is rejected before touching materials (1.39475ms)
+✔ non-null loop applies as still tile with a warning (1.88ms)
+✔ tile URLs resolve relative to the JSON file (0.123833ms)
+✔ parseHexColor accepts upper and lower case hex (1.830708ms)
+✔ parseHexColor rejects bad hex (0.251709ms)
+✔ srgbToLinear endpoints (0.08225ms)
+✔ normalizeDir normalizes and falls back on zero vector (0.160167ms)
+✔ chipUniforms converts colors to linear and normalizes lightDir (0.126708ms)
+✔ lightDir comes from Unity (left-handed): z is negated for three.js (0.066ms)
+✔ chipUniforms rejects clay (0.058834ms)
+✔ materialKindFor branches clay vs chip vs gradient (0.064208ms)
+✔ createClayMaterial is matte #E7E7E7 standard material (0.40225ms)
+✔ createChipMaterial is a GLSL3 triplanar shader with 3 tones (0.32775ms)
+✔ createOutlineMaterial renders back faces in outline color (0.151333ms)
+✔ sample export passes (8.77825ms)
+✔ clay default export passes (1.680792ms)
+✔ wrong letter count fails with path (2.261667ms)
+✔ unknown letter name fails with index path (0.918125ms)
+✔ duplicate letter name fails (1.142125ms)
+✔ paint.kind mismatch fails with path (0.658208ms)
+✔ missing tile path fails with path (0.761958ms)
+✔ tile path escaping the JSON folder fails (0.582084ms)
+✔ clay with color fields fails with path (0.888834ms)
+✔ bad hex, zero lightDir, missing loop fail with paths (1.784625ms)
+✔ non-null loop is a warning, not an error (3.00425ms)
+✔ version and word validation (1.858292ms)
+✔ assertExport throws with all messages (0.920666ms)
+✔ ws frame codec round-trips short, medium and long payloads (1.5095ms)
+✔ upload name whitelist and size limits (0.212333ms)
+✔ slider relays mac -> quest and is replayed to late joiners (184.833125ms)
+✔ messages before hello and unknown roles are rejected (157.524041ms)
+✔ upload: bad name rejected, oversize rejected, good upload stored and announced as export (179.045375ms)
+✔ static files: index.html, vendor three, GLB and samples are served (29.1815ms)
+✔ resolveUnder never escapes its root (0.214791ms)
+ℹ tests 47
+ℹ suites 0
+ℹ pass 47
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7020.871542
