@@ -1,0 +1,5 @@
+$ grep -q MQDH studio/apps/orion/nodes/build-dce1/README.md && test -s studio/apps/orion/nodes/build-dce1/assets/mac-screen-readable-metacam.jpg
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T16:05:16.405Z
+

@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-05T16-05-16-405Z.log",
+    "memo": "$ grep -q MQDH studio/apps/orion/nodes/build-dce1/README.md && test -s studio/apps/orion/nodes/build-dce1/assets/mac-screen-readable-metacam.jpg → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T16:05:16.407Z",
+    "check": {
+      "cmd": "grep -q MQDH studio/apps/orion/nodes/build-dce1/README.md && test -s studio/apps/orion/nodes/build-dce1/assets/mac-screen-readable-metacam.jpg",
+      "exit": 0
+    }
+  }
+]

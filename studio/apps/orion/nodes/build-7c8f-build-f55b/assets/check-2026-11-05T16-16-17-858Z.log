@@ -1,0 +1,9 @@
+$ sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; tail -4 /tmp/em.out; grep -q "failed=0" /tmp/em.out && grep -c "Passed  MoodPicker.Tests.MacAnchor" /tmp/em.out | grep -qv "^0$"
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T16:16:17.869Z
+
+  Passed  MoodPicker.Tests.SeamlessTileTests.Tile_MatchesMacLabWithinOneLevel
+  Passed  MoodPicker.Tests.SeamlessTileTests.Tile_RejectsWrongSizes
+  Passed  MoodPicker.Tests.SeamlessTileTests.Tile_TwoByTwoSeamNotAboveInteriorAndCenterIsOriginal
+exit=0  xml=/Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio/unity/mood-picker/Library/TestResults/editmode.xml

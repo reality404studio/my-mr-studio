@@ -20,3 +20,43 @@
 {"ts":"2026-11-05T15:54:00.759Z","actor":"Claude Code","action":"node.update","nodeId":"build-402f-make-098a","detail":"status=proof","session":"my-vr-colorpicker-c7"}
 {"ts":"2026-11-05T15:54:00.764Z","actor":"Claude Code","action":"asset.add","nodeId":"build-402f-make-098a","detail":"check-2026-11-05T15-54-00-750Z.log","session":"my-vr-colorpicker-c7"}
 {"ts":"2026-11-05T15:54:06.014Z","actor":"Claude Code","action":"node.update","nodeId":"build-402f-make-098a","detail":"status=done","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:03:40.763Z","actor":"Claude Code","action":"notes.append","nodeId":"build-dce1","detail":"2026-11-06 01:05 시험 (빌드 mvp-dev2 6d25a43). ① metavr device_screenshot(metacam) =","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:03:40.976Z","actor":"Claude Code","action":"asset.add","nodeId":"build-dce1","detail":"mac-screen-readable-metacam-2.jpg","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:06.364Z","actor":"Claude Code","action":"notes.append","nodeId":"build-dce1","detail":"2026-11-06 사람: \"맥북은 일단 그 mqdh로 녹화하려고요. 그정도면 보여요. 패스스루 잘되고.\" → 영상 녹화 = MQDH 캐스팅 녹","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:06.556Z","actor":"Claude Code","action":"node.update","nodeId":"build-dce1-build-60db","detail":"status=doing","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:06.755Z","actor":"Claude Code","action":"notes.append","nodeId":"build-dce1","detail":"녹화 방법 확정: MQDH 캐스팅(DECIDED 2026-09-11 공통 '실기 관찰은 MQDH 캐스팅, 녹화는 필요할 때만') → Mac 화면","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:11.574Z","actor":"Claude Code","action":"node.update","nodeId":"build-dce1-verify-f3a3","detail":"status=doing","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:11.770Z","actor":"Claude Code","action":"notes.append","nodeId":"build-dce1","detail":"사람 판정(verify-f3a3): 위 발언으로 맥북 화면·패스스루 가독성 통과. 단, 영상에 실제 쓸 클립은 MQDH 녹화로 본 촬영 때 다시","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:16.406Z","actor":"Claude Code","action":"node.update","nodeId":"build-dce1-build-60db","detail":"status=proof","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:16.407Z","actor":"Claude Code","action":"asset.add","nodeId":"build-dce1-build-60db","detail":"check-2026-11-05T16-05-16-405Z.log","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:16.603Z","actor":"Claude Code","action":"node.update","nodeId":"build-dce1-build-60db","detail":"status=done","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:05:16.800Z","actor":"Claude Code","action":"node.update","nodeId":"build-dce1-verify-f3a3","detail":"status=done","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:15:47.611Z","actor":"Claude Code","action":"node.update","nodeId":"build-7c8f-build-f55b","detail":"status=doing","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:16:17.871Z","actor":"Claude Code","action":"node.update","nodeId":"build-7c8f-build-f55b","detail":"status=proof","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:16:17.875Z","actor":"Claude Code","action":"asset.add","nodeId":"build-7c8f-build-f55b","detail":"check-2026-11-05T16-16-17-858Z.log","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:16:26.203Z","actor":"Claude Code","action":"node.update","nodeId":"build-7c8f-build-f55b","detail":"status=done","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:00.663Z","actor":"Claude Code","action":"node.create","nodeId":"build-73cd","detail":"풀아웃: 화면을 검지로 톡 → 글자가 빠져나와 호버링 [P0 · Astra]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:01.273Z","actor":"Claude Code","action":"node.create","nodeId":"build-be9a","detail":"손 상태 기계 + 손 표시 + 손 마스크 [P0 · Astra]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:01.868Z","actor":"Claude Code","action":"node.create","nodeId":"build-3e76","detail":"글자 룩: 재질 그대로 셰이더 [P0 · Astra]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:02.280Z","actor":"Claude Code","action":"node.create","nodeId":"build-e463","detail":"글자별 버킷 바르기 [P0 · Astra]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:02.881Z","actor":"Claude Code","action":"node.create","nodeId":"build-8a30","detail":"스탬프 채집 → 칩 [P0 · Astra]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:03.469Z","actor":"Claude Code","action":"node.create","nodeId":"build-5e10","detail":"스포이드 + 마블링 작업대 [P0 · Astra high]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:04.294Z","actor":"Claude Code","action":"node.create","nodeId":"build-1b00","detail":"패스스루 디밍 + 단독 모드 가상 모니터 패널 [P0 · Astra]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:04.689Z","actor":"Claude Code","action":"node.create","nodeId":"build-a3a1","detail":"던지기 + 내보내기 + 맥 연동 [P0 · Astra + Fable]","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:21.908Z","actor":"Claude Code","action":"sub.create","nodeId":"build-73cd-build-d0e0","detail":"맥북 화면 탭 → 글자 5개 빠져나와 호버링","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:22.112Z","actor":"Claude Code","action":"sub.create","nodeId":"build-73cd-verify-6326","detail":"실기: 맥북 화면 톡 → 글자가 나오는지","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:22.309Z","actor":"Claude Code","action":"sub.create","nodeId":"build-be9a-build-2714","detail":"손 상태 기계 (Bare/Paint/Stamp/Dropper)","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:22.511Z","actor":"Claude Code","action":"sub.create","nodeId":"build-be9a-build-eba1","detail":"손 마스크 + 손 색 표시","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:22.710Z","actor":"Claude Code","action":"sub.create","nodeId":"build-3e76-build-d8b8","detail":"CelPaint 를 재질 그대로 룩으로 확장","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:22.909Z","actor":"Claude Code","action":"sub.create","nodeId":"build-e463-build-91e7","detail":"버킷 채우기를 글자 5개에 적용","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:23.114Z","actor":"Claude Code","action":"sub.create","nodeId":"build-e463-verify-bfee","detail":"실기: 윤슬 2·털 1·그라데이션 2 로 칠하기","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:23.311Z","actor":"Claude Code","action":"sub.create","nodeId":"build-8a30-build-3809","detail":"스탬프 도구를 집어야 Catch 활성 + 근거리 크롭","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:23.507Z","actor":"Claude Code","action":"sub.create","nodeId":"build-8a30-verify-7de2","detail":"실기: 흰 털옷 채집","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:23.709Z","actor":"Claude Code","action":"sub.create","nodeId":"build-5e10-build-ec05","detail":"스포이드: 시선 끝 색 따기 + 방울 떨구기","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:23.910Z","actor":"Claude Code","action":"sub.create","nodeId":"build-5e10-build-fb6d","detail":"마블링 작업대: 디퓨전+블러 + 휘젓기 → 그라데이션 칩","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:24.114Z","actor":"Claude Code","action":"sub.create","nodeId":"build-5e10-verify-11a3","detail":"실기: 색 두세 개 따서 그라데이션 칩 만들기","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:24.313Z","actor":"Claude Code","action":"sub.create","nodeId":"build-1b00-build-3987","detail":"단독 모드 가상 모니터 패널 + 패스스루 디밍","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:24.515Z","actor":"Claude Code","action":"sub.create","nodeId":"build-a3a1-build-f049","detail":"내보내기: 글자별 JSON + 채집 PNG","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:24.720Z","actor":"Claude Code","action":"sub.create","nodeId":"build-a3a1-build-c0c8","detail":"던지기 + 맥 연동 클라이언트","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T16:17:24.923Z","actor":"Claude Code","action":"sub.create","nodeId":"build-a3a1-build-8c28","detail":"[Fable·Cursor] web/orion 로더 + 슬라이더 에디터 + Node 서버","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-05T17:00:00.581Z","actor":"Gemini Argon","action":"node.create","nodeId":"interface-design","detail":"인터페이스 디자인"}

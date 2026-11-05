@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-05T16-16-17-858Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; tail -4 /tmp/em.out; grep -q \"failed=0\" /tmp/em.out && grep -c \"Passed  MoodPicker.Tests.MacAnchor\" /tmp/em.out | grep -qv \"^0$\" → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T16:16:17.875Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; tail -4 /tmp/em.out; grep -q \"failed=0\" /tmp/em.out && grep -c \"Passed  MoodPicker.Tests.MacAnchor\" /tmp/em.out | grep -qv \"^0$\"",
+      "exit": 0
+    }
+  }
+]
