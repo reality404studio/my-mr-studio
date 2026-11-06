@@ -1,0 +1,66 @@
+$ sh unity/mood-picker/scripts/verify-orion-look.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-05T23:56:48.305Z
+
+== 1. preflight compilation
+Evidence directory: /var/folders/n_/8p5lyp65519c7k__7vz83jgm0000gn/T/orion-look-check-4vblwo9t
+PASS Roslyn Checker: 2 source files
+[INFO] xr-loader: Android 로더 1개
+[INFO] render-pipeline: 파이프라인 에셋 있음 (Graphics 기본)
+[INFO] manifest: horizonos.permission.HEADSET_CAMERA 있음
+[INFO] skybox: FirstLight: None
+[INFO] camera: FirstLight: OVRCameraRig 1개
+[INFO] outline-shader: 외곽선 셰이더 1개 검사
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 4개)
+[INFO] forbidden-api: 없음 (Shader.Find, ReadPixels, WebCamTexture, OVRInput)
+[INFO] hand-tracking: ControllersAndHands
+[INFO] comment: 주석 없음 (배치 실행 안내 머리말 제외)
+files: PASS
+
+PASS Roslyn MoodPicker.Hands: 4 source files
+PASS Roslyn MoodPicker.Catch: 9 source files
+PASS Roslyn MoodPicker.Portal: 3 source files
+PASS Roslyn MoodPicker.Portal.Runtime: 1 source files
+PASS Roslyn MoodPicker.DeskKeyboard: 4 source files
+PASS Roslyn MoodPicker.MacAnchor: 3 source files
+PASS Roslyn MoodPicker.MacAnchor.Runtime: 1 source files
+PASS Roslyn MoodPicker.PullOut: 3 source files
+PASS Roslyn MoodPicker.PullOut.Runtime: 1 source files
+PASS Roslyn MoodPicker.HandState: 3 source files
+PASS Roslyn MoodPicker.HandState.Runtime: 1 source files
+PASS Roslyn MoodPicker.Dab: 4 source files
+PASS Roslyn MoodPicker.Dab.Runtime: 1 source files
+PASS Roslyn MoodPicker.Dab.Editor: 3 source files
+PASS Roslyn MoodPicker.Tests.EditMode: 19 source files
+PASS Roslyn Assembly-CSharp: 1 source files
+PASS Roslyn Assembly-CSharp-Editor: 9 source files
+PASS shader static: continuous/stepped ramp, triplanar mix, outline cull, alpha, stereo, Clay GUID
+PASS gate fixtures: ColorMask RGB and Cull Back rejected; RGBA/0 accepted
+PARTIAL PASS: Roslyn + file gates + shader static; Unity EditMode/GPU render UNVERIFIED
+== 2. shader gates
+[INFO] outline-shader: 외곽선 셰이더 1개 검사
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 4개)
+PASS shader static: continuous/stepped ramp, triplanar mix, outline cull, alpha, stereo, Clay GUID
+PASS gate fixtures: ColorMask RGB and Cull Back rejected; RGBA/0 accepted
+== 3. EditMode tests with real graphics
+PASS OrionLook EditMode: 15 tests
+== 4. three spheres, zero lights, black ambient, no skybox
+[MP] orion-look device=Metal colorSpace=Linear lights=0 ambient=black skybox=none
+[MP] orion-look device=Metal colorSpace=Linear lights=0 ambient=black skybox=none
+[MP] orion-look PASS magenta=0
+[MP] orion-look PASS alpha partial=0 backgroundBad=0 objectBad=0
+[MP] orion-look sphere=0 pixels=55301 tones=281 meanRGB=(159.91, 153.70, 148.75) textureStd=0.07578
+[MP] orion-look PASS sphere coverage 0
+[MP] orion-look PASS more than two tones 0
+[MP] orion-look PASS texture retained 0
+[MP] orion-look sphere=1 pixels=55304 tones=239 meanRGB=(154.75, 140.91, 141.87) textureStd=0.05584
+[MP] orion-look PASS sphere coverage 1
+[MP] orion-look PASS more than two tones 1
+[MP] orion-look PASS texture retained 1
+[MP] orion-look sphere=2 pixels=55301 tones=2 meanRGB=(232.47, 232.47, 232.47) textureStd=0.00000
+[MP] orion-look PASS sphere coverage 2
+[MP] orion-look PASS clay RGB #E7E7E7 +/-8
+[MP] orion-look PASS shader compiler errors=0
+[MP] orion-look PASS
+PASS ORION look: preflight, shader gates, EditMode, GPU render

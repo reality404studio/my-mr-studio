@@ -1,0 +1,25 @@
+$ sh unity/mood-picker/scripts/verify-orion-look.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 1
+# at: 2026-11-05T23:53:06.919Z
+
+== 1. preflight compilation
+== 1. 파일 검사
+[INFO] xr-loader: Android 로더 1개
+[INFO] render-pipeline: 파이프라인 에셋 있음 (Graphics 기본)
+[INFO] manifest: horizonos.permission.HEADSET_CAMERA 있음
+[INFO] skybox: FirstLight: None
+[INFO] camera: FirstLight: OVRCameraRig 1개
+[INFO] outline-shader: 외곽선 셰이더 1개 검사
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 4개)
+[INFO] forbidden-api: 없음 (Shader.Find, ReadPixels, WebCamTexture, OVRInput)
+[INFO] hand-tracking: ControllersAndHands
+[INFO] comment: 주석 없음 (배치 실행 안내 머리말 제외)
+files: PASS
+== 2. 컴파일 검사 (Unity 6000.3.27f2)
+unity/mood-picker/Assets/Scripts/HandState/Verification~/RunCoreTests.cs(5,7): error CS0246: 'NUnit' 형식 또는 네임스페이스 이름을 찾을 수 없습니다. using 지시문 또는 어셈블리 참조가 있는지 확인하세요.
+unity/mood-picker/Assets/Scripts/HandState/Verification~/RunCoreTests.cs(6,7): error CS0246: 'NUnit' 형식 또는 네임스페이스 이름을 찾을 수 없습니다. using 지시문 또는 어셈블리 참조가 있는지 확인하세요.
+Assembly-CSharp: FAIL
+unity/mood-picker/Assets/Editor/MoodPickerSceneSetup.cs(137,36): error CS0246: 'FirstLight' 형식 또는 네임스페이스 이름을 찾을 수 없습니다. using 지시문 또는 어셈블리 참조가 있는지 확인하세요.
+Assembly-CSharp-Editor: FAIL
+== 결과: FAIL

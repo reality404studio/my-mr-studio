@@ -819,15 +819,16 @@
       "id": "build-3e76-build-d8b8",
       "title": "CelPaint 를 재질 그대로 룩으로 확장",
       "owner": "",
-      "updatedAt": "2026-11-05T23:45:03.857Z",
+      "updatedAt": "2026-11-05T23:57:06.126Z",
       "updatedBy": "Claude Code",
       "parent": "build-3e76",
       "kind": "build",
       "by": "agent",
-      "status": "doing",
+      "status": "done",
       "order": 0,
       "how": "2톤 스텝을 부드러운 명암(스텝 수 파라미터)으로, 외곽선 토글, 클레이 기본 재질 .mat (Shader.Find 금지). 빌드 게이트 셰이더 검사 유지",
-      "success": "verify-dab-shader 패턴: 광원 0개 씬에서 윤슬·털 칩 렌더 → 톤 수 > 2, 안 칠한 글자 평균색 #E7E7E7 ±8, 게이트 통과"
+      "success": "verify-dab-shader 패턴: 광원 0개 씬에서 윤슬·털 칩 렌더 → 톤 수 > 2, 안 칠한 글자 평균색 #E7E7E7 ±8, 게이트 통과",
+      "proofAt": "2026-11-05T23:56:48.309Z"
     },
     {
       "id": "build-e463-build-91e7",
@@ -1016,15 +1017,16 @@
       "id": "build-fd7e-build-214c",
       "title": "[Astra] OrionTokens: JSON → C# 읽기 + 기존 설정이 토큰을 따른다",
       "owner": "",
-      "updatedAt": "2026-11-05T23:48:13.848Z",
+      "updatedAt": "2026-11-06T00:08:08.232Z",
       "updatedBy": "Claude Code",
       "parent": "build-fd7e",
       "kind": "build",
       "by": "agent",
-      "status": "todo",
+      "status": "done",
       "order": 0,
       "how": "design/tokens/orion.tokens.json 을 EditMode 에서 읽는 OrionTokens(순수 C#) 와, 기존 값들이 토큰을 참조하게 연결: HandStyleSettings(손 색·rimPower), PullOutSettings(stagger 0.08·0.65·Z 0.58→0.40·두께 0.02→1), PalettePortal palmUp 히스테리시스(0.80/0.50·유지 0.27·이탈 0.30), 디밍 값(0.78/0.32/0.45s)",
-      "success": "EditMode: 토큰 JSON 의 각 값 == 코드 상수(JSON 을 한 줄 바꾸면 해당 테스트가 실패), 색 hex 파싱, 풀아웃 시간표가 stagger 0.08 을 따름"
+      "success": "EditMode: 토큰 JSON 의 각 값 == 코드 상수(JSON 을 한 줄 바꾸면 해당 테스트가 실패), 색 hex 파싱, 풀아웃 시간표가 stagger 0.08 을 따름",
+      "proofAt": "2026-11-06T00:07:58.545Z"
     },
     {
       "id": "build-fd7e-build-2f75",
@@ -1057,29 +1059,31 @@
       "id": "build-0707-build-adf7",
       "title": "3D 칩 메시 + 셰이더(22 tris, 크롭 마크·번호 띠 UV 연산)",
       "owner": "",
-      "updatedAt": "2026-11-05T23:48:14.448Z",
+      "updatedAt": "2026-11-06T00:33:48.178Z",
       "updatedBy": "Claude Code",
       "parent": "build-0707",
       "kind": "build",
       "by": "agent",
-      "status": "todo",
+      "status": "done",
       "order": 0,
       "how": "카드 대지 5.4×6.8×0.3cm + 타일 4.2×4.2 +4mm (옆면 4mm 까지 트라이플래너 연장), 크롭 ㄱ자·번호·루프 점은 셰이더 UV 연산(추가 드로우콜 0). 칩 1개 = 단일 메시·단일 머티리얼. 토큰 geometry.chip.*",
-      "success": "EditMode: 삼각형 수 == 22, 치수 == 토큰(±0.1mm), 단일 머티리얼, 배치 렌더에서 옆면에도 타일 재질이 이어지고 크롭 마크 4개가 보임(마젠타 0, 알파 규칙)"
+      "success": "EditMode: 삼각형 수 == 22, 치수 == 토큰(±0.1mm), 단일 머티리얼, 배치 렌더에서 옆면에도 타일 재질이 이어지고 크롭 마크 4개가 보임(마젠타 0, 알파 규칙)",
+      "proofAt": "2026-11-06T00:32:57.054Z"
     },
     {
       "id": "build-0707-build-cf55",
       "title": "병풍 폴리오: 지그재그 슬롯, 도킹 위치, 왼손바닥 소환, 칩 꽂기",
       "owner": "",
-      "updatedAt": "2026-11-05T23:48:14.648Z",
+      "updatedAt": "2026-11-06T00:33:48.662Z",
       "updatedBy": "Claude Code",
       "parent": "build-0707",
       "kind": "build",
       "by": "agent",
-      "status": "todo",
+      "status": "done",
       "order": 1,
       "how": "슬롯 4~5칸(마지막 = CLEAR), 접지 ±15°·간격 2mm, 평소 ORION 왼쪽 허공(zone.hero folioX), palmUp 히스테리시스로 왼손 위 7cm 소환/복귀, 칩이 flyToFolio 0.55s 로 빈 슬롯에 꽂힘. 휠·우물 코드는 쓰지 않음(PaintPicked/Washed 이벤트 계약은 유지: 칩 톡=PaintPicked, CLEAR 톡=Washed)",
-      "success": "EditMode: 슬롯 채우기/순서, palmUp 히스테리시스 픽스처(경계 왕복 깜빡임 0), flyToFolio 도착 슬롯 = 첫 빈 슬롯, 칩 톡(3mm 진입·6mm 이탈 재무장) → PaintPicked 1회, CLEAR 톡 → Washed 1회, 기존 PortalController 이벤트 시그니처 호환"
+      "success": "EditMode: 슬롯 채우기/순서, palmUp 히스테리시스 픽스처(경계 왕복 깜빡임 0), flyToFolio 도착 슬롯 = 첫 빈 슬롯, 칩 톡(3mm 진입·6mm 이탈 재무장) → PaintPicked 1회, CLEAR 톡 → Washed 1회, 기존 PortalController 이벤트 시그니처 호환",
+      "proofAt": "2026-11-06T00:33:35.872Z"
     },
     {
       "id": "build-0707-verify-d2bb",
@@ -1151,9 +1155,9 @@
     },
     {
       "id": "build-a4ae",
-      "title": "소품 4종 에셋 (Blender 방식 A) [P0 · Astra 스크립트 + 오케스트레이터 실행]",
-      "owner": "",
-      "updatedAt": "2026-11-05T23:48:15.853Z",
+      "title": "소품 4종 에셋 (Blender 방식 A) [Flash]",
+      "owner": "Gemini Flash",
+      "updatedAt": "2026-11-06T03:24:13.207Z",
       "updatedBy": "Claude Code",
       "type": "build",
       "stage": "build",
@@ -1189,6 +1193,33 @@
       "order": 1,
       "how": "책상 도크 5종 위치(zone.desk), 핀치로 집기 → 손 상태 전이(GrabStamp/GrabDropper), 내려놓으면 도크 복귀, S1 플런저가 홀드 3초 동안 -8mm",
       "success": "EditMode: 도크 위치 == 토큰, 집기/놓기 이벤트 → 상태 전이, 플런저 위치 = -8mm × t/3"
+    },
+    {
+      "id": "build-00ab",
+      "title": "ORION.glb 규격 정정 [Flash]",
+      "owner": "Gemini Flash",
+      "updatedAt": "2026-11-06T03:23:55.889Z",
+      "updatedBy": "Claude Code",
+      "type": "build",
+      "stage": "build",
+      "order": 18,
+      "status": "todo",
+      "goal": "Argon 확정 규격(§8-3·§11-2)에 맞춰 폭 38cm·높이 8.5cm·두께 2.8cm, 노드 Letter_*, 챔퍼 0.8mm, 글자 중앙 피벗, 글자당 약 180~260 tris",
+      "output": "ORION.glb 재생성 + 검증기 갱신"
+    },
+    {
+      "id": "build-00ab-make-e3b8",
+      "title": "ORION.glb 를 확정 규격으로 재생성 (Blender 실행 포함)",
+      "owner": "",
+      "updatedAt": "2026-11-06T03:23:55.689Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-00ab",
+      "kind": "make",
+      "by": "agent",
+      "status": "todo",
+      "order": 0,
+      "how": ".harness/briefs/orion-glb-spec.md",
+      "success": "verify.sh --no-unity: 노드 이름 Letter_O1·R·I·O2·N, 전체 폭 0.38m ±5%·높이 0.085m·두께 0.028m, 글자당 tris ≤ 300, 구멍 O1·R·O2=1, 옛 규격(폭 0.615)이면 검증 실패"
     }
   ],
   "edges": [

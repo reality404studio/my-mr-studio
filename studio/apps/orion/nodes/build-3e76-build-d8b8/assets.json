@@ -1,0 +1,42 @@
+[
+  {
+    "file": "check-2026-11-05T23-53-06-918Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-orion-look.sh → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:53:06.921Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-orion-look.sh",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-05T23-54-20-762Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-orion-look.sh → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:54:20.778Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-orion-look.sh",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-05T23-55-40-173Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-orion-look.sh → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:55:40.189Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-orion-look.sh",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-05T23-56-48-295Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-orion-look.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-05T23:56:48.313Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-orion-look.sh",
+      "exit": 0
+    }
+  }
+]

@@ -1,0 +1,73 @@
+$ sh unity/mood-picker/scripts/verify-chip.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-06T00:32:57.049Z
+
+1. preflight
+2. shader gates and Roslyn
+Evidence directory: /var/folders/n_/8p5lyp65519c7k__7vz83jgm0000gn/T/orion-chip-check-ppl8aa4a
+PASS Roslyn Checker: 2 source files
+[INFO] xr-loader: Android 로더 1개
+[INFO] render-pipeline: 파이프라인 에셋 있음 (Graphics 기본)
+[INFO] manifest: horizonos.permission.HEADSET_CAMERA 있음
+[INFO] skybox: FirstLight: None
+[INFO] camera: FirstLight: OVRCameraRig 1개
+[INFO] outline-shader: 외곽선 셰이더 1개 검사
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 5개)
+[INFO] forbidden-api: 없음 (Shader.Find, ReadPixels, WebCamTexture, OVRInput)
+[INFO] hand-tracking: ControllersAndHands
+[INFO] comment: 주석 없음 (배치 실행 안내 머리말 제외)
+files: PASS
+
+PASS Roslyn MoodPicker.Tokens: 1 source files
+PASS Roslyn MoodPicker.Hands: 4 source files
+PASS Roslyn MoodPicker.Catch: 9 source files
+PASS Roslyn MoodPicker.Portal: 3 source files
+PASS Roslyn MoodPicker.Portal.Runtime: 1 source files
+PASS Roslyn MoodPicker.DeskKeyboard: 4 source files
+PASS Roslyn MoodPicker.MacAnchor: 3 source files
+PASS Roslyn MoodPicker.MacAnchor.Runtime: 1 source files
+PASS Roslyn MoodPicker.PullOut: 3 source files
+PASS Roslyn MoodPicker.PullOut.Runtime: 1 source files
+PASS Roslyn MoodPicker.HandState: 3 source files
+PASS Roslyn MoodPicker.HandState.Runtime: 1 source files
+PASS Roslyn MoodPicker.Dab: 4 source files
+PASS Roslyn MoodPicker.Dab.Runtime: 1 source files
+PASS Roslyn MoodPicker.Folio: 7 source files
+PASS Roslyn MoodPicker.Folio.Runtime: 3 source files
+PASS Roslyn MoodPicker.Dab.Editor: 4 source files
+PASS Roslyn MoodPicker.Tests.EditMode: 25 source files
+PASS Roslyn Assembly-CSharp: 1 source files
+PASS Roslyn Assembly-CSharp-Editor: 9 source files
+PASS shader static: Opaque Unlit, alpha=1, single pass/texture, triplanar, stereo, instancing, digits, GUID
+PASS Roslyn Folio.CoreTests: 3 source files
+Core NUnit (.NET): passed=19 failed=0 skipped=0
+
+PARTIAL L1: Roslyn with pending asmdef references + core NUnit + static gates; Unity EditMode/GPU UNVERIFIED
+3. EditMode
+PASS EditMode: 24 tests
+4. real GPU: three chips, front/30 degrees, zero lights, ambient black
+[MP] chip PASS angle=0 magenta=0
+[MP] chip PASS binary alpha
+[MP] chip PASS Klein outline pixels=17960
+[MP] chip PASS object alpha=1 chip=0
+[MP] chip PASS four cobalt corners chip=0 angle=0
+[MP] chip PASS object alpha=1 chip=1
+[MP] chip PASS four cobalt corners chip=1 angle=0
+[MP] chip PASS object alpha=1 chip=2
+[MP] chip PASS four cobalt corners chip=2 angle=0
+[MP] chip PASS angle=30 magenta=0
+[MP] chip PASS binary alpha
+[MP] chip PASS Klein outline pixels=17788
+[MP] chip PASS object alpha=1 chip=0
+[MP] chip PASS four cobalt corners chip=0 angle=30
+[MP] chip PASS 4mm side texture chip=0 samples=51 textured=51
+[MP] chip PASS object alpha=1 chip=1
+[MP] chip PASS four cobalt corners chip=1 angle=30
+[MP] chip PASS 4mm side texture chip=1 samples=51 textured=51
+[MP] chip PASS object alpha=1 chip=2
+[MP] chip PASS four cobalt corners chip=2 angle=30
+[MP] chip PASS 4mm side texture chip=2 samples=51 textured=51
+[MP] chip device=Metal lights=0 ambient=black angles=0,30
+[MP] chip PASS
+PASS chip: preflight, shader gates, EditMode, GPU render

@@ -1,0 +1,12 @@
+[
+  {
+    "file": "check-2026-11-06T00-33-35-852Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; echo \"folio=$(grep -c \"Passed  MoodPicker.Tests.Folio\" /tmp/em.out)\"; grep -E \"Failed|error CS\" /tmp/em.out | head -5; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.Folio\" /tmp/em.out)\" -ge 15 ] → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-06T00:33:35.878Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; echo \"folio=$(grep -c \"Passed  MoodPicker.Tests.Folio\" /tmp/em.out)\"; grep -E \"Failed|error CS\" /tmp/em.out | head -5; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.Folio\" /tmp/em.out)\" -ge 15 ]",
+      "exit": 0
+    }
+  }
+]

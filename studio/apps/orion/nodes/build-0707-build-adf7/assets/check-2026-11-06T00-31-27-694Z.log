@@ -1,0 +1,97 @@
+$ sh unity/mood-picker/scripts/verify-chip.sh
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 1
+# at: 2026-11-06T00:31:27.707Z
+
+1. preflight
+2. shader gates and Roslyn
+Evidence directory: /var/folders/n_/8p5lyp65519c7k__7vz83jgm0000gn/T/orion-chip-check-enosmins
+PASS Roslyn Checker: 2 source files
+[INFO] xr-loader: Android 로더 1개
+[INFO] render-pipeline: 파이프라인 에셋 있음 (Graphics 기본)
+[INFO] manifest: horizonos.permission.HEADSET_CAMERA 있음
+[INFO] skybox: FirstLight: None
+[INFO] camera: FirstLight: OVRCameraRig 1개
+[INFO] outline-shader: 외곽선 셰이더 1개 검사
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 5개)
+[INFO] forbidden-api: 없음 (Shader.Find, ReadPixels, WebCamTexture, OVRInput)
+[INFO] hand-tracking: ControllersAndHands
+[INFO] comment: 주석 없음 (배치 실행 안내 머리말 제외)
+files: PASS
+
+PASS Roslyn MoodPicker.Tokens: 1 source files
+PASS Roslyn MoodPicker.Hands: 4 source files
+PASS Roslyn MoodPicker.Catch: 9 source files
+PASS Roslyn MoodPicker.Portal: 3 source files
+PASS Roslyn MoodPicker.Portal.Runtime: 1 source files
+PASS Roslyn MoodPicker.DeskKeyboard: 4 source files
+PASS Roslyn MoodPicker.MacAnchor: 3 source files
+PASS Roslyn MoodPicker.MacAnchor.Runtime: 1 source files
+PASS Roslyn MoodPicker.PullOut: 3 source files
+PASS Roslyn MoodPicker.PullOut.Runtime: 1 source files
+PASS Roslyn MoodPicker.HandState: 3 source files
+PASS Roslyn MoodPicker.HandState.Runtime: 1 source files
+PASS Roslyn MoodPicker.Dab: 4 source files
+PASS Roslyn MoodPicker.Dab.Runtime: 1 source files
+PASS Roslyn MoodPicker.Folio: 7 source files
+PASS Roslyn MoodPicker.Folio.Runtime: 3 source files
+PASS Roslyn MoodPicker.Dab.Editor: 4 source files
+PASS Roslyn MoodPicker.Tests.EditMode: 25 source files
+PASS Roslyn Assembly-CSharp: 1 source files
+PASS Roslyn Assembly-CSharp-Editor: 9 source files
+PASS shader static: Opaque Unlit, alpha=1, single pass/texture, triplanar, stereo, instancing, digits, GUID
+PASS Roslyn Folio.CoreTests: 3 source files
+Core NUnit (.NET): passed=19 failed=0 skipped=0
+
+PARTIAL L1: Roslyn with pending asmdef references + core NUnit + static gates; Unity EditMode/GPU UNVERIFIED
+3. EditMode
+Input System polling thread exited.
+Input System module state changed to: Shutdown.
+Call to StopSubsystems without an initialized manager.Please make sure wait for initialization to complete before calling this API.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:35)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+UnityEngine.XR.Management.XRManagerSettings:StopSubsystems () (at ./Library/PackageCache/com.unity.xr.management@2ad85c7dd480/Runtime/XRManagerSettings.cs:415)
+UnityEngine.XR.Management.XRManagerSettings:OnDisable () (at ./Library/PackageCache/com.unity.xr.management@2ad85c7dd480/Runtime/XRManagerSettings.cs:460)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:ExitApplication (UnityEditor.TestTools.TestRunner.CommandLineTest.Executer/ReturnCodes,string) (at ./Library/PackageCache/com.unity.test-framework@bd7f943e9647/UnityEditor.TestRunner/CommandLineTest/Executer.cs:83)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:ExitIfRunIsCompleted () (at ./Library/PackageCache/com.unity.test-framework@bd7f943e9647/UnityEditor.TestRunner/CommandLineTest/Executer.cs:74)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions () (at /Users/bokken/build/output/unity/unity/Editor/Mono/EditorApplication.cs:392)
+
+(Filename: ./Library/PackageCache/com.unity.xr.management@2ad85c7dd480/Runtime/XRManagerSettings.cs Line: 415)
+
+Call to StopSubsystems without an initialized manager.Please make sure wait for initialization to complete before calling this API.
+UnityEngine.Debug:ExtractStackTraceNoAlloc (byte*,int,string)
+UnityEngine.StackTraceUtility:ExtractStackTrace () (at /Users/bokken/build/output/unity/unity/Runtime/Export/Scripting/StackTrace.cs:35)
+UnityEngine.DebugLogHandler:Internal_Log (UnityEngine.LogType,UnityEngine.LogOption,string,UnityEngine.Object)
+UnityEngine.DebugLogHandler:LogFormat (UnityEngine.LogType,UnityEngine.Object,string,object[])
+UnityEngine.Logger:Log (UnityEngine.LogType,object)
+UnityEngine.Debug:LogWarning (object)
+UnityEngine.XR.Management.XRManagerSettings:StopSubsystems () (at ./Library/PackageCache/com.unity.xr.management@2ad85c7dd480/Runtime/XRManagerSettings.cs:415)
+UnityEngine.XR.Management.XRManagerSettings:OnDisable () (at ./Library/PackageCache/com.unity.xr.management@2ad85c7dd480/Runtime/XRManagerSettings.cs:460)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:ExitApplication (UnityEditor.TestTools.TestRunner.CommandLineTest.Executer/ReturnCodes,string) (at ./Library/PackageCache/com.unity.test-framework@bd7f943e9647/UnityEditor.TestRunner/CommandLineTest/Executer.cs:83)
+UnityEditor.TestTools.TestRunner.CommandLineTest.Executer:ExitIfRunIsCompleted () (at ./Library/PackageCache/com.unity.test-framework@bd7f943e9647/UnityEditor.TestRunner/CommandLineTest/Executer.cs:74)
+UnityEditor.EditorApplication:Internal_CallUpdateFunctions () (at /Users/bokken/build/output/unity/unity/Editor/Mono/EditorApplication.cs:392)
+
+(Filename: ./Library/PackageCache/com.unity.xr.management@2ad85c7dd480/Runtime/XRManagerSettings.cs Line: 415)
+
+[Physics::Module] Cleanup current backend.
+[Physics::Module] Id: 0xf2b8ea05
+[Licensing::IpcConnector] LicenseClient-rafaela-notifications channel disconnected successfully.
+[Licensing::IpcConnector] LicenseClient-rafaela channel disconnected successfully.
+Thread 0x17fdc7000 may have been prematurely finalized
+Thread 0x17fe53000 may have been prematurely finalized
+Thread 0x17fedf000 may have been prematurely finalized
+Thread 0x308113000 may have been prematurely finalized
+Thread 0x17ff6b000 may have been prematurely finalized
+Thread 0x308087000 may have been prematurely finalized
+Thread 0x17fff7000 may have been prematurely finalized
+AcceleratorClientConnectionCallback - disconnected - :0
+Cleanup mono
+[40m[32minfo[39m[22m[49m: Microsoft.Hosting.Lifetime[0]
+      Application is shutting down...
+[40m[32minfo[39m[22m[49m: Unity.ILPP.Runner.PostProcessingAssemblyLoadContext[0]
+      ALC ILPP context 1 is unloading
+debugger-agent: Unable to listen on 44

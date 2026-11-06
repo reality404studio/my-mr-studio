@@ -1,0 +1,22 @@
+[
+  {
+    "file": "check-2026-11-06T00-07-08-667Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-tokens.sh >/tmp/vt.out 2>&1 || { tail -5 /tmp/vt.out; exit 1; }; sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -6; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out)\" -gt 0 ] → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-06T00:07:08.685Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-tokens.sh >/tmp/vt.out 2>&1 || { tail -5 /tmp/vt.out; exit 1; }; sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -6; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out)\" -gt 0 ]",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-06T00-07-58-530Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-tokens.sh >/tmp/vt.out 2>&1 || { tail -5 /tmp/vt.out; exit 1; }; sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -6; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out)\" -gt 0 ] → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-06T00:07:58.551Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-tokens.sh >/tmp/vt.out 2>&1 || { tail -5 /tmp/vt.out; exit 1; }; sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E \"^total=\" /tmp/em.out; grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out; grep -E \"Failed|error CS\" /tmp/em.out | head -6; grep -q \"failed=0\" /tmp/em.out && [ \"$(grep -c \"Passed  MoodPicker.Tests.OrionTokens\" /tmp/em.out)\" -gt 0 ]",
+      "exit": 0
+    }
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "file": "check-2026-11-06T00-31-27-694Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-chip.sh → exit 1 (실패)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-06T00:31:27.715Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-chip.sh",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-06T00-32-57-036Z.log",
+    "memo": "$ sh unity/mood-picker/scripts/verify-chip.sh → exit 0",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-06T00:32:57.061Z",
+    "check": {
+      "cmd": "sh unity/mood-picker/scripts/verify-chip.sh",
+      "exit": 0
+    }
+  }
+]

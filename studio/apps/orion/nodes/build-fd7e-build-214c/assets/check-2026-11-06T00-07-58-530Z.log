@@ -1,0 +1,7 @@
+$ sh unity/mood-picker/scripts/verify-tokens.sh >/tmp/vt.out 2>&1 || { tail -5 /tmp/vt.out; exit 1; }; sh unity/mood-picker/scripts/run-editmode-tests.sh >/tmp/em.out 2>&1; grep -E "^total=" /tmp/em.out; grep -c "Passed  MoodPicker.Tests.OrionTokens" /tmp/em.out; grep -E "Failed|error CS" /tmp/em.out | head -6; grep -q "failed=0" /tmp/em.out && [ "$(grep -c "Passed  MoodPicker.Tests.OrionTokens" /tmp/em.out)" -gt 0 ]
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-06T00:07:58.541Z
+
+total=255 passed=255 failed=0
+9

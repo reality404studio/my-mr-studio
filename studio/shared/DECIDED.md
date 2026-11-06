@@ -36,6 +36,13 @@
 - 상세 문서와 시안: `studio/apps/orion/nodes/interface-design/README.md` (`assets/orion-interface-design-v1.png`, `assets/chip_concepts_sheet.png`, `assets/orion-design-tokens-v1.png`)
 - 왼손 위 디스크 휠 굴리기(2026-11-04 회전판 W1)는 ORION 에서 A+C 병풍 아코디언 스펙 폴리오로 대체 (REJECTED 같은 날짜)
 
+## 2026-11-06 · [orion] 라우팅: Gemini Flash(Antigravity)를 구현 에이전트로 추가, 파일 기반 일감 가져가기, 라우팅 규칙을 레포에 문서화
+
+> "네좋아요 그렇게 구성해주시고, 음 이런식으로 라우팅이 가능하도록 다음에 다른 세션의 당신도 참고할 수 있는 라우팅 규칙도 만들어주세요"
+
+- 규칙 정본: 앱 레포 `.harness/ROUTING.md` (역할 표·카드→에이전트 라우팅·자원 잠금·가져가기 프로토콜·한도 대체 경로). Gemini 진입점 `GEMINI.md`, 시작 프롬프트 `.harness/briefs/START-PROMPTS.md`
+- Flash 몫: Blender 를 실행하는 에셋 카드(소품 에셋, ORION.glb 규격 정정), 웹 토큰(Fable 한도 대체). 로그인은 Antigravity 앱 안에서만(약관), 커밋·푸시·HANDOFF·done 은 오케스트레이터
+
 ## 2026-11-06 · [orion] 모델 역할 분담: 구현 Astra(Codex), 웹 Fable(Cursor), 오케스트레이터 Claude Sonnet, 영상·룩 Gemini Argon
 
 > "아 코덱스 유료 모델이 다른 계정에 있어서요. 일단은 그리고 클로드가 얼마 안 남아서ㅠㅠ … 현재 구독중인 모델이 클로드오푸스 5.5, 커서에 딸린 페이블 쓸 수 있고요 구글 제미니 아르곤, 그리고 아스트라 슬 수 있어요."
