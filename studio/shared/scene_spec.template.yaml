@@ -44,8 +44,22 @@ perf:
   - { target: pink_clouds, tag: costly, fallback: "반투명 겹침 대신 불투명 메시 + 디더링, 개수 제한" }
   - { target: desk_lamp, tag: costly, fallback: "실시간 조명·그림자 대신 발광 재질 + 가짜 그림자" }
 
+# ---------- 세 칸: 과업이 끝날 때 에이전트가 남긴다 (npm run studio -- done <id> --assume .. --compromise .. --unknown ..) ----------
+# field 로 위의 칸을 가리키면 빈칸 지도에 표시된다. 예: objects.cd_player.pos_m, perf.pink_clouds
+
+assumptions:
+  # 말하지 않은 것을 어떻게 메웠는지. confidence: high | mid | low. 사람이 confirm 하거나 reject 한다
+  # - { id: a1, task: spec, field: objects.cd_player.pos_m, text: "41초 프레임에서 책상 오른쪽 앞으로 읽음", confidence: low, status: open }
+  []
+
+compromises:
+  # 조건(게이트)을 맞추려고 낮춘 것. 사람이 accept 하거나 과업을 다시 연다
+  # - { id: c1, task: build, field: perf.pink_clouds, text: "구름 12개로 제한", gate: 72fps, status: open }
+  []
+
 unknowns:
-  # 영상만으로 정할 수 없는 것. 사람이 답을 적는다
+  # 영상이나 디렉션만으로 정할 수 없는 것. 사람(또는 ask 에 적힌 과업)이 답한다
+  # - { id: u1, task: spec, field: meta.bpm, question: "BGM이 정해졌나요?", ask: human, status: open }
   []
 
 review:

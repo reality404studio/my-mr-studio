@@ -1,7 +1,15 @@
 # VR 앱 만들기
 
-Quest 3S 패스스루 앱들을 만드는 공통 작업대예요. 칸반처럼 **단계(열) > 과업(카드) > 하위 과업(행)** 으로 정렬된 보드에서,
-사람과 에이전트가 같은 파일을 보고 고쳐요. 보드의 1순위 독자는 에이전트예요.
+Quest 3S 패스스루 앱들을 만드는 공통 작업대예요. 사람과 에이전트가 같은 파일을 읽고 쓰지만, **같은 화면을 보지는 않아요.**
+에이전트는 단계 > 과업 > 하위 과업 보드(장부)를 작업 큐로 쓰고, 사람은 그 기록에서 계산된 "고를 것과 답할 것"만 봐요.
+
+```
+ 사람 화면   결정 대기 · 질문 · 확신 낮은 추정 · 영수증 · 알림        고르고 답하기만
+     ↑ 모아 보기        ↓ 답하기
+ 명세        scene_spec.yaml = 진실의 원천. 칸마다 정해짐 / 추정 / 빈칸 / 모름       ← 결정 서랍
+     ↑ 세 칸 쓰기       ↓ 빈칸 보고 시작                                            (제약 · 내 눈 · 보류 · 번역표)
+ 에이전트 장부  단계 > 과업 > 하위 과업. next 큐, 시도 기록, 다시 열기
+```
 
 ```
 VR 앱 만들기
@@ -43,7 +51,21 @@ npm run dev
 
 모드는 `studio/templates/` 의 폴더예요. 폴더 하나를 복사해 고치면 새 모드가 생겨요.
 
-## 할 수 있는 것
+## 네 화면
+
+앱을 열면 위쪽 탭으로 오가요. 주소는 `#/app/<id>`(사람 화면), `/spec`, `/ledger`, `/drawer`.
+
+| 화면 | 무엇을 보나 | 어디서 계산되나 |
+| --- | --- | --- |
+| **사람 화면** | 지금 내가 할 일만. 답이 필요한 질문, 확신 낮은 추정(맞아요/아니에요), 고르거나 확인할 결과(이유 칩 하나), 영수증(조건 맞추려고 낮춘 것), 헤맴·토큰 알림, 한 줄 상태 | 명세의 세 칸 + 장부의 시도·상태 + 로그 |
+| **명세** | 빈칸 지도. `scene_spec.yaml` 의 칸마다 정해짐 / 추정 / 빈칸 / 모름, "디렉션이 충분한가" 판정. 칸을 누르면 거기 걸린 가정·타협·모름에 바로 답해요 | `scene_spec.yaml` |
+| **에이전트 장부** | 원래 보드. 카드에 열린 세 칸, 시도·실패, 되돌림, 헤맴 표시. 상세에 시도 기록과 토큰 상한 | `pipeline.json` |
+| **결정 서랍** | 모든 앱이 함께 쓰는 결정을 수명으로: 제약(공통 보드 포함) · 내 눈(고른 이유, 사람 화면에서 자동으로 쌓임) · 보류(다시 볼 조건) · 번역표("부드럽게" → 실제로 바꾸는 것) | `studio/shared/drawer.json` |
+
+**세 칸**은 에이전트가 일을 끝낼 때 남기는 것이에요: 가정(말하지 않은 것을 어떻게 메웠는지, 확신 상·중·하), 타협(게이트를 맞추려고 낮춘 것),
+모름(누군가 답해야 하는 것). 명세의 `assumptions` · `compromises` · `unknowns` 블록에 쌓이고, 사람 화면은 이걸로 만들어져요.
+
+## 할 수 있는 것 (장부)
 
 - **홈**: 공통 띠와 앱 카드. 카드의 띠 한 칸이 과업 하나, 색이 상태. 앱마다 지금 할 일 하나
 - **새 앱 만들기**: 이름, id, 모드를 고르면 단계와 과업이 깔린 보드가 생겨요
@@ -66,6 +88,13 @@ npm run studio -- list --app desk-dream
 npm run studio -- show moodboard-analyze --app desk-dream
 npm run studio -- status moodboard-analyze doing --app desk-dream --as "Claude Code"
 npm run studio -- new-app hand-garden "손끝 정원" --mode storyboard-first --as "Claude Code"
+
+# 세 칸을 남기며 끝내기, 시도 기록, 다시 열기
+npm run studio -- done spec-analyze --assume "CD 플레이어는 41초 프레임에서 오른쪽 앞" --confidence low --unknown "BGM이 정해졌나요?" --app desk-dream --as "Claude Code"
+npm run studio -- attempt build-shader "구름 B: 반투명 3겹" --result fail --why "72fps 미달" --tokens 22000 --app desk-dream --as "Claude Code"
+npm run studio -- reopen build "검수에서 색이 탁함" --from review --app desk-dream --as "Claude Code"
+npm run studio -- blanks --app desk-dream --open      # 빈칸 지도
+npm run studio -- drawer                              # 결정 서랍
 ```
 
 다른 컴퓨터나 클라우드 에이전트와는 평소처럼 커밋하고 푸시해서 공유해요.
@@ -76,7 +105,7 @@ npm run studio -- new-app hand-garden "손끝 정원" --mode storyboard-first --
 src/        웹 화면 (React + React Flow)
 server/     파일 저장소와 API (Vite 개발 서버에 붙음)
 scripts/    에이전트용 CLI
-studio/     공통, 앱, 모드  ← 진실의 원천
+studio/     공통, 앱, 모드, 결정 서랍  ← 진실의 원천 (앱의 지식은 scene_spec.yaml)
 unity/      Unity 프로젝트 (앱별, 공용 모듈)
 ```
 

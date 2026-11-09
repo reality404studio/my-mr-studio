@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { marked } from 'marked';
-import { TYPES, STATUSES, KINDS, ACTORS, OWNER_SUGGESTIONS, actorLabel, timeAgo } from './constants.js';
+import { TYPES, STATUSES, KINDS, ACTORS, OWNER_SUGGESTIONS, ENTRY_TYPES, CONFIDENCE, ENTRY_STATUS, ATTEMPT_RESULTS, actorLabel, timeAgo, viewHref } from './constants.js';
 
 export default function Inspector({ api, isShared, detail, stages, nodesById, sharedNodes = [], onSelect, onClose, onError, onArchived }) {
   const node = detail.node;
@@ -165,6 +165,8 @@ export default function Inspector({ api, isShared, detail, stages, nodesById, sh
           <p className="hint">하위 과업은 위에서부터 순서대로 진행돼요. 앞의 것이 끝나야 다음이 "지금 할 일"에 떠요.</p>
         </section>
       )}
+
+      {!isRef && <Ledger api={api} detail={detail} isShared={isShared} onError={onError} patch={patch} />}
 
       <Notes key={node.id} api={api} detail={detail} onError={onError} title={isSub ? '메모' : isRef ? '이 앱에서의 메모' : '메모'} />
 
@@ -369,5 +371,57 @@ function AssetCard({ api, nodeId, asset, onError }) {
       </div>
       <button className="icon-btn" aria-label={`${asset.file} 보관`} onClick={() => window.confirm(`${asset.file} 파일을 보관할까요?`) && api.deleteAsset(nodeId, asset.file).catch((e) => onError(e.message))}>✕</button>
     </li>
+  );
+}
+
+// 장부: 이 과업의 세 칸, 시도 기록, 다시 열림, 토큰 상한. 에이전트가 CLI로 남긴 것을 보여준다.
+function Ledger({ api, detail, isShared, onError, patch }) {
+  const node = detail.node;
+  const isSub = !!node.parent;
+  const attempts = node.attempts || [];
+  const reopened = node.reopened || [];
+  const entries = detail.entries || [];
+  const pid = detail.pid;
+  const reopen = async () => {
+    const because = window.prompt('왜 다시 여는지 한 줄로');
+    if (!because?.trim()) return;
+    try { await api.reopen(node.id, { because: because.trim() }); } catch (e) { onError(e.message); }
+  };
+  const empty = !attempts.length && !reopened.length && !entries.length;
+  return (
+    <section className="block ledger">
+      <div className="block__head">
+        <h4>장부</h4>
+        {node.status === 'done' && <button className="ghost" onClick={reopen}>다시 열기</button>}
+      </div>
+      {!isSub && !isShared && (
+        <TextField value={node.budget ? String(node.budget) : ''} placeholder="없음. 숫자를 넣으면 80%부터 사람 화면에 알림" onSave={(v) => patch({ budget: v.trim() === '' ? 0 : Number(v) })} label={`토큰 상한${node.ledger?.tokens ? ` (지금까지 ${node.ledger.tokens.toLocaleString('en-US')})` : ''}`} />
+      )}
+      {empty && <p className="hint">에이전트가 <code>attempt</code>, <code>done --assume ..</code>, <code>reopen</code> 으로 남긴 기록이 여기에 보여요.</p>}
+      {entries.length > 0 && (
+        <ul className="plain ledger__entries">
+          {entries.map((e) => (
+            <li key={e.id} className={e.status === 'open' ? '' : 'is-closed'}>
+              <span className={`tag tag--${e.type}`}>{ENTRY_TYPES[e.type]} {e.id}</span>
+              {e.type === 'assume' && <span className={`conf conf--${e.confidence}`}>{CONFIDENCE[e.confidence]}</span>}
+              {' '}{e.text}{e.status !== 'open' ? ` (${ENTRY_STATUS[e.status] || e.status})` : ''}
+            </li>
+          ))}
+        </ul>
+      )}
+      {entries.some((e) => e.status === 'open') && pid && <a className="link" href={viewHref(pid, 'human')}>사람 화면에서 답하기 →</a>}
+      {attempts.length > 0 && (
+        <ol className="plain attempts">
+          {attempts.map((a) => (
+            <li key={a.n}><span className={`result result--${a.result}`}>{ATTEMPT_RESULTS[a.result]}</span> #{a.n} {a.label}{a.why ? ` — ${a.why}` : ''}{a.tokens ? ` · ${a.tokens.toLocaleString('en-US')} 토큰` : ''} <time>{actorLabel(a.by)} {timeAgo(a.at)}</time></li>
+          ))}
+        </ol>
+      )}
+      {reopened.length > 0 && (
+        <ul className="plain">
+          {reopened.map((r) => <li key={r.at}>되돌림 · {r.because}{r.from ? ` (원인 ${r.from})` : ''}{r.sub ? ` → ${r.sub}` : ''} <time>{actorLabel(r.by)} {timeAgo(r.at)}</time></li>)}
+        </ul>
+      )}
+    </section>
   );
 }

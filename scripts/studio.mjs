@@ -24,17 +24,36 @@
 //   npm run studio -- stage-add "이름" [--goal ..] [--after <단계 id>]
 //   npm run studio -- log    [개수]
 //
+// 세 칸: 일이 끝날 때 남긴다. 명세(scene_spec.yaml)의 assumptions / compromises / unknowns 블록에 쌓인다
+//   npm run studio -- done   <id> [--assume ".."] [--compromise ".."] [--unknown ".."] [--none]   세 칸을 남기며 완료 (여러 번 써도 됨)
+//   npm run studio -- assume <과업 id> "어떻게 메웠는지" [--confidence high|mid|low] [--field objects.cd_player.pos_m]
+//   npm run studio -- compromise <과업 id> "무엇을 낮췄는지" [--gate 72fps] [--field perf.pink_clouds]
+//   npm run studio -- unknown <과업 id> "답이 필요한 질문" [--ask human|<과업 id>] [--field meta.bpm]
+//   npm run studio -- answer <u id> "답"   ·  confirm <a id>  ·  reject <a id> "이유"  ·  accept <c id>
+//   npm run studio -- blanks [--open]                         빈칸 지도: 명세 칸마다 정해짐 / 추정 / 빈칸 / 모름
+//
+// 에이전트 장부
+//   npm run studio -- attempt <하위 과업 id> "무엇을 시도했나" --result ok|fail|pending [--why ..] [--tokens 수]
+//   npm run studio -- reopen  <id> "왜 다시 여는지" [--from <원인 과업 id>] [--sub <하위 과업 id>]
+//   npm run studio -- set     <과업 id> --budget <토큰 상한>    넘으면 사람 화면에 알림
+//
+// 결정 서랍 (모든 앱이 함께 씀)
+//   npm run studio -- drawer                                  목록
+//   npm run studio -- drawer add <constraint|taste|hold|vocab> "내용" [--why ..] [--until "조건"] [--means "실제로 바꾸는 것"]
+//   npm run studio -- drawer retire <id>
+//
 // kind: decide(결정) collect(수집) analyze(분석) write(작성) make(생성) build(구현) verify(검증)
 // 누가 했는지는 --as 이름 또는 STUDIO_ACTOR 환경변수로 남긴다. 기본값은 "agent".
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createStudio, NODE_TYPES, STATUSES, KINDS, ACTORS } from '../server/store.mjs';
+import { createStudio, NODE_TYPES, STATUSES, KINDS, ACTORS, BLOCKS, CONFIDENCE, ATTEMPT_RESULTS, DRAWER_KINDS } from '../server/store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const studio = createStudio(root);
 
-const BOOL_FLAGS = new Set(['feedback']);
+const BOOL_FLAGS = new Set(['feedback', 'none', 'open']);
+const MULTI_FLAGS = new Set(['assume', 'compromise', 'unknown']); // 여러 번 쓸 수 있는 플래그
 const argv = process.argv.slice(2);
 const flags = {};
 const args = [];
@@ -42,11 +61,31 @@ for (let i = 0; i < argv.length; i++) {
   if (argv[i].startsWith('--')) {
     const k = argv[i].slice(2);
     if (BOOL_FLAGS.has(k)) flags[k] = true;
+    else if (MULTI_FLAGS.has(k)) { (flags[k] ||= []).push(argv[i + 1]); i++; }
     else { flags[k] = argv[i + 1]; i++; }
   } else args.push(argv[i]);
 }
 const actor = flags.as || process.env.STUDIO_ACTOR || 'agent';
 const [cmd, ...rest] = args;
+
+const STATE_KO = { settled: '정해짐', inferred: '추정', empty: '빈칸', unknown: '모름' };
+const ENTRY_STATUS_KO = { open: '열림', confirmed: '확인됨', rejected: '틀림', accepted: '괜찮음', reopened: '다시 열림', answered: '답함' };
+
+function printEntry(e) {
+  const conf = e.type === 'assume' ? ` 확신 ${CONFIDENCE[e.confidence]}` : '';
+  const extra = e.type === 'compromise' && e.gate ? ` 게이트:${e.gate}` : e.type === 'unknown' ? ` 답할 쪽:${e.ask || 'human'}` : '';
+  console.log(`  ${e.id}  [${BLOCKS[e.type].label}${conf}${extra}] ${e.text}${e.status !== 'open' ? `  (${ENTRY_STATUS_KO[e.status] || e.status})` : ''}`);
+  const where = [e.task && `과업 ${e.task}`, e.field && `칸 ${e.field}`].filter(Boolean).join(' · ');
+  if (where) console.log(`        ${where}`);
+  if (e.answer) console.log(`        답: ${e.answer}`);
+  if (e.note) console.log(`        메모: ${e.note}`);
+}
+
+// 세 칸 중 하나라도 남겼는지. 없으면 done 을 막고 방법을 알려 준다.
+function requireThree(s, id) {
+  if (!s.hasSpec()) return true;
+  return s.entriesFor(id).length > 0;
+}
 
 const STATUS_KO = { todo: '대기', doing: '진행 중', review: '확인 필요', done: '완료', blocked: '막힘' };
 const MARK = { todo: '[ ]', doing: '[~]', review: '[?]', done: '[x]', blocked: '[!]' };
@@ -163,6 +202,17 @@ try {
           for (const c of d.children) console.log(`  ${c.isCurrent ? '▶' : ' '}${MARK[c.status]} ${c.id}  (${ACTORS[c.by]}) ${KINDS[c.kind]} · ${c.title}${c.how ? `\n        방법: ${c.how}` : ''}`);
         }
       }
+      if (n.budget) console.log(`토큰 상한: ${n.budget}${n.ledger?.tokens ? ` (지금까지 ${n.ledger.tokens})` : ''}`);
+      if (n.attempts?.length) {
+        console.log('시도 기록:');
+        for (const a of n.attempts) console.log(`  #${a.n} ${ATTEMPT_RESULTS[a.result]}  ${a.label}${a.why ? ` — ${a.why}` : ''}${a.tokens ? `  (${a.tokens} 토큰)` : ''}  · ${a.by}`);
+      }
+      if (n.reopened?.length) {
+        console.log('다시 열림:');
+        for (const r of n.reopened) console.log(`  ${r.at.slice(0, 16).replace('T', ' ')}  ${r.because}${r.from ? `  (원인: ${r.from})` : ''}${r.sub ? `  → ${r.sub}` : ''} · ${r.by}`);
+      }
+      const entries = s.entriesFor(n.id);
+      if (entries.length) { console.log('세 칸:'); entries.forEach(printEntry); }
       console.log(`수정: ${n.updatedAt || '-'} by ${n.updatedBy || '-'}`);
       console.log(`메모 파일: ${d.notesPath}`);
       if (d.assets.length) {
@@ -175,15 +225,123 @@ try {
     case 'status': {
       const [id, status] = rest;
       if (!id || !STATUSES.includes(status)) fail(`status <id> <${STATUSES.join('|')}> --app <앱>`);
-      store().updateNode(actor, id, { status });
+      const s = store();
+      s.updateNode(actor, id, { status });
       console.log(`${id} → ${status}`);
+      if (status === 'done' && actor !== 'human' && !requireThree(s, id)) {
+        console.log(`참고: 이 과업에 세 칸(가정 · 타협 · 모름)이 하나도 없어요. 에이전트는 \`done ${id} --assume .. --compromise .. --unknown ..\` 로 끝내 주세요. 정말 없으면 --none.`);
+      }
+      break;
+    }
+    case 'done': {
+      const [id] = rest;
+      if (!id) fail('done <id> [--assume ".."] [--compromise ".."] [--unknown ".."] [--none] --app <앱>');
+      const s = store();
+      const added = [];
+      for (const [flag, type] of [['assume', 'assume'], ['compromise', 'compromise'], ['unknown', 'unknown']]) {
+        for (const text of flags[flag] || []) added.push(s.addKnowledge(actor, type, { task: id, text, confidence: type === 'assume' ? flags.confidence : undefined }));
+      }
+      if (!added.length && !flags.none && !requireThree(s, id)) {
+        fail([
+          `"${id}"을 끝내기 전에 세 칸을 남겨 주세요. 사람 화면의 빈칸 지도가 이걸로 계산돼요.`,
+          '  --assume "말하지 않은 것을 어떻게 메웠는지"   (확신은 --confidence high|mid|low, 기본 mid)',
+          '  --compromise "조건을 맞추려고 낮춘 것"',
+          '  --unknown "사람이나 다음 단계가 답해야 하는 것"',
+          '  정말 셋 다 없으면 --none',
+        ].join('\n'));
+      }
+      s.updateNode(actor, id, { status: 'done' });
+      for (const e of added) console.log(`  ${e.id} ${BLOCKS[e.type].label}: ${e.text}`);
+      console.log(`${id} → done${flags.none && !added.length ? ' (세 칸 없음)' : ''}`);
+      break;
+    }
+    case 'assume':
+    case 'compromise':
+    case 'unknown': {
+      const [task, ...text] = rest;
+      if (!task || !text.length) fail(`${cmd} <과업 id> "내용" [--field 명세.경로]${cmd === 'assume' ? ' [--confidence high|mid|low]' : cmd === 'compromise' ? ' [--gate 72fps]' : ' [--ask human|<과업 id>]'} --app <앱>`);
+      const e = store().addKnowledge(actor, cmd, { task, text: text.join(' '), field: flags.field, confidence: flags.confidence, gate: flags.gate, ask: flags.ask });
+      console.log(`${e.id} ${BLOCKS[cmd].label} 추가`);
+      break;
+    }
+    case 'answer':
+    case 'confirm':
+    case 'reject':
+    case 'accept': {
+      const [id, ...text] = rest;
+      if (!id || (cmd === 'answer' && !text.length)) fail(`${cmd} <id>${cmd === 'answer' ? ' "답"' : cmd === 'reject' ? ' "이유"' : ''} --app <앱>`);
+      const e = store().resolveKnowledge(actor, id, cmd, cmd === 'answer' ? { answer: text.join(' ') } : { note: text.join(' ') });
+      console.log(`${id} → ${ENTRY_STATUS_KO[e.status] || e.status}`);
+      break;
+    }
+    case 'blanks': {
+      const s = store();
+      const m = s.spec();
+      const sm = m.summary;
+      const verdict = { thin: '디렉션이 아직 부족해요', ok: '진행할 만해요. 추정이나 빈칸이 남아 있어요', solid: '충분해요' }[sm.verdict];
+      console.log(`# 빈칸 지도  (${m.path})`);
+      console.log(`칸 ${sm.fields}개: 정해짐 ${sm.settled} · 추정 ${sm.inferred}(확신 하 ${sm.lowInferred}) · 빈칸 ${sm.empty} · 모름 ${sm.unknown}`);
+      console.log(`열린 항목: 가정 ${sm.openAssumptions}(확신 하 ${sm.lowAssumptions}) · 타협 ${sm.openCompromises} · 모름 ${sm.openUnknowns}(사람이 답할 것 ${sm.humanUnknowns})`);
+      console.log(`판정: ${verdict}\n`);
+      for (const b of m.blocks) {
+        const fields = flags.open ? b.fields.filter((f) => f.state !== 'settled') : b.fields;
+        if (!fields.length) continue;
+        console.log(`## ${b.key}`);
+        for (const f of fields) console.log(`  ${STATE_KO[f.state].padEnd(3)} ${f.path}${f.confidence ? ` (확신 ${CONFIDENCE[f.confidence]})` : ''}${f.entries.length ? `  ← ${f.entries.join(', ')}` : ''}`);
+      }
+      const open = m.entries.filter((e) => !flags.open || e.status === 'open');
+      if (open.length) { console.log('\n## 세 칸 항목'); open.forEach(printEntry); }
+      break;
+    }
+    case 'attempt': {
+      const [id, ...label] = rest;
+      if (!id || !label.length) fail('attempt <하위 과업 id> "무엇을 시도했나" --result ok|fail|pending [--why ..] [--tokens 수] --app <앱>');
+      const a = store().addAttempt(actor, id, { label: label.join(' '), result: flags.result || 'pending', why: flags.why, tokens: flags.tokens, file: flags.file });
+      console.log(`${id} 시도 #${a.n} ${ATTEMPT_RESULTS[a.result]}`);
+      if (a.stuck) console.log(`주의: 연속 ${a.trailingFails}번 실패했어요. 사람 화면에 "헤맴" 알림이 떠요. 방향을 바꾸기 전에 사람에게 물어보세요.`);
+      break;
+    }
+    case 'reopen': {
+      const [id, ...because] = rest;
+      if (!id || !because.length) fail('reopen <id> "왜 다시 여는지" [--from <원인 과업 id>] [--sub <하위 과업 id>] --app <앱>');
+      const r = store().reopen(actor, id, { because: because.join(' '), from: flags.from, sub: flags.sub });
+      console.log(`${id} 다시 열림${r.reopenedSub ? ` (${r.reopenedSub} → todo)` : ' → todo'}`);
+      break;
+    }
+    case 'drawer': {
+      const [sub, kindOrId, ...text] = rest;
+      if (sub === 'add') {
+        if (!DRAWER_KINDS[kindOrId] || !text.length) fail(`drawer add <${Object.keys(DRAWER_KINDS).join('|')}> "내용" [--why ..] [--until ..] [--means ..]`);
+        const it = studio.addDrawer(actor, { kind: kindOrId, text: text.join(' '), why: flags.why, until: flags.until, means: flags.means, app: flags.app, task: flags.task });
+        console.log(`서랍 ${it.id} (${DRAWER_KINDS[it.kind].label}) 추가`);
+        break;
+      }
+      if (sub === 'retire' || sub === 'revive') {
+        if (!kindOrId) fail(`drawer ${sub} <id>`);
+        studio.updateDrawer(actor, kindOrId, { status: sub === 'retire' ? 'retired' : 'active' });
+        console.log(`${kindOrId} → ${sub === 'retire' ? '내림' : '다시 씀'}`);
+        break;
+      }
+      const d = studio.drawer();
+      console.log(`# 결정 서랍  (${d.path})\n`);
+      for (const [k, meta] of Object.entries(DRAWER_KINDS)) {
+        const items = d.items.filter((x) => x.kind === k && x.status !== 'retired');
+        console.log(`## ${meta.label} — ${meta.hint}`);
+        if (k === 'constraint') for (const t of d.sharedTasks) console.log(`  공통/${t.id}  ${t.title}${t.preview ? ` — ${t.preview}` : ''}`);
+        for (const it of items) {
+          console.log(`  ${it.id}  ${it.text}${it.means ? ` → ${it.means}` : ''}${it.until ? `  (다시 볼 조건: ${it.until})` : ''}${it.app ? `  [${it.app}]` : ''}`);
+          if (it.why) console.log(`        이유: ${it.why}`);
+        }
+        if (!items.length && k !== 'constraint') console.log('  (없음)');
+        console.log('');
+      }
       break;
     }
     case 'set': {
       const [id] = rest;
       if (!id) fail('set <id> --title .. --owner .. --stage .. --kind .. --by .. --how .. --goal .. --output .. --ref .. --app <앱>');
       const patch = {};
-      for (const k of ['title', 'owner', 'type', 'status', 'ref', 'stage', 'kind', 'by', 'how', 'goal', 'output', 'parent']) if (flags[k] !== undefined) patch[k] = flags[k];
+      for (const k of ['title', 'owner', 'type', 'status', 'ref', 'stage', 'kind', 'by', 'how', 'goal', 'output', 'parent', 'budget']) if (flags[k] !== undefined) patch[k] = flags[k];
       store().updateNode(actor, id, patch);
       console.log(`${id} 수정: ${JSON.stringify(patch)}`);
       break;

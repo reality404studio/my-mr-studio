@@ -6,6 +6,13 @@
 //   GET  /api/templates                   모드 목록
 //   GET  /api/events                      파일 변경 알림 (SSE)
 //   /api/p/<pid>/pipeline | next | log | stages/... | nodes/... | edges/...   pid = "shared" 또는 앱 id
+//   GET  /api/p/<pid>/overview            사람 화면 (결정 대기, 질문, 추정, 영수증, 알림, 상태)
+//   GET  /api/p/<pid>/spec                빈칸 지도 (scene_spec.yaml 칸별 상태와 세 칸 항목)
+//   POST /api/p/<pid>/knowledge           세 칸 추가 { type: assume|compromise|unknown, task, text, field, confidence, gate, ask }
+//   POST /api/p/<pid>/knowledge/<id>      세 칸 처리 { action: answer|confirm|reject|accept|reopen, answer, note }
+//   POST /api/p/<pid>/nodes/<id>/attempts 시도 기록 { label, result, why, tokens }
+//   POST /api/p/<pid>/nodes/<id>/reopen   다시 열기 { because, from, sub }
+//   GET|POST /api/drawer, PATCH /api/drawer/<id>   결정 서랍
 //   /files/<studio/ 아래 상대 경로>       첨부 파일
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,7 +36,8 @@ export function studioApi(root) {
   let timer = null;
   const watcher = chokidar.watch(studio.studioDir, {
     ignoreInitial: true,
-    ignored: (p) => /[\\/](\.lock|_archive)([\\/]|$)/.test(p) || p.endsWith('.tmp'),
+    // 잠금 폴더(.lock, .spec.lock, .drawer.lock)와 보관함, 임시 파일은 알리지 않는다
+    ignored: (p) => /[\\/](\.([a-z]+\.)?lock|_archive)([\\/]|$)/.test(p) || p.endsWith('.tmp'),
   });
   watcher.on('all', (_event, file) => {
     pending.add(path.relative(studio.studioDir, file).split(path.sep).join('/'));
@@ -73,12 +81,24 @@ export function studioApi(root) {
       if (top === 'projects' && m === 'POST') return send(201, studio.createApp(actor, await readJson(req)));
       if (top === 'templates' && m === 'GET') return send(200, studio.templates());
 
+      if (top === 'drawer') {
+        if (!parts[2] && m === 'GET') return send(200, studio.drawer());
+        if (!parts[2] && m === 'POST') return send(201, studio.addDrawer(actor, await readJson(req)));
+        if (parts[2] && m === 'PATCH') return send(200, studio.updateDrawer(actor, parts[2], await readJson(req)));
+      }
+
       if (top === 'p' && parts[2]) {
         const store = studio.project(parts[2]);
         const [a, b, c, d] = parts.slice(3);
 
         if (a === 'pipeline' && m === 'GET') return send(200, store.pipeline());
         if (a === 'next' && m === 'GET') return send(200, store.next());
+        if (a === 'overview' && m === 'GET') return send(200, store.overview());
+        if (a === 'spec' && m === 'GET') return send(200, store.spec());
+        if (a === 'knowledge') {
+          if (!b && m === 'POST') { const body = await readJson(req); return send(201, store.addKnowledge(actor, body.type, body)); }
+          if (b && m === 'POST') { const body = await readJson(req); return send(200, store.resolveKnowledge(actor, b, body.action, body)); }
+        }
 
         if (a === 'stages') {
           if (!b && m === 'POST') return send(201, store.addStage(actor, await readJson(req)));
@@ -93,6 +113,8 @@ export function studioApi(root) {
           if (b && !c && m === 'PATCH') return send(200, store.updateNode(actor, b, await readJson(req)));
           if (b && !c && m === 'DELETE') return send(200, store.deleteNode(actor, b));
           if (b && c === 'move' && m === 'POST') return send(200, store.moveNode(actor, b, (await readJson(req)).dir));
+          if (b && c === 'attempts' && m === 'POST') return send(201, store.addAttempt(actor, b, await readJson(req)));
+          if (b && c === 'reopen' && m === 'POST') return send(200, store.reopen(actor, b, await readJson(req)));
           if (b && c === 'notes' && m === 'PUT') return send(200, store.writeNotes(actor, b, (await readJson(req)).notes ?? ''));
           if (b && c === 'notes' && m === 'POST') return send(200, store.appendNote(actor, b, (await readJson(req)).text ?? ''));
           if (b && c === 'assets' && !d && m === 'POST') {

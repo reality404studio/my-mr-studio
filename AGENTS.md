@@ -24,10 +24,44 @@
 2. `npm run studio -- next --app <앱 id> --by agent` — **지금 내가 시작할 수 있는 하위 과업**. 여기에 없는 일은 아직 차례가 아니다
 3. `npm run studio -- show <하위 과업 id> --app <앱 id>` — 방법(how), 속한 과업의 목표·산출물, 메모와 파일
 4. 처음이면 공통 조건을 읽는다: `show platform --app shared`, `show perf-rules --app shared`, `show hand-patterns --app shared`, 그리고 앱의 `show brief`
-5. 시작: `status <id> doing` → 일한다 → 결과를 산출물 위치에 남긴다 → `note <과업 id> "무엇을 했고, 무엇이 남았는지"` → `status <id> done`
+5. 시작: `status <id> doing` → 일한다 (시도마다 `attempt`) → 결과를 산출물 위치에 남긴다 → `note <과업 id> "무엇을 했고, 무엇이 남았는지"` → **`done <id>` 로 세 칸을 남기며 끝낸다**
 6. 다음 하위 과업이 `human` 이면 거기서 멈추고 사람에게 알린다. 사람 확인이 필요한 결과를 냈다면 `status <id> review`
+7. 처음 맡은 앱이면 `blanks --app <앱>` 으로 빈칸 지도를 보고, `drawer` 로 결정 서랍(제약 · 내 눈 · 보류 · 번역표)을 읽는다
 
 전체 그림은 `list --app <앱 id>` (단계 > 과업 > 하위 과업 트리, ▶ 표시가 과업 안에서 지금 차례).
+
+## 사람에게 보이는 것과 남겨야 하는 것
+
+사람은 보드(칸반)를 보지 않아요. 사람 화면은 아래 기록에서 계산돼요. 그래서 이걸 안 남기면 사람에게는 **아무 일도 없었던 것**과 같아요.
+
+| 남길 것 | 명령 | 사람 화면에서 |
+| --- | --- | --- |
+| **가정**: 말하지 않은 것을 어떻게 메웠는지 | `assume <과업> ".." --confidence high\|mid\|low --field <명세 경로>` | 빈칸 지도의 "추정" 칸, 확신 하는 확인 요청 |
+| **타협**: 조건을 맞추려고 낮춘 것 | `compromise <과업> ".." --gate 72fps --field <명세 경로>` | 영수증. 사람이 괜찮음 또는 다시 하기 |
+| **모름**: 사람이나 다음 단계가 답해야 하는 것 | `unknown <과업> ".." --ask human\|<과업 id>` | 결정 대기의 질문 |
+| **시도**: 변종 하나, 실패 하나 | `attempt <하위 과업> ".." --result ok\|fail\|pending --why .. --tokens ..` | 연속 3번 실패하면 "헤맴" 알림 |
+| **다시 열기**: 끝난 일을 되돌릴 때 | `reopen <과업> "이유" --from <원인 과업>` | 최근 되돌림 |
+
+- **세 칸은 `done` 과 함께 남긴다.** `done <id> --assume .. --compromise .. --unknown ..` (여러 번 써도 된다). 셋 다 정말 없으면 `--none`.
+  에이전트가 `status <id> done` 으로 끝내면 경고가 나온다. 세 칸은 명세 `scene_spec.yaml` 의 `assumptions` · `compromises` · `unknowns` 블록에 쌓인다.
+- **`--field` 를 붙이면** 빈칸 지도가 명세의 그 칸에 표시한다. 경로는 점으로 잇고 배열 항목은 id 나 target 으로: `objects.cd_player.pos_m`, `perf.pink_clouds`, `meta.bpm`.
+- **확신 표시는 솔직하게.** 영상 한 프레임에서 읽은 값, 실제 크기를 모르는 값은 `low`. 확신 하가 남아 있으면 사람 화면은 "디렉션이 아직 부족해요"라고 판정한다.
+- **헤매는지는 스스로 판단하지 않는다.** 시도를 빠짐없이 `attempt` 로 남기면 화면이 알아서 센다. 연속 3번 실패하면 방향을 바꾸기 전에 멈추고 사람에게 묻는다.
+- **토큰 상한**: 과업에 `budget` 이 있으면(`set <과업> --budget 200000`) 시도마다 `--tokens` 를 적는다. 80%를 넘으면 알림이 뜬다.
+- **끝난 일을 되돌릴 때는 상태만 바꾸지 말고 `reopen`** 으로 이유와 원인 과업을 남긴다. 과업을 열면 마지막 에이전트 하위 과업이 대기로 돌아간다.
+- **사람의 답과 확인은 명세에 남는다.** `answer` · `confirm` · `reject` · `accept` 는 보통 사람이 화면에서 누르지만, 사람이 채팅으로 답했다면 에이전트가 대신 적는다.
+
+## 결정 서랍
+
+모든 앱이 함께 쓰는 결정의 수명별 보관함이에요 (`studio/shared/drawer.json`, 웹에서는 "결정 서랍").
+
+- **제약**: 기기·기술 조건. 공통 보드의 과업(플랫폼, 72fps 규칙, Unity 버전 …)이 여기에 같이 보여요
+- **내 눈**: 사람이 고르거나 버린 이유. 변종을 만들기 전에 읽고, 이미 버린 방향이면 그때 이유를 같이 알린다
+- **보류**: 지금은 안 하지만 조건이 바뀌면 다시 꺼낼 것 (`--until "Quest 4 나오면"`)
+- **번역표**: 사람의 말이 실제로 무엇을 바꾸는지. "부드럽게" → "이징 0.2초 늘림, 대비 유지". 느낌 단어를 받으면 먼저 여기를 찾고, 없으면 해석을 `assume` 으로 남긴다
+
+에이전트는 `drawer add` 로 **제약**과 **보류**를 제안할 수 있다. **내 눈**과 **번역표**는 사람이 고친 것을 옮겨 적을 때만 쓴다.
+
 
 ## 폴더 구조
 
@@ -39,8 +73,9 @@ studio/
     nodes/<id>/README.md         과업(또는 하위 과업) 메모
     nodes/<id>/assets/           첨부 파일
     scene_spec.template.yaml     장면 명세 형식 (새 앱에 복사됨)
+    drawer.json                  결정 서랍: 제약 · 내 눈 · 보류 · 번역표 (CLI drawer)
   apps/<앱 id>/                  앱 보드. 구조는 shared 와 같음
-    scene_spec.yaml              이 앱의 구현 계약
+    scene_spec.yaml              이 앱의 구현 계약이자 진실의 원천. 세 칸(assumptions · compromises · unknowns)도 여기에
     log.jsonl                    누가 무엇을 했는지 (자동)
   templates/<모드 id>/           모드: template.json + pipeline.json + nodes/*/README.md
 unity/<앱 id>/                   앱별 Unity 프로젝트 (만들 때)
