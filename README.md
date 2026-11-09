@@ -28,6 +28,28 @@ npm run dev
 
 브라우저에서 http://localhost:5173 을 열면 홈이 나와요.
 
+## 헤드셋 메모와 그레이박스
+
+XR 은 헤드셋을 써 봐야 느낌이 정해져요. 그래서 헤드셋 안에서 바로 메모를 남기면, 그 순간 **보던 것과 거리·각도**가 같이 스튜디오로 와요.
+
+```
+헤드셋에서 "좀 답답해"  →  feel/f3 (보던 것 objects.cd_player · 0.38m · 눈높이보다 31° 아래)
+                        →  에이전트가 번역표를 보고 가정으로 옮김: "답답하다 = 너무 가까움, z 0.22 → 0.37"
+                        →  명세 값이 바뀌면 그레이박스 상자가 바로 움직임  →  다시 써 보고 사람 화면에서 "맞아요"
+```
+
+- **웹 그레이박스** `/xr.html?app=<앱 id>`: 명세의 `objects` 를 책상 위 회색 상자로 띄워요. Unity 빌드 없이 Quest 브라우저에서 배치·거리·높이를 바로 만져 봐요.
+  1. 마이크 허용 → 헤드셋으로 들어가기
+  2. 검지 끝을 **책상 앞 모서리 가운데**에 대고 0.6초 멈추면 책상이 맞춰져요 (손바닥 버튼의 "책상"으로 다시 맞춤)
+  3. **왼손 손바닥**을 얼굴 쪽으로 → 빨간 버튼을 **오른손 검지**로 찌르고 말해요. 다시 찌르면 저장
+- **헤드셋에서 열기**: WebXR 과 마이크는 보안 연결에서만 돼요.
+  - USB: `adb reverse tcp:5173 tcp:5173` 후 헤드셋 브라우저에서 `http://localhost:5173/xr.html?app=…`
+  - 같은 Wi-Fi: `npm run dev:xr` → 터미널에 뜬 `https://192.168…:5173/xr.html?app=…` (인증서 경고는 "고급 → 계속")
+- **Unity 앱**: `unity/shared/SpatialNotes/` 를 붙이면 같은 형식으로 보내요. 손바닥 메뉴에서 `ToggleNote()`.
+- **다른 three.js 프로토타입**: `src/xr/spatial-notes.js` 한 파일만 복사해서 붙여요. 사용법은 파일 맨 위에.
+- **받아쓰기**: 브라우저가 음성 인식을 지원하면 글자로, 아니면 녹음만 올라가요. 녹음만 있는 메모는 사람 화면에서 듣고 한 줄로 적어요.
+- 사람 화면 오른쪽의 **헤드셋 메모** 칸에 새 메모가 뜨고, 에이전트가 가정으로 옮기면 "확신 낮은 추정"에 "헤드셋 메모 f3에서"로 다시 떠요.
+
 ## 보드 구조
 
 ```
@@ -95,6 +117,7 @@ npm run studio -- attempt build-shader "구름 B: 반투명 3겹" --result fail 
 npm run studio -- reopen build "검수에서 색이 탁함" --from review --app desk-dream --as "Claude Code"
 npm run studio -- blanks --app desk-dream --open      # 빈칸 지도
 npm run studio -- drawer                              # 결정 서랍
+npm run studio -- feel --app desk-dream               # 헤드셋 메모 (show / translate / dismiss / add)
 ```
 
 다른 컴퓨터나 클라우드 에이전트와는 평소처럼 커밋하고 푸시해서 공유해요.

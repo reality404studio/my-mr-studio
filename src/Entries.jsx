@@ -41,11 +41,12 @@ export function EntryCard({ pid, entry: e, api, onChanged, onError, showWhere = 
         <span className="entry__id">{e.id}</span>
       </div>
       <p className="entry__text">{e.text}</p>
-      {(e.field || (showWhere && e.task)) && (
+      {(e.field || (showWhere && e.task) || e.source) && (
         <p className="entry__where">
           {e.field && <code>{e.field}</code>}
           {showWhere && e.task && <a href={viewHref(pid, 'ledger', e.task)}>{e.where || e.taskTitle || e.task}</a>}
           {e.by && <span>{e.by}</span>}
+          {e.source?.startsWith('feel:') && <span className="entry__source">헤드셋 메모 {e.source.slice(5)}에서</span>}
         </p>
       )}
       {e.answer && <p className="entry__answer">답: {e.answer}</p>}

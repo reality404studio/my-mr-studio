@@ -37,6 +37,14 @@
 //   npm run studio -- reopen  <id> "왜 다시 여는지" [--from <원인 과업 id>] [--sub <하위 과업 id>]
 //   npm run studio -- set     <과업 id> --budget <토큰 상한>    넘으면 사람 화면에 알림
 //
+// 헤드셋 메모: 헤드셋을 쓴 채로 남긴 말과 그 순간의 공간 정보 (studio/apps/<앱>/feel/). 사람의 가장 따끈한 입력이라 먼저 본다
+//   npm run studio -- feel [--all]                            새 메모 (--all 이면 전부)
+//   npm run studio -- feel show <f id>                        받아쓰기, 보던 것, 거리·각도, 조절 값, 번역표 후보, 명세의 현재 값
+//   npm run studio -- feel translate <f id> "해석과 바꿀 값" [--field objects.x.pos_m] [--confidence low|mid|high] [--task <과업 id>]
+//                                                             → 명세에 가정으로 남는다 (source: feel:<id>). 값은 사람이 헤드셋에서 확인하기 전까지 "추정"
+//   npm run studio -- feel dismiss <f id> "왜 버리는지"
+//   npm run studio -- feel add "사람이 채팅으로 전한 느낌" [--target objects.x]   헤드셋 없이 메모를 대신 적을 때
+//
 // 결정 서랍 (모든 앱이 함께 씀)
 //   npm run studio -- drawer                                  목록
 //   npm run studio -- drawer add <constraint|taste|hold|vocab> "내용" [--why ..] [--until "조건"] [--means "실제로 바꾸는 것"]
@@ -47,12 +55,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createStudio, NODE_TYPES, STATUSES, KINDS, ACTORS, BLOCKS, CONFIDENCE, ATTEMPT_RESULTS, DRAWER_KINDS } from '../server/store.mjs';
+import { createStudio, NODE_TYPES, STATUSES, KINDS, ACTORS, BLOCKS, CONFIDENCE, ATTEMPT_RESULTS, DRAWER_KINDS, FEEL_STATUS, matchVocab } from '../server/store.mjs';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const studio = createStudio(root);
 
-const BOOL_FLAGS = new Set(['feedback', 'none', 'open']);
+const BOOL_FLAGS = new Set(['feedback', 'none', 'open', 'all']);
 const MULTI_FLAGS = new Set(['assume', 'compromise', 'unknown']); // 여러 번 쓸 수 있는 플래그
 const argv = process.argv.slice(2);
 const flags = {};
@@ -124,6 +132,7 @@ try {
         const done = p.nodes.filter((n) => n.status === 'done').length;
         console.log(`${p.id}  "${p.name}"${p.template ? `  모드:${p.template}` : ''}  과업 ${done}/${p.nodes.length} 완료`);
         for (const n of p.next) console.log(`    다음: ${n.id} (${ACTORS[n.by]}) ${n.title}`);
+        if (p.id !== 'shared') { const k = studio.project(p.id).feelList({ status: 'new' }).length; if (k) console.log(`    헤드셋 메모 ${k}개 안 읽음: feel --app ${p.id}`); }
       };
       if (shared) line(shared);
       apps.forEach(line);
@@ -149,6 +158,8 @@ try {
       const s = store();
       let items = s.next();
       if (flags.by) items = items.filter((i) => i.by === flags.by);
+      const fresh = s.feelList({ status: 'new' });
+      if (fresh.length) console.log(`헤드셋 메모 ${fresh.length}개가 아직 안 읽혔어요. 먼저 보세요: npm run studio -- feel --app ${s.pid}\n`);
       printNext(items, s.pid);
       break;
     }
@@ -306,6 +317,74 @@ try {
       if (!id || !because.length) fail('reopen <id> "왜 다시 여는지" [--from <원인 과업 id>] [--sub <하위 과업 id>] --app <앱>');
       const r = store().reopen(actor, id, { because: because.join(' '), from: flags.from, sub: flags.sub });
       console.log(`${id} 다시 열림${r.reopenedSub ? ` (${r.reopenedSub} → todo)` : ' → todo'}`);
+      break;
+    }
+    case 'feel': {
+      const s = store();
+      const [sub, id, ...text] = rest;
+      const fmtNote = (n) => {
+        const head = `${n.id}  [${FEEL_STATUS[n.status]}] ${n.text ? `"${n.text}"` : '(받아쓰기 없음' + (n.audio ? ', 녹음 있음)' : ')')}`;
+        return `${head}${n.summary ? `\n      ${n.summary}` : ''}${n.links?.length ? `\n      → ${n.links.join(', ')}` : ''}${n.why ? `\n      버린 이유: ${n.why}` : ''}`;
+      };
+      if (!sub || sub === 'list') {
+        const notes = s.feelList();
+        const shown = flags.all ? notes : notes.filter((n) => n.status === 'new');
+        console.log(`# 헤드셋 메모  (studio/${s.relDir}/feel/)  새 메모 ${notes.filter((n) => n.status === 'new').length} / 전체 ${notes.length}\n`);
+        if (!shown.length) console.log(flags.all ? '메모가 없어요.' : '새 메모가 없어요. 지난 것까지 보려면 --all');
+        for (const n of shown) console.log(fmtNote(n));
+        if (shown.some((n) => n.status === 'new')) console.log(`\n하나씩: npm run studio -- feel show <id> --app ${s.pid}`);
+        break;
+      }
+      if (sub === 'show') {
+        if (!id) fail('feel show <f id> --app <앱>');
+        const n = s.feelGet(id);
+        console.log(fmtNote(n));
+        console.log(`  언제: ${n.at}  · 어디서: ${n.source}${n.scene ? ` · 장면 ${n.scene}` : ''}${n.duration_s ? ` · ${n.duration_s}초` : ''}`);
+        if (n.audio) console.log(`  녹음: studio/${s.relDir}/feel/${n.audio}${n.text ? '' : '  ← 받아쓰기가 없어요. 사람에게 들어 달라고 하거나, 녹음을 받아쓸 수 있으면 feel 메모를 고쳐요'}`);
+        if (n.target?.id || n.target?.label) console.log(`  보던 것: ${[n.target.label, n.target.id && `(${n.target.id})`].filter(Boolean).join(' ')}${n.target.how && n.target.how !== 'none' ? ` · ${{ gaze: '시선', point: '손가락' }[n.target.how]}` : ''}`);
+        if (n.pose) console.log(`  좌표계: ${n.pose.frame === 'desk' ? '책상 좌표 (명세와 같음)' : '세션 좌표 (세션마다 원점이 다름, 상대값만 믿을 것)'}${n.pose.head?.pos ? ` · 머리 ${n.pose.head.pos.join(', ')}` : ''}`);
+        if (n.params) console.log(`  그때 조절 값: ${Object.entries(n.params).map(([k, v]) => `${k}=${Array.isArray(v) ? `[${v.join(', ')}]` : v}`).join(', ')}`);
+        if (n.target?.id && s.hasSpec()) {
+          const fields = s.spec().blocks.flatMap((b) => b.fields).filter((f) => f.path === n.target.id || f.path.startsWith(`${n.target.id}.`));
+          if (fields.length) {
+            console.log('  명세의 지금 값:');
+            for (const f of fields.slice(0, 12)) console.log(`    ${f.path} = ${f.value === null ? '(빈칸)' : JSON.stringify(f.value)}`);
+          }
+        }
+        const vocab = matchVocab(n.text, studio.drawer().items);
+        if (vocab.length) {
+          console.log('  번역표에 있는 말:');
+          for (const v of vocab) console.log(`    "${v.text}" → ${v.means}  (${v.id})`);
+        } else if (n.text) console.log('  번역표에 맞는 말이 없어요. 해석을 가정으로 남기면, 사람이 확인한 뒤 번역표에 옮길 수 있어요.');
+        if (n.status === 'new') console.log(`\n옮기기: npm run studio -- feel translate ${n.id} "해석: 무엇을 얼마나 바꿀지" --field ${n.target?.id || '<명세 경로>'} --confidence mid --app ${s.pid}`);
+        break;
+      }
+      if (sub === 'translate') {
+        if (!id || !text.length) fail('feel translate <f id> "해석과 바꿀 값" [--field <명세 경로>] [--confidence low|mid|high] [--task <과업 id>] --app <앱>');
+        const r = s.translateFeel(actor, id, { text: text.join(' '), field: flags.field, confidence: flags.confidence || 'mid', task: flags.task });
+        console.log(`${id} → 가정 ${r.entry.id}${r.entry.field ? ` (칸 ${r.entry.field})` : ''}. 사람 화면에 확인 요청으로 떠요.`);
+        break;
+      }
+      if (sub === 'dismiss') {
+        if (!id) fail('feel dismiss <f id> "왜 버리는지" --app <앱>');
+        s.dismissFeel(actor, id, text.join(' '));
+        console.log(`${id} 버림`);
+        break;
+      }
+      if (sub === 'text') {
+        if (!id || !text.length) fail('feel text <f id> "받아쓰기" --app <앱>');
+        s.setFeelText(actor, id, text.join(' '));
+        console.log(`${id} 받아쓰기 고침`);
+        break;
+      }
+      if (sub === 'add') {
+        const body = [id, ...text].filter(Boolean).join(' ');
+        if (!body) fail('feel add "느낌 한마디" [--target <명세 경로>] --app <앱>');
+        const n = s.addFeel(actor, { text: body, textBy: actor, source: 'cli', target: flags.target ? { id: flags.target, how: 'none' } : undefined });
+        console.log(`헤드셋 메모 ${n.id} 추가`);
+        break;
+      }
+      fail('feel [list|show|translate|dismiss|text|add] --app <앱>');
       break;
     }
     case 'drawer': {

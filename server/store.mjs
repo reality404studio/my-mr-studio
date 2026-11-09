@@ -18,8 +18,9 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 import { KINDS, ACTORS, STATUSES, normalize, derive, nextActions, stageOrder } from './board.mjs';
 import { BLOCKS, CONFIDENCE, parseSpec, stringifySpec, readEntries, addEntry, resolveEntry, specMap } from './knowledge.mjs';
+import { createFeelStore, FEEL_STATUS, describeFeel, matchVocab } from './feel.mjs';
 
-export { KINDS, ACTORS, STATUSES, BLOCKS, CONFIDENCE };
+export { KINDS, ACTORS, STATUSES, BLOCKS, CONFIDENCE, FEEL_STATUS, describeFeel, matchVocab };
 export const ATTEMPT_RESULTS = { ok: '통과', fail: '실패', pending: '확인 대기' };
 // 결정 서랍: 프로젝트를 넘어 쌓이는 결정. 제약은 공통 보드의 과업에서도 읽어 온다.
 export const DRAWER_KINDS = {
@@ -409,7 +410,14 @@ function createProjectStore(dir, pid, ctx) {
     }
   }
 
-  return {
+  // 헤드셋 메모 (앱 보드에만). 가정으로 옮길 때는 아래 addKnowledge 를 그대로 쓴다
+  const feel = isShared ? null : createFeelStore({
+    dir, relDir, appendLog, withFileLock,
+    addAssumption: (actor, input) => self.addKnowledge(actor, 'assume', input),
+  });
+  const needFeel = () => { if (!feel) throw httpError(400, '헤드셋 메모는 앱 보드에 남겨요. --app <앱 id>'); return feel; };
+
+  const self = {
     pid,
     relDir,
     readPipeline,
@@ -437,7 +445,10 @@ function createProjectStore(dir, pid, ctx) {
       const titles = Object.fromEntries(p.nodes.map((n) => [n.id, n.title]));
       const m = specMap(doc);
       m.entries = m.entries.map((e) => ({ ...e, taskTitle: titles[e.task] || e.task || '', top: e.task ? topOf(p, e.task) : null }));
-      return { ...m, path: `studio/${relDir}/scene_spec.yaml` };
+      // data: 세 칸을 뺀 명세 원본. 헤드셋 그레이박스가 objects 를 띄울 때 쓴다
+      const data = doc.toJS() || {};
+      for (const k of ['assumptions', 'compromises', 'unknowns', 'review']) delete data[k];
+      return { ...m, data, path: `studio/${relDir}/scene_spec.yaml` };
     },
 
     addKnowledge(actor, type, input = {}) {
@@ -566,9 +577,15 @@ function createProjectStore(dir, pid, ctx) {
       let summary = null;
       if (hasSpec()) { try { summary = specMap(readSpecDoc()).summary; } catch (e) { summary = { error: e.message }; } }
       const recentReopens = p.nodes.flatMap((n) => (n.reopened || []).map((r) => ({ ...r, id: n.id, title: n.title }))).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 5);
+      const feelNotes = feel ? feel.list() : [];
+      const feelOut = {
+        fresh: feelNotes.filter((n) => n.status === 'new').reverse(),
+        recent: feelNotes.filter((n) => n.status !== 'new').slice(-6).reverse(),
+        total: feelNotes.length,
+      };
       return {
         id: pid, project: p.project, hasSpec: hasSpec(),
-        decisions, questions, guesses, receipts, alerts, working, lastAgent, tokens, summary, recentReopens,
+        decisions, questions, guesses, receipts, alerts, working, lastAgent, tokens, summary, recentReopens, feel: feelOut,
         nextAgent: next.filter((x) => x.by === 'agent').slice(0, 5),
       };
     },
@@ -831,7 +848,18 @@ function createProjectStore(dir, pid, ctx) {
       appendLog(actor, 'asset.archive', id, file);
       return { ok: true };
     },
+
+    // ---------- 헤드셋 메모 ----------
+    feelList: (opts) => (feel ? feel.list(opts) : []),
+    feelGet: (id) => needFeel().get(id),
+    addFeel: (actor, input) => needFeel().add(actor, input),
+    saveFeelAudio: (actor, id, buf, type) => needFeel().saveAudio(actor, id, buf, type),
+    setFeelText: (actor, id, text) => needFeel().setText(actor, id, text),
+    translateFeel: (actor, id, input) => needFeel().translate(actor, id, input),
+    dismissFeel: (actor, id, why) => needFeel().dismiss(actor, id, why),
+    restoreFeel: (actor, id) => needFeel().restore(actor, id),
   };
+  return self;
 }
 
 // 첫 버전(studio/ 바로 아래 한 앱) 사용자를 위한 자동 이전.

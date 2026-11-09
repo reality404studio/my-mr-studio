@@ -6,6 +6,7 @@
   "description": "영상 우선 MR 개발 파이프라인을 노드 캔버스로 관리하는 로컬 스튜디오. 사람과 에이전트가 같은 파일을 읽고 쓴다.",
   "scripts": {
     "dev": "vite",
+    "dev:xr": "vite --mode xr",
     "build": "vite build",
     "start": "vite build && vite preview --port 5173",
     "studio": "node scripts/studio.mjs"
@@ -16,9 +17,11 @@
     "marked": "^14.1.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "three": "^0.187.0",
     "yaml": "^2.9.1"
   },
   "devDependencies": {
+    "@vitejs/plugin-basic-ssl": "^1.2.0",
     "@vitejs/plugin-react": "^4.3.0",
     "vite": "^5.4.0"
   }

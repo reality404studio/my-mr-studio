@@ -28,6 +28,7 @@ export function projectApi(pid) {
     spec: () => call('GET', `${base}/spec`),
     addKnowledge: (type, body) => call('POST', `${base}/knowledge`, { type, ...body }),
     resolveKnowledge: (id, action, extra = {}) => call('POST', `${base}/knowledge/${enc(id)}`, { action, ...extra }),
+    feelAction: (id, body) => call('POST', `${base}/feel/${enc(id)}`, body),
     addAttempt: (id, body) => call('POST', `${base}/nodes/${enc(id)}/attempts`, body),
     reopen: (id, body) => call('POST', `${base}/nodes/${enc(id)}/reopen`, body),
     appendNote: (id, text) => call('POST', `${base}/nodes/${enc(id)}/notes`, { text }),
