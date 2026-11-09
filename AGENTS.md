@@ -20,6 +20,7 @@
 
 ## 일하는 순서
 
+0. `npm run studio -- feel --app <앱 id>` — **헤드셋 메모가 있으면 이것부터.** 사람이 헤드셋 안에서 방금 느낀 것이라 가장 따끈한 입력이다 (아래 "헤드셋 메모")
 1. `npm run studio -- apps` — 공통과 앱 목록, 앱마다 지금 할 일
 2. `npm run studio -- next --app <앱 id> --by agent` — **지금 내가 시작할 수 있는 하위 과업**. 여기에 없는 일은 아직 차례가 아니다
 3. `npm run studio -- show <하위 과업 id> --app <앱 id>` — 방법(how), 속한 과업의 목표·산출물, 메모와 파일
@@ -51,6 +52,20 @@
 - **끝난 일을 되돌릴 때는 상태만 바꾸지 말고 `reopen`** 으로 이유와 원인 과업을 남긴다. 과업을 열면 마지막 에이전트 하위 과업이 대기로 돌아간다.
 - **사람의 답과 확인은 명세에 남는다.** `answer` · `confirm` · `reject` · `accept` 는 보통 사람이 화면에서 누르지만, 사람이 채팅으로 답했다면 에이전트가 대신 적는다.
 
+## 헤드셋 메모
+
+XR 은 헤드셋을 써 봐야 명세가 정해져요. 그래서 사람은 헤드셋 안에서 말 한마디를 남기고, 그 순간 **보던 것(명세 경로)과 거리·각도, 조절 값**이 같이 들어와요 (`studio/apps/<앱>/feel/`).
+보내는 쪽은 웹 그레이박스(`xr.html?app=<앱>`, `src/xr/spatial-notes.js`)와 Unity(`unity/shared/SpatialNotes/`)이고, 형식은 같아요.
+
+1. `feel` 로 새 메모를 보고, `feel show <f id>` 로 하나씩 읽는다. 받아쓰기, 보던 것, 거리·각도, 그때 조절 값, **번역표 후보**, 그 칸의 **명세 현재 값**이 한 번에 나온다
+2. **번역표를 먼저 찾는다.** 맞는 말이 있으면 그대로 해석하고 `--confidence mid` 이상. 없으면 해석하되 `low` 로 둔다
+3. `feel translate <f id> "해석: 무엇을 얼마에서 얼마로" --field <명세 경로>` 로 **가정**을 남긴다 (명세에 `source: feel:<id>` 로 쌓이고, 사람 화면에 확인 요청으로 뜬다)
+4. 명세 값은 바로 고쳐도 된다. 그레이박스가 명세를 듣고 있어서, 사람이 헤드셋을 다시 쓰면 바뀐 값을 바로 만져 볼 수 있다.
+   다만 그 칸은 사람이 헤드셋에서 확인하고 "맞아요"를 누르기 전까지 **추정**이다. 확인된 해석은 `drawer add vocab` 으로 번역표에 옮긴다 (사람이 확인한 것만)
+5. **상대값을 먼저 믿는다.** `pose.frame` 이 `session` 이면 책상을 맞추기 전에 남긴 메모라 절대 위치는 그 세션에서만 의미가 있다. 거리(`distance_m`)·눈높이 각도(`below_eye_deg`)·좌우 각도(`side_deg`)는 세션과 상관없다
+6. **받아쓰기가 없는 메모는 해석하지 않는다.** 사람 화면이 이미 "듣고 적어 주세요"를 띄우고 있다. 녹음을 받아쓸 수 있는 도구가 있으면 `feel text <f id> ".."` 로 채우고, 그 사실을 가정에 적는다
+7. 쓸모없는 메모(잘못 누름, 테스트)는 `feel dismiss <f id> "이유"`. 사람이 채팅으로 느낌을 전하면 `feel add ".." --target <명세 경로>` 로 대신 적어 같은 흐름에 태운다
+
 ## 결정 서랍
 
 모든 앱이 함께 쓰는 결정의 수명별 보관함이에요 (`studio/shared/drawer.json`, 웹에서는 "결정 서랍").
@@ -77,9 +92,11 @@ studio/
   apps/<앱 id>/                  앱 보드. 구조는 shared 와 같음
     scene_spec.yaml              이 앱의 구현 계약이자 진실의 원천. 세 칸(assumptions · compromises · unknowns)도 여기에
     log.jsonl                    누가 무엇을 했는지 (자동)
+    feel/notes.json, feel/*.webm 헤드셋 메모와 녹음 (CLI feel)
   templates/<모드 id>/           모드: template.json + pipeline.json + nodes/*/README.md
 unity/<앱 id>/                   앱별 Unity 프로젝트 (만들 때)
-unity/shared/                    여러 앱이 가져다 쓰는 공용 모듈
+unity/shared/                    여러 앱이 가져다 쓰는 공용 모듈 (SpatialNotes = 헤드셋 메모 보내기)
+xr.html, src/xr/                 헤드셋 그레이박스와 메모 모듈 (Quest 브라우저용 WebXR)
 ```
 
 ## 공통과 앱 구분

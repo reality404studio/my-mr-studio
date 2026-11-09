@@ -12,6 +12,11 @@
 //   POST /api/p/<pid>/knowledge/<id>      세 칸 처리 { action: answer|confirm|reject|accept|reopen, answer, note }
 //   POST /api/p/<pid>/nodes/<id>/attempts 시도 기록 { label, result, why, tokens }
 //   POST /api/p/<pid>/nodes/<id>/reopen   다시 열기 { because, from, sub }
+//   GET  /api/p/<pid>/feel[?status=new]   헤드셋 메모 목록
+//   POST /api/p/<pid>/feel                헤드셋 메모 { text, target, rel, pose, params, source, expectAudio }
+//   POST /api/p/<pid>/feel/<id>/audio     녹음 (본문 = 오디오, Content-Type = audio/webm | audio/wav …)
+//   POST /api/p/<pid>/feel/<id>           { action: text|translate|dismiss|restore, text, field, confidence, task, why }
+//        feel 과 spec 은 다른 출처(헤드셋 브라우저의 다른 프로토타입, Unity 앱)에서도 부를 수 있게 CORS 를 연다
 //   GET|POST /api/drawer, PATCH /api/drawer/<id>   결정 서랍
 //   /files/<studio/ 아래 상대 경로>       첨부 파일
 import fs from 'node:fs';
@@ -25,7 +30,7 @@ const MIME = {
   '.mp4': 'video/mp4', '.webm': 'video/webm', '.mov': 'video/quicktime',
   '.md': 'text/markdown; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.yaml': 'text/yaml; charset=utf-8', '.yml': 'text/yaml; charset=utf-8', '.txt': 'text/plain; charset=utf-8',
-  '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.pdf': 'application/pdf',
+  '.wav': 'audio/wav', '.mp3': 'audio/mpeg', '.pdf': 'application/pdf', '.ogg': 'audio/ogg', '.m4a': 'audio/mp4',
 };
 
 export function studioApi(root) {
@@ -57,6 +62,14 @@ export function studioApi(root) {
 
     if (parts[0] === 'files') return serveFile(studio.studioDir, parts.slice(1), res);
     if (parts[0] !== 'api') return next();
+
+    // 헤드셋 메모와 명세 읽기는 다른 출처(다른 포트의 WebXR 프로토타입, Unity 앱)에서도 온다
+    if (parts[1] === 'p' && (parts[3] === 'feel' || (parts[3] === 'spec' && req.method !== 'POST'))) {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-actor');
+      res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+      if (req.method === 'OPTIONS') { res.statusCode = 204; return res.end(); }
+    }
 
     const actor = String(req.headers['x-actor'] || 'human').slice(0, 60);
     const send = (status, data) => {
@@ -98,6 +111,21 @@ export function studioApi(root) {
         if (a === 'knowledge') {
           if (!b && m === 'POST') { const body = await readJson(req); return send(201, store.addKnowledge(actor, body.type, body)); }
           if (b && m === 'POST') { const body = await readJson(req); return send(200, store.resolveKnowledge(actor, b, body.action, body)); }
+        }
+
+        if (a === 'feel') {
+          if (!b && m === 'GET') return send(200, store.feelList({ status: url.searchParams.get('status') || undefined }));
+          if (!b && m === 'POST') return send(201, store.addFeel(actor, await readJson(req)));
+          if (b && !c && m === 'GET') return send(200, store.feelGet(b));
+          if (b && c === 'audio' && m === 'POST') return send(200, store.saveFeelAudio(actor, b, await readBody(req, 30 * 1024 * 1024), req.headers['content-type']));
+          if (b && !c && m === 'POST') {
+            const body = await readJson(req);
+            if (body.action === 'text') return send(200, store.setFeelText(actor, b, body.text));
+            if (body.action === 'translate') return send(201, store.translateFeel(actor, b, body));
+            if (body.action === 'dismiss') return send(200, store.dismissFeel(actor, b, body.why));
+            if (body.action === 'restore') return send(200, store.restoreFeel(actor, b));
+            return send(400, { error: 'action 은 text, translate, dismiss, restore 중 하나예요.' });
+          }
         }
 
         if (a === 'stages') {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { EntryCard, BlankBar } from './Entries.jsx';
+import { FeelCard } from './FeelNotes.jsx';
 import { studioApi } from './api.js';
 import { KINDS, FIELD_STATES, VERDICT, ATTEMPT_RESULTS, actorLabel, timeAgo, viewHref } from './constants.js';
 
@@ -75,6 +76,8 @@ export default function HumanView({ pid, api, data, reload }) {
             </a>
           )}
           {data.summary?.error && <p className="form-error">{data.summary.error}</p>}
+
+          <FeelCard pid={pid} api={api} data={data} onChanged={reload} onError={setError} />
 
           <section className="card" aria-label="영수증">
             <span className="card__label">영수증: 조건을 맞추려고 낮춘 것</span>

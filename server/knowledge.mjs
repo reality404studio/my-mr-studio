@@ -71,7 +71,7 @@ function seqFor(doc, type) {
   return seq;
 }
 
-export function addEntry(doc, type, { task, field, text, confidence, gate, ask }, actor) {
+export function addEntry(doc, type, { task, field, text, confidence, gate, ask, source }, actor) {
   const b = BLOCKS[type];
   if (!b) throw Object.assign(new Error(`종류는 ${Object.keys(BLOCKS).join(', ')} 중 하나예요.`), { status: 400 });
   if (!String(text || '').trim()) throw Object.assign(new Error(`${b.label} 내용을 적어 주세요.`), { status: 400 });
@@ -85,6 +85,8 @@ export function addEntry(doc, type, { task, field, text, confidence, gate, ask }
   if (type === 'assume') entry.confidence = confidence || 'mid';
   if (type === 'compromise' && gate) entry.gate = gate;
   if (type === 'unknown') entry.ask = ask || 'human';
+  // 어디서 왔는지 (예: feel:f3 = 헤드셋 메모 f3 을 옮긴 것)
+  if (source) entry.source = String(source);
   entry.status = 'open';
   entry.by = actor;
   entry.at = new Date().toISOString();

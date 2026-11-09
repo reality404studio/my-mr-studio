@@ -13,3 +13,10 @@ unity/**/[Bb]uilds/
 unity/**/[Ll]ogs/
 unity/**/[Uu]ser[Ss]ettings/
 *.apk
+
+# 헤드셋 메모 녹음 (받아쓰기와 공간 정보는 feel/notes.json 에 커밋됨)
+studio/apps/*/feel/*.webm
+studio/apps/*/feel/*.wav
+studio/apps/*/feel/*.ogg
+studio/apps/*/feel/*.m4a
+studio/apps/*/feel/*.mp3

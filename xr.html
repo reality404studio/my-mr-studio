@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>헤드셋 그레이박스</title>
+    <style>
+      :root { color-scheme: dark; --bg: #121218; --panel: #1c1c25; --ink: #ecebf2; --ink-2: #a3a2b4; --line: #2e2d3a; --accent: #8fb6ff; --rec: #e5484d; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; height: 100%; background: var(--bg); color: var(--ink); font: 15px/1.55 system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif; }
+      #view { position: fixed; inset: 0; }
+      .panel { position: fixed; left: 16px; top: 16px; width: min(380px, calc(100% - 32px)); max-height: calc(100% - 32px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 16px 16px 14px; z-index: 2; }
+      h1 { margin: 0 0 2px; font-size: 18px; font-weight: 600; }
+      .sub { margin: 0 0 14px; color: var(--ink-2); font-size: 13px; }
+      ol { margin: 0 0 14px; padding-left: 20px; color: var(--ink-2); font-size: 13.5px; }
+      ol b { color: var(--ink); font-weight: 600; }
+      button { font: inherit; border-radius: 10px; border: 1px solid var(--line); background: #262532; color: var(--ink); padding: 10px 14px; cursor: pointer; min-height: 44px; }
+      button.primary { background: var(--accent); border-color: var(--accent); color: #0d0f19; font-weight: 600; }
+      button:disabled { opacity: .45; cursor: default; }
+      .row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+      .row > button { flex: 1 1 auto; }
+      .status { font-size: 13px; color: var(--ink-2); min-height: 20px; margin: 4px 0 0; }
+      .status.is-rec { color: var(--rec); }
+      .note { display: flex; gap: 8px; margin-top: 10px; }
+      .note input { flex: 1; min-width: 0; font: inherit; color: var(--ink); background: #14131b; border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; }
+      details { margin-top: 12px; font-size: 13px; color: var(--ink-2); }
+      summary { cursor: pointer; }
+      code { font-size: 12px; background: #14131b; padding: 1px 5px; border-radius: 5px; }
+      a { color: var(--accent); }
+      .hold { width: 100%; }
+      .hold.is-rec { background: var(--rec); border-color: var(--rec); color: #fff; }
+    </style>
+  </head>
+  <body>
+    <div id="view"></div>
+    <section class="panel" aria-label="그레이박스 안내">
+      <h1 id="title">헤드셋 그레이박스</h1>
+      <p class="sub" id="sub">명세의 objects 를 책상 위에 회색 상자로 띄우고, 헤드셋 안에서 바로 메모를 남겨요.</p>
+      <ol>
+        <li><b>마이크 허용</b>을 누르고, 브라우저 질문에 허용해요</li>
+        <li><b>헤드셋으로 들어가기</b> → 검지 끝을 <b>책상 앞 모서리 가운데</b>에 대고 잠깐 멈추면 책상이 맞춰져요</li>
+        <li><b>왼손 손바닥</b>을 얼굴 쪽으로 → 빨간 버튼을 <b>오른손 검지</b>로 찌르고 말해요. 다시 찌르면 저장</li>
+      </ol>
+      <div class="row">
+        <button id="mic">마이크 허용</button>
+        <button id="enter" class="primary" disabled>헤드셋으로 들어가기</button>
+      </div>
+      <button id="hold" class="hold">누르고 있는 동안 녹음 (헤드셋 밖 미리보기)</button>
+      <form class="note" id="noteForm">
+        <input id="noteText" placeholder="글자로 메모 (화면 가운데 보던 것에)" aria-label="글자 메모" />
+        <button type="submit">남기기</button>
+      </form>
+      <p class="status" id="status" role="status"></p>
+      <details>
+        <summary>헤드셋에서 이 페이지가 안 열리면</summary>
+        <p>WebXR 과 마이크는 보안 연결에서만 돼요. 둘 중 하나로 열어요.</p>
+        <p>1) USB: 맥에서 <code>adb reverse tcp:5173 tcp:5173</code> 후 헤드셋 브라우저에서 <code>http://localhost:5173/xr.html?app=…</code></p>
+        <p>2) 같은 Wi-Fi: 맥에서 <code>npm run dev:xr</code> 후 터미널에 뜬 <code>https://192.168…:5173</code> 주소. 인증서 경고가 뜨면 "고급 → 계속".</p>
+      </details>
+    </section>
+    <script type="module" src="/src/xr/greybox.js"></script>
+  </body>
+</html>

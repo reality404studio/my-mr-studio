@@ -43,7 +43,7 @@ export default function Workspace({ pid, mode, node }) {
   }
 
   const badges = overview ? {
-    human: overview.decisions.length + overview.questions.length + overview.guesses.filter((g) => g.confidence === 'low').length + overview.receipts.length + overview.alerts.length,
+    human: overview.decisions.length + overview.questions.length + overview.guesses.filter((g) => g.confidence === 'low').length + overview.receipts.length + overview.alerts.length + (overview.feel?.fresh || []).filter((n) => !n.text).length,
     spec: overview.summary?.verdict === 'thin' ? '!' : 0,
   } : {};
   const nav = <ViewNav pid={pid} mode={mode} badges={badges} alerts={overview?.alerts?.length || 0} />;

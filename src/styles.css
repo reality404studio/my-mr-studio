@@ -1021,3 +1021,20 @@ a.primary { color: var(--accent-ink); }
 .ledger__entries li { display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline; }
 .ledger__entries li.is-closed { opacity: 0.65; }
 .attempts li { line-height: 1.5; }
+
+/* ---------- 헤드셋 메모 ---------- */
+.feel { display: grid; gap: 10px; }
+.feel__note { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; background: var(--paper); display: grid; gap: 6px; }
+.feel__note.is-needs-text { border-color: color-mix(in srgb, var(--accent) 55%, var(--line)); }
+.feel__note .entry__text { margin: 0; }
+.feel__note .entry__where { margin: 0; }
+.feel__note .entry__actions { margin: 0; justify-content: space-between; align-items: center; }
+.feel__time { margin-left: auto; color: var(--ink-2); font-size: 11.5px; }
+.feel__empty { color: var(--ink-2); }
+.feel__audio { width: 100%; height: 36px; }
+.feel__fill { display: flex; gap: 6px; }
+.feel__fill .reason { flex: 1; min-width: 0; margin: 0; }
+.feel__link { color: var(--ink-2); }
+.feel__recent .entry__id { margin-right: 4px; }
+.entry__source { color: var(--accent); }
+.feel__note .entry__id { margin-left: 0; }
