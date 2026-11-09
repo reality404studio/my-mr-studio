@@ -64,7 +64,7 @@ export default function ProjectView(props) {
   );
 }
 
-function Project({ pid, initialNode }) {
+function Project({ pid, initialNode, nav = null }) {
   const api = useMemo(() => projectApi(pid), [pid]);
   const isShared = pid === 'shared';
   const [pipeline, setPipeline] = useState(null);
@@ -217,6 +217,7 @@ function Project({ pid, initialNode }) {
           <h1>{pipeline?.project?.name || ''}</h1>
           {pipeline?.project?.subtitle && <p>{pipeline.project.subtitle}</p>}
         </div>
+        {nav}
         <div className="bar__summary" aria-label="진행 요약">
           <span>과업 <strong>{counts.done}</strong>/{counts.total} 완료</span>
           {counts.doing > 0 && <span className="is-doing">진행 중 {counts.doing}</span>}

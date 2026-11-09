@@ -10,4 +10,4 @@
 3. `timeline`: 시간축 이벤트 (초, 가능하면 박)
 4. `interactions`: 손 제스처 → 반응 → 효과음
 5. `perf`: 오브젝트마다 태그와 대체안
-- `unknowns`: 원본만으로 정할 수 없는 것. 사람이 답해야 하니 끝나면 상태를 `review` 로
+- `unknowns`: 원본만으로 정할 수 없는 것. `unknown spec "질문" --field <칸>` 으로 남기면 사람 화면의 결정 대기에 떠요. 추정한 값은 `assume ... --confidence low` 로. 끝나면 상태를 `review` 로

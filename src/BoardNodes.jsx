@@ -17,11 +17,26 @@ export const G = {
   preview: 44,
   thumbs: 52,
   foot: 34,
+  tags: 26,
 };
 
 export function taskHeight(n) {
   const subs = n.children?.length || 0;
-  return G.head + (subs ? G.progress + subs * G.row + G.rowsPad : G.preview) + (n.thumbs?.length ? G.thumbs : 0) + G.foot + 2;
+  return G.head + (subs ? G.progress + subs * G.row + G.rowsPad : G.preview) + (n.thumbs?.length ? G.thumbs : 0) + (ledgerTags(n).length ? G.tags : 0) + G.foot + 2;
+}
+
+// 카드 아래 작은 표시: 열린 세 칸, 시도와 실패, 다시 열림, 헤맴
+export function ledgerTags(n) {
+  const l = n.ledger;
+  if (!l) return [];
+  const t = [];
+  if (l.stuck) t.push({ k: 'stuck', label: '헤맴' });
+  if (l.unknown) t.push({ k: 'unknown', label: `모름 ${l.unknown}` });
+  if (l.assume) t.push({ k: 'assume', label: `가정 ${l.assume}${l.lowAssume ? ` (하 ${l.lowAssume})` : ''}` });
+  if (l.compromise) t.push({ k: 'compromise', label: `타협 ${l.compromise}` });
+  if (l.attempts) t.push({ k: 'attempt', label: `시도 ${l.attempts}${l.fails ? ` · 실패 ${l.fails}` : ''}` });
+  if (l.reopened) t.push({ k: 'reopen', label: `되돌림 ${l.reopened}` });
+  return t;
 }
 
 function LaneNodeImpl({ data }) {
@@ -108,6 +123,11 @@ function TaskNodeImpl({ data }) {
       {n.thumbs?.length > 0 && (
         <div className="task__thumbs">
           {n.thumbs.map((src) => <img key={src} src={src} alt="" loading="lazy" draggable={false} />)}
+        </div>
+      )}
+      {ledgerTags(n).length > 0 && (
+        <div className="task__tags">
+          {ledgerTags(n).map((t) => <span key={t.k} className={`ltag ltag--${t.k}`}>{t.label}</span>)}
         </div>
       )}
       <div className="task__foot">

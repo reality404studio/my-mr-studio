@@ -5,6 +5,9 @@
 //   shared/                     공통 층: 모든 VR 앱이 함께 쓰는 조건·결정·모듈 (프로젝트 id "shared")
 //   apps/<id>/                  앱 하나 = 보드 하나
 //   templates/<mode>/           새 앱을 만들 때 복사하는 모드 (영상 우선, 스토리보드 우선 …)
+//   shared/drawer.json          결정 서랍: 제약 · 내 눈 · 보류 · 번역표 (모든 앱이 함께 씀)
+//
+// 앱의 지식(가정 · 타협 · 모름)은 scene_spec.yaml 안에 산다 (knowledge.mjs). 시도 기록과 다시 열기는 pipeline.json 의 노드에.
 //
 // 프로젝트(공통 또는 앱) 폴더 구조는 모두 같다:
 //   pipeline.json  nodes/<id>/README.md  nodes/<id>/assets/  nodes/<id>/assets.json  log.jsonl  scene_spec.yaml
@@ -14,8 +17,18 @@ import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
 import { KINDS, ACTORS, STATUSES, normalize, derive, nextActions, stageOrder } from './board.mjs';
+import { BLOCKS, CONFIDENCE, parseSpec, stringifySpec, readEntries, addEntry, resolveEntry, specMap } from './knowledge.mjs';
 
-export { KINDS, ACTORS, STATUSES };
+export { KINDS, ACTORS, STATUSES, BLOCKS, CONFIDENCE };
+export const ATTEMPT_RESULTS = { ok: '통과', fail: '실패', pending: '확인 대기' };
+// 결정 서랍: 프로젝트를 넘어 쌓이는 결정. 제약은 공통 보드의 과업에서도 읽어 온다.
+export const DRAWER_KINDS = {
+  constraint: { label: '제약', hint: '기기·기술 조건. 거의 안 바뀜' },
+  taste: { label: '내 눈', hint: '고르거나 버린 이유. 계속 쌓임' },
+  hold: { label: '보류', hint: '지금은 안 함. 조건이 바뀌면 다시 꺼냄' },
+  vocab: { label: '번역표', hint: '내 말이 실제로 무엇을 바꾸는지' },
+};
+const STUCK_FAILS = 3;
 export const NODE_TYPES = ['reference', 'concept', 'prompt', 'video', 'storyboard', 'spec', 'build', 'review', 'note', 'shared'];
 export const SHARED_ID = 'shared';
 
@@ -94,6 +107,60 @@ export function createStudio(root) {
       return createProjectStore(projectDir(pid), pid, { studioDir, sharedSummary, sharedUsage });
     },
 
+    // ---------- 결정 서랍 (studio/shared/drawer.json) ----------
+    drawer() {
+      const file = path.join(sharedDir, 'drawer.json');
+      const items = readJson(file, { items: [] }).items || [];
+      const shared = fs.existsSync(path.join(sharedDir, 'pipeline.json')) ? studio.project(SHARED_ID).pipeline() : null;
+      // 공통 보드의 과업은 모든 앱이 따르는 조건과 결정이라 "제약" 칸에 같이 보여준다
+      const sharedTasks = (shared?.nodes || []).filter((n) => !n.parent).map((n) => ({
+        id: n.id, title: n.title, status: n.status, preview: n.goal || n.notesPreview || '', usedBy: n.usedBy || [],
+      }));
+      return { kinds: DRAWER_KINDS, items, sharedTasks, path: 'studio/shared/drawer.json' };
+    },
+
+    addDrawer(actor, { kind, text, why = '', until = '', means = '', app = '', task = '' } = {}) {
+      if (!DRAWER_KINDS[kind]) throw httpError(400, `서랍 칸은 ${Object.keys(DRAWER_KINDS).join(', ')} 중 하나예요.`);
+      if (!String(text || '').trim()) throw httpError(400, kind === 'vocab' ? '단어나 표현을 적어 주세요. 예: 부드럽게' : '내용을 적어 주세요.');
+      if (kind === 'vocab' && !String(means).trim()) throw httpError(400, '번역표에는 그 말이 실제로 무엇을 바꾸는지(--means)가 필요해요.');
+      return withFileLock(path.join(sharedDir, '.drawer.lock'), () => {
+        const file = path.join(sharedDir, 'drawer.json');
+        const data = readJson(file, { items: [] });
+        data.items ||= [];
+        const used = data.items.filter((x) => x.kind === kind).map((x) => Number(String(x.id).replace(/^\D+/, '')) || 0);
+        const prefix = { constraint: 'k', taste: 't', hold: 'h', vocab: 'v' }[kind];
+        const item = { id: `${prefix}${(used.length ? Math.max(...used) : 0) + 1}`, kind, text: String(text).trim(), status: 'active', by: actor, at: new Date().toISOString() };
+        if (why) item.why = String(why).trim();
+        if (until) item.until = String(until).trim();
+        if (means) item.means = String(means).trim();
+        if (app) item.app = app;
+        if (task) item.task = task;
+        data.items.push(item);
+        writeJsonFile(file, data);
+        fs.appendFileSync(path.join(sharedDir, 'log.jsonl'), JSON.stringify({ ts: item.at, actor, action: 'drawer.add', nodeId: null, detail: `${DRAWER_KINDS[kind].label}: ${item.text.slice(0, 60)}` }) + '\n');
+        return item;
+      });
+    },
+
+    updateDrawer(actor, id, patch = {}) {
+      return withFileLock(path.join(sharedDir, '.drawer.lock'), () => {
+        const file = path.join(sharedDir, 'drawer.json');
+        const data = readJson(file, { items: [] });
+        const item = (data.items || []).find((x) => x.id === id);
+        if (!item) throw httpError(404, `서랍에 "${id}"가 없어요.`);
+        for (const k of ['text', 'why', 'until', 'means']) if (patch[k] !== undefined) item[k] = String(patch[k]);
+        if (patch.status !== undefined) {
+          if (!['active', 'retired'].includes(patch.status)) throw httpError(400, 'status 는 active 또는 retired 예요.');
+          item.status = patch.status;
+        }
+        item.updatedBy = actor;
+        item.updatedAt = new Date().toISOString();
+        writeJsonFile(file, data);
+        fs.appendFileSync(path.join(sharedDir, 'log.jsonl'), JSON.stringify({ ts: item.updatedAt, actor, action: 'drawer.update', nodeId: null, detail: `${id}: ${item.status}` }) + '\n');
+        return item;
+      });
+    },
+
     projects() {
       const refs = sharedSummary();
       const summarize = (pid, dir, kind) => {
@@ -169,6 +236,44 @@ function createProjectStore(dir, pid, ctx) {
   const archiveDir = path.join(dir, '_archive');
   const relDir = path.relative(ctx.studioDir, dir).split(path.sep).join('/');
   const isShared = pid === SHARED_ID;
+  const specPath = path.join(dir, 'scene_spec.yaml');
+  const specLock = path.join(dir, '.spec.lock');
+  const hasSpec = () => !isShared && fs.existsSync(specPath);
+
+  function readSpecDoc() {
+    if (!hasSpec()) throw httpError(400, isShared ? '공통 보드에는 장면 명세가 없어요. 앱 보드에서 써 주세요.' : `studio/${relDir}/scene_spec.yaml 이 없어요.`);
+    return parseSpec(fs.readFileSync(specPath, 'utf8'));
+  }
+  function readEntriesSafe() {
+    try { return hasSpec() ? readEntries(readSpecDoc()) : []; } catch { return []; }
+  }
+  // 하위 과업 id 로 적힌 항목도 과업 단위로 모은다
+  const topOf = (p, id) => { const n = p.nodes.find((x) => x.id === id); return n?.parent || n?.id || id; };
+
+  // 마지막 통과(또는 다시 열림) 이후 연속 실패 횟수
+  function trailingFails(node) {
+    let k = 0;
+    for (const a of [...(node.attempts || [])].reverse()) { if (a.result === 'fail') k++; else break; }
+    return k;
+  }
+
+  function ledgerCounts(p, entries) {
+    const out = {};
+    const bump = (id, k, v = 1) => { (out[id] ||= { assume: 0, lowAssume: 0, compromise: 0, unknown: 0, attempts: 0, fails: 0, stuck: false, reopened: 0, tokens: 0 })[k] += v; };
+    for (const e of entries) {
+      if (e.status !== 'open') continue;
+      const t = topOf(p, e.task);
+      bump(t, e.type);
+      if (e.type === 'assume' && e.confidence === 'low') bump(t, 'lowAssume');
+    }
+    for (const n of p.nodes) {
+      const t = n.parent || n.id;
+      for (const a of n.attempts || []) { bump(t, 'attempts'); if (a.result === 'fail') bump(t, 'fails'); if (a.tokens) bump(t, 'tokens', Number(a.tokens) || 0); }
+      if (n.reopened?.length) bump(t, 'reopened', n.reopened.length);
+      if (n.status !== 'done' && trailingFails(n) >= STUCK_FAILS) { bump(t, 'attempts', 0); out[t].stuck = true; }
+    }
+    return out;
+  }
 
   const nodeDir = (id) => path.join(nodesDir, safeId(id));
   const notesPath = (id) => path.join(nodeDir(id), 'README.md');
@@ -297,6 +402,11 @@ function createProjectStore(dir, pid, ctx) {
     if (patch.by !== undefined && patch.by !== '' && !ACTORS[patch.by]) throw httpError(400, 'by는 human 또는 agent 예요.');
     if (patch.status !== undefined && !STATUSES.includes(patch.status)) throw httpError(400, `status는 ${STATUSES.join(', ')} 중 하나여야 해요.`);
     if (patch.type !== undefined && !NODE_TYPES.includes(patch.type)) throw httpError(400, `type은 ${NODE_TYPES.join(', ')} 중 하나여야 해요.`);
+    if (patch.budget !== undefined && patch.budget !== null && patch.budget !== '') {
+      const b = Number(patch.budget);
+      if (!Number.isFinite(b) || b < 0) throw httpError(400, 'budget(토큰 상한)은 0 이상의 숫자예요. 없애려면 0.');
+      patch.budget = b || null;
+    }
   }
 
   return {
@@ -309,10 +419,157 @@ function createProjectStore(dir, pid, ctx) {
       const p = readPipeline();
       const { refs, usage } = context();
       const d = derive(p, refs);
+      const counts = ledgerCounts(p, readEntriesSafe());
       return {
-        ...p, id: pid, kind: isShared ? 'shared' : 'app', relDir,
-        nodes: p.nodes.map((n) => enrich(n, d, refs, usage)),
+        ...p, id: pid, kind: isShared ? 'shared' : 'app', relDir, hasSpec: hasSpec(),
+        nodes: p.nodes.map((n) => ({ ...enrich(n, d, refs, usage), ...(!n.parent && counts[n.id] ? { ledger: counts[n.id] } : {}) })),
         next: nextActions(p, refs),
+      };
+    },
+
+    // ---------- 세 칸 (명세 안의 가정 · 타협 · 모름) ----------
+    specPathRel: `studio/${relDir}/scene_spec.yaml`,
+    hasSpec,
+
+    spec() {
+      const doc = readSpecDoc();
+      const p = readPipeline();
+      const titles = Object.fromEntries(p.nodes.map((n) => [n.id, n.title]));
+      const m = specMap(doc);
+      m.entries = m.entries.map((e) => ({ ...e, taskTitle: titles[e.task] || e.task || '', top: e.task ? topOf(p, e.task) : null }));
+      return { ...m, path: `studio/${relDir}/scene_spec.yaml` };
+    },
+
+    addKnowledge(actor, type, input = {}) {
+      if (input.task) getNode(readPipeline(), input.task);
+      return withFileLock(specLock, () => {
+        const doc = readSpecDoc();
+        const entry = addEntry(doc, type, input, actor);
+        fs.writeFileSync(specPath, stringifySpec(doc));
+        appendLog(actor, `knowledge.${type}`, input.task || null, `${entry.id} ${entry.text.slice(0, 70)}`);
+        return entry;
+      });
+    },
+
+    resolveKnowledge(actor, id, action, extra = {}) {
+      return withFileLock(specLock, () => {
+        const doc = readSpecDoc();
+        const entry = resolveEntry(doc, id, action, extra, actor);
+        fs.writeFileSync(specPath, stringifySpec(doc));
+        appendLog(actor, `knowledge.${action}`, entry.task || null, `${id}${extra.answer ? `: ${String(extra.answer).slice(0, 60)}` : extra.note ? `: ${String(extra.note).slice(0, 60)}` : ''}`);
+        return entry;
+      });
+    },
+
+    entriesFor(taskId) {
+      const p = readPipeline();
+      const top = topOf(p, taskId);
+      return readEntriesSafe().filter((e) => e.task && topOf(p, e.task) === top);
+    },
+
+    // ---------- 에이전트 장부: 시도 기록과 다시 열기 ----------
+    addAttempt(actor, id, { label, result = 'pending', why = '', tokens, file = '' } = {}) {
+      if (!String(label || '').trim()) throw httpError(400, '무엇을 시도했는지 한 줄로 적어 주세요. 예: "변종 B: 반사 해상도 절반"');
+      if (!ATTEMPT_RESULTS[result]) throw httpError(400, `result 는 ${Object.keys(ATTEMPT_RESULTS).join(', ')} 중 하나예요.`);
+      const n = tokens === undefined || tokens === '' ? undefined : Number(tokens);
+      if (n !== undefined && (!Number.isFinite(n) || n < 0)) throw httpError(400, 'tokens 는 0 이상의 숫자예요.');
+      return mutate((p) => {
+        const node = getNode(p, id);
+        if (p.nodes.some((c) => c.parent === id)) throw httpError(400, `"${node.title}"는 하위 과업이 있는 과업이에요. 시도는 하위 과업에 남겨요.`);
+        const a = { n: (node.attempts?.length || 0) + 1, at: new Date().toISOString(), by: actor, label: String(label).trim(), result };
+        if (why) a.why = String(why).trim();
+        if (n !== undefined) a.tokens = n;
+        if (file) a.file = file;
+        (node.attempts ||= []).push(a);
+        node.updatedAt = a.at;
+        node.updatedBy = actor;
+        const fails = trailingFails(node);
+        appendLog(actor, 'attempt', id, `#${a.n} ${ATTEMPT_RESULTS[result]}: ${a.label.slice(0, 60)}${fails >= STUCK_FAILS ? ` (연속 실패 ${fails})` : ''}`);
+        return { ...a, trailingFails: fails, stuck: fails >= STUCK_FAILS };
+      });
+    },
+
+    // 끝난 일을 이유와 함께 다시 연다. 과업을 열면 하위 과업 하나(--sub, 기본은 마지막 에이전트 하위 과업)를 대기로 되돌린다.
+    reopen(actor, id, { because, from = '', sub = '' } = {}) {
+      if (!String(because || '').trim()) throw httpError(400, '왜 다시 여는지 한 줄로 적어 주세요.');
+      return mutate((p) => {
+        const node = getNode(p, id);
+        if (node.type === 'shared') throw httpError(400, '"공통" 과업은 공통 보드에서 다시 열어요.');
+        if (from) getNode(p, from);
+        const kids = p.nodes.filter((c) => c.parent === id).sort((a, b) => a.order - b.order);
+        let target = node;
+        if (kids.length) {
+          target = sub ? kids.find((k) => k.id === sub) : [...kids].reverse().find((k) => k.by !== 'human' && k.status === 'done') || [...kids].reverse().find((k) => k.status === 'done') || kids[kids.length - 1];
+          if (!target) throw httpError(404, `"${sub}"는 이 과업의 하위 과업이 아니에요.`);
+        }
+        const rec = { at: new Date().toISOString(), by: actor, because: String(because).trim() };
+        if (from) rec.from = from;
+        if (target !== node) rec.sub = target.id;
+        (node.reopened ||= []).push(rec);
+        target.status = 'todo';
+        for (const n of [node, target]) { n.updatedAt = rec.at; n.updatedBy = actor; }
+        appendLog(actor, 'reopen', id, `${target !== node ? `${target.id} 대기로 · ` : ''}${rec.because.slice(0, 70)}`);
+        return { node: node.id, reopenedSub: target !== node ? target.id : null, ...rec };
+      });
+    },
+
+    // ---------- 사람 화면 ----------
+    overview() {
+      const p = readPipeline();
+      const { refs } = context();
+      const d = derive(p, refs);
+      const entries = readEntriesSafe();
+      const counts = ledgerCounts(p, entries);
+      const byId = Object.fromEntries(p.nodes.map((n) => [n.id, n]));
+      const label = (id) => { const n = byId[id]; if (!n) return id; const t = n.parent ? byId[n.parent] : null; return t ? `${t.title} · ${n.title}` : n.title; };
+      const thumbsOf = (id) => {
+        const top = byId[id]?.parent || id;
+        return [id, top].flatMap((x) => readAssets(x).filter((a) => isImage(a.file)).map((a) => ({ file: a.file, memo: a.memo || '', url: fileUrl(x, a.file) }))).slice(0, 4);
+      };
+
+      const next = nextActions(p, refs);
+      const decisions = [];
+      for (const it of next.filter((x) => x.by === 'human')) {
+        decisions.push({ kind: 'decide', id: it.id, task: it.task, title: it.title, where: `${it.stage} · ${it.taskTitle}`, how: it.how, subKind: it.kind, thumbs: thumbsOf(it.id) });
+      }
+      for (const n of p.nodes) {
+        if (d.info[n.id]?.status !== 'review' || p.nodes.some((c) => c.parent === n.id) || decisions.some((x) => x.id === n.id)) continue;
+        decisions.push({ kind: 'review', id: n.id, task: n.parent || n.id, title: n.title, where: label(n.parent || n.id), how: n.how || '', subKind: n.kind || null, thumbs: thumbsOf(n.id), attempts: (n.attempts || []).slice(-4) });
+      }
+      const open = entries.filter((e) => e.status === 'open');
+      const withTask = (e) => ({ ...e, where: e.task ? label(e.task) : '' });
+      const questions = open.filter((e) => e.type === 'unknown' && (e.ask || 'human') === 'human').map(withTask);
+      const guesses = open.filter((e) => e.type === 'assume').sort((a, b) => ({ low: 0, mid: 1, high: 2 }[a.confidence] - { low: 0, mid: 1, high: 2 }[b.confidence])).map(withTask);
+      const receipts = open.filter((e) => e.type === 'compromise').map(withTask);
+
+      const alerts = [];
+      for (const n of p.nodes) {
+        const f = trailingFails(n);
+        if (n.status !== 'done' && f >= STUCK_FAILS) {
+          const last = n.attempts.slice(-f);
+          alerts.push({ kind: 'stuck', id: n.id, title: label(n.id), text: `연속 ${f}번 실패했어요. 헤매고 있을 수 있어요.`, detail: last.map((a) => `#${a.n} ${a.label}${a.why ? ` — ${a.why}` : ''}`) });
+        }
+      }
+      for (const t of p.nodes.filter((n) => !n.parent && n.budget)) {
+        const spent = counts[t.id]?.tokens || 0;
+        const ratio = spent / t.budget;
+        if (ratio >= 0.8) alerts.push({ kind: ratio >= 1 ? 'over' : 'budget', id: t.id, title: t.title, text: ratio >= 1 ? `토큰 상한을 넘었어요 (${fmt(spent)} / ${fmt(t.budget)}).` : `토큰 상한의 ${Math.round(ratio * 100)}%를 썼어요 (${fmt(spent)} / ${fmt(t.budget)}).` });
+      }
+
+      const working = p.nodes.filter((n) => n.status === 'doing' && !p.nodes.some((c) => c.parent === n.id)).map((n) => ({
+        id: n.id, title: label(n.id), by: n.by || 'agent', owner: n.owner || byId[n.parent]?.owner || '', attempts: n.attempts?.length || 0, lastAttempt: n.attempts?.at(-1) || null, updatedAt: n.updatedAt, updatedBy: n.updatedBy,
+      }));
+      const log = readLog(200);
+      const lastAgent = log.find((l) => l.actor && l.actor !== 'human') || null;
+      const tokens = Object.values(counts).reduce((s, c) => s + (c.tokens || 0), 0);
+
+      let summary = null;
+      if (hasSpec()) { try { summary = specMap(readSpecDoc()).summary; } catch (e) { summary = { error: e.message }; } }
+      const recentReopens = p.nodes.flatMap((n) => (n.reopened || []).map((r) => ({ ...r, id: n.id, title: n.title }))).sort((a, b) => b.at.localeCompare(a.at)).slice(0, 5);
+      return {
+        id: pid, project: p.project, hasSpec: hasSpec(),
+        decisions, questions, guesses, receipts, alerts, working, lastAgent, tokens, summary, recentReopens,
+        nextAgent: next.filter((x) => x.by === 'agent').slice(0, 5),
       };
     },
 
@@ -327,8 +584,12 @@ function createProjectStore(dir, pid, ctx) {
       const { refs, usage } = context();
       const d = derive(p, refs);
       const top = node.parent ? getNode(p, node.parent) : node;
+      const entries = readEntriesSafe();
+      const ledger = ledgerCounts(p, entries)[top.id] || null;
       return {
-        node: enrich(node, d, refs, usage),
+        node: { ...enrich(node, d, refs, usage), ...(node.parent ? {} : { ledger }) },
+        entries: entries.filter((e) => e.task && topOf(p, e.task) === top.id),
+        hasSpec: hasSpec(), pid,
         stage: p.stages.find((s) => s.id === top.stage) || null,
         parent: node.parent ? { id: top.id, title: top.title, type: top.type } : null,
         children: (d.kids[node.id] || []).map((c) => enrich(c, d, refs, usage)),
@@ -421,7 +682,7 @@ function createProjectStore(dir, pid, ctx) {
 
     updateNode(actor, id, patch) {
       cleanFields(patch);
-      const allowed = ['title', 'status', 'owner', 'type', 'ref', 'stage', 'parent', 'kind', 'by', 'how', 'goal', 'output'];
+      const allowed = ['title', 'status', 'owner', 'type', 'ref', 'stage', 'parent', 'kind', 'by', 'how', 'goal', 'output', 'budget'];
       return mutate((p) => {
         const node = getNode(p, id);
         const hasKids = p.nodes.some((n) => n.parent === id);
@@ -442,7 +703,8 @@ function createProjectStore(dir, pid, ctx) {
             if (par.parent || par.type === 'shared') throw httpError(400, '그 과업 아래로는 옮길 수 없어요.');
             node.order = nextOrder(p, { parent: patch.parent });
           }
-          node[k] = patch[k];
+          if (patch[k] === null) delete node[k];
+          else node[k] = patch[k];
           changes.push(`${k}=${patch[k]}`);
         }
         if (changes.length) {
@@ -656,6 +918,30 @@ function copyDir(src, dest) {
     if (fs.statSync(s).isDirectory()) copyDir(s, d);
     else fs.copyFileSync(s, d);
   }
+}
+
+function fmt(n) {
+  return Number(n || 0).toLocaleString('en-US');
+}
+
+function writeJsonFile(file, data) {
+  const tmp = `${file}.${process.pid}.tmp`;
+  fs.writeFileSync(tmp, JSON.stringify(data, null, 2) + '\n');
+  fs.renameSync(tmp, file);
+}
+
+// 파일 하나를 여러 프로세스가 동시에 고치지 않게 하는 잠금 (폴더를 만들 수 있으면 잠금을 얻은 것)
+function withFileLock(lockDir, fn) {
+  const start = Date.now();
+  for (;;) {
+    try { fs.mkdirSync(lockDir); break; } catch (err) {
+      if (err.code !== 'EEXIST') throw err;
+      try { if (Date.now() - fs.statSync(lockDir).mtimeMs > 10_000) fs.rmSync(lockDir, { recursive: true, force: true }); } catch {}
+      if (Date.now() - start > 5_000) throw new Error(`${path.basename(lockDir)} 잠금을 얻지 못했어요.`);
+      Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 25);
+    }
+  }
+  try { return fn(); } finally { fs.rmSync(lockDir, { recursive: true, force: true }); }
 }
 
 function readLastLog(file) {

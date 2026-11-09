@@ -15,7 +15,7 @@
 3. `timeline`: 1분 투어의 시간축 이벤트 (초, 가능하면 박)
 4. `interactions`: 손 제스처 → 반응 → 효과음. 핸드트래킹만 쓴다
 5. `perf`: 오브젝트마다 `ok / costly / impossible` 와 대체안 (72fps 기준)
-6. `unknowns`: 영상만으로 정할 수 없는 것 (안 보이는 뒷면, 실제 크기, 손이 닿았을 때 반응 등)
+6. `unknowns`: 영상만으로 정할 수 없는 것 (안 보이는 뒷면, 실제 크기, 손이 닿았을 때 반응 등). `unknown spec "질문" --field <칸>` 으로 남기고, 영상에서 추정한 값은 `assume spec ".." --confidence low --field <칸>` 으로 표시
 7. 사람이 `unknowns` 에 답해야 하므로, 끝나면 상태를 `review` 로
 
 ## 좌표 규칙

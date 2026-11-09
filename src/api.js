@@ -13,6 +13,9 @@ export const studioApi = {
   projects: () => call('GET', '/api/projects'),
   templates: () => call('GET', '/api/templates'),
   createApp: (body) => call('POST', '/api/projects', body),
+  drawer: () => call('GET', '/api/drawer'),
+  addDrawer: (body) => call('POST', '/api/drawer', body),
+  updateDrawer: (id, patch) => call('PATCH', `/api/drawer/${enc(id)}`, patch),
 };
 
 // pid = "shared" 또는 앱 id
@@ -21,6 +24,13 @@ export function projectApi(pid) {
   return {
     pipeline: () => call('GET', `${base}/pipeline`),
     next: () => call('GET', `${base}/next`),
+    overview: () => call('GET', `${base}/overview`),
+    spec: () => call('GET', `${base}/spec`),
+    addKnowledge: (type, body) => call('POST', `${base}/knowledge`, { type, ...body }),
+    resolveKnowledge: (id, action, extra = {}) => call('POST', `${base}/knowledge/${enc(id)}`, { action, ...extra }),
+    addAttempt: (id, body) => call('POST', `${base}/nodes/${enc(id)}/attempts`, body),
+    reopen: (id, body) => call('POST', `${base}/nodes/${enc(id)}/reopen`, body),
+    appendNote: (id, text) => call('POST', `${base}/nodes/${enc(id)}/notes`, { text }),
     moveNode: (id, dir) => call('POST', `${base}/nodes/${enc(id)}/move`, { dir }),
     addStage: (body) => call('POST', `${base}/stages`, body),
     updateStage: (id, patch) => call('PATCH', `${base}/stages/${enc(id)}`, patch),
