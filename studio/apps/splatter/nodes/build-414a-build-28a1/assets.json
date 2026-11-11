@@ -1,0 +1,32 @@
+[
+  {
+    "file": "check-2026-11-09T07-38-32-680Z.log",
+    "memo": "$ python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py → exit 1 (실패)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-09T07:38:32.682Z",
+    "check": {
+      "cmd": "python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-09T07-39-02-240Z.log",
+    "memo": "$ python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py → exit 1 (실패)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-09T07:39:02.242Z",
+    "check": {
+      "cmd": "python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-09T07-42-39-574Z.log",
+    "memo": "$ python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py → exit 0",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-09T07:42:39.577Z",
+    "check": {
+      "cmd": "python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py",
+      "exit": 0
+    }
+  }
+]

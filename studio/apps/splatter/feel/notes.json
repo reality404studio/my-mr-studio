@@ -1,0 +1,199 @@
+{
+  "notes": [
+    {
+      "id": "f1",
+      "at": "2026-11-09T14:06:53.239Z",
+      "by": "agent",
+      "status": "translated",
+      "text": "지금 동글동글한게 너무 징그러워서요... 뭔가 빛의 방울이 부서지는 듯한 느낌이 나야 하는데 지금은 그 뭐냐 스티로폼충전제가 보이는 느낌이라 별로임",
+      "textBy": "agent",
+      "source": "cli",
+      "links": [
+        "a3"
+      ],
+      "translatedBy": "agent",
+      "translatedAt": "2026-11-09T14:07:18.917Z"
+    },
+    {
+      "id": "f2",
+      "at": "2026-11-09T14:29:20.647Z",
+      "by": "agent",
+      "status": "translated",
+      "text": "threads 단어 교체, 왼손 핀치로 공중 파티클 모임 소환(잠시 빛남) 및 재핀치 시 중력 모래 낙하 소멸 토글, 양손 핀치 엄격 확대축소이동",
+      "textBy": "agent",
+      "source": "cli",
+      "links": [
+        "a4"
+      ],
+      "translatedBy": "agent",
+      "translatedAt": "2026-11-09T14:29:40.224Z"
+    },
+    {
+      "id": "f3",
+      "at": "2026-11-09T14:59:55.560Z",
+      "by": "agent",
+      "status": "translated",
+      "text": "대문자 알파벳 A 로 교체, 소환 연출 신비롭게 파티클들이 촥 모여드는 연출로 고도화 (로딩/소환 시간 약 3초)",
+      "textBy": "agent",
+      "source": "cli",
+      "links": [
+        "a5"
+      ],
+      "translatedBy": "agent",
+      "translatedAt": "2026-11-09T15:00:05.693Z"
+    },
+    {
+      "id": "f4",
+      "at": "2026-11-09T15:47:23.543Z",
+      "by": "Claude Code",
+      "status": "translated",
+      "text": "소환이 마음에 안 듦. 소환의 시작이 시야 안에 있어야 하는데 지금은 너무 멀리 퍼져 있고, 내가 부른 마법 같은 느낌이 안 보임. 내가 쫙 불러야 하는데 너무 멀리서 날아오고 너무 빨리 완성됨. 서서히 파티클들이 촥 와서 글자를 만드는 느낌이면 좋겠음. 사라지는 것도 갑자기 힘 빠지듯이 슉 하고 아래로 떨어졌으면 좋겠는데 떨어지는 과정이 잘 안 보임. 폰트(Fraunces)는 좋음.",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "interactions.summon_animation",
+        "how": "none"
+      },
+      "links": [
+        "a6"
+      ],
+      "translatedBy": "Claude Code",
+      "translatedAt": "2026-11-09T16:03:12.571Z"
+    },
+    {
+      "id": "f5",
+      "at": "2026-11-09T16:03:12.343Z",
+      "by": "Claude Code",
+      "status": "translated",
+      "text": "소환 때 파티클→글자 인과가 약함. 파티클이 글자로 모이는 게 아니라 따로 있다가 글자가 생기는 것처럼 보임. (영상: videref/화면 기록 2026-11-10 오전 12.52.26.mov, 빌드 8c63c15-dirty-1110-004859)",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "interactions.summon_animation",
+        "how": "none"
+      },
+      "links": [
+        "a11"
+      ],
+      "translatedBy": "Claude Code",
+      "translatedAt": "2026-11-10T06:12:32.802Z"
+    },
+    {
+      "id": "f6",
+      "at": "2026-11-10T11:53:40.567Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "발열은 기존 빌드 대비 괜찮은 듯, 굳이 안 바꿔도 될 것 같다. 손 느낌은 잘 바뀐다. 파라미터에 따라 모래 같을 수도 물 같을 수도 있다. 초기 값은 젖은 모래 같았다. 패널에서 관심 있는 것은 스플랫 움직임뿐이고, 패널 바(점 핀치 잡고 드래그)는 너무 힘들다. 마이크로제스처로 바꿀 수 있을까",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "interactions.hand_feel",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f7",
+      "at": "2026-11-11T00:48:29.599Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "눈별 반짝임은 너무 후처리 느낌이 난다. 생각보다 별로. 윤슬 물빛보다는 쌓인 눈 같은 데 더 어울려 보인다. 목적함수는 최대한 실사 윤슬 같은 느낌의 반짝임을 담는 것. 이전으로 롤백",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "look.glint",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f8",
+      "at": "2026-11-11T00:58:42.857Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "오버레이는 있는 게 낫다. 오버레이 1",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "look.overlay",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f9",
+      "at": "2026-11-11T05:57:16.105Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "핑크뮬리 대신 은행나무, 텍스처 구조는 웹 아티팩트의 빛 모드. 글자 바뀔 때 바닥으로 떨어져 사라지지 말고 그 자리에서 확 퍼졌다 다시 모이기. 파티클 움직임을 카테고리로: 글자 형태나 위치가 바뀜(소환/해제, 제자리 변화) × 글자 물성 자체(물, 모래 등 파라미터). 둘의 조합으로 변화 양상이 달라지게",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "interactions.transition",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f10",
+      "at": "2026-11-11T06:12:17.042Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "현재 파라미터가 가장 물방울 같이 느껴진다 (다이얼 물성 다섯 값: 무게 0.2, 뭉침 0.2, 끈기 0.1, 탄성 0.2, 알갱이 1.0)",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "materials.water.feel",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f11",
+      "at": "2026-11-11T06:24:46.815Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "셰이더 구슬(윤슬/노을/은행)과 물성 구슬(물방울/모래/복실털)을 따로 두고 조합. 윤슬+물방울에 은행을 넣으면 은행 물방울",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "materials",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f12",
+      "at": "2026-11-11T12:40:35.506Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "현재값을 fur(복실털)로 고정: 무게 0.1, 뭉침 0.7, 끈기 0.2, 탄성 0.7, 알갱이 1.0, 털 1.0 (털 길이 3)",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "materials.fur.feel",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f13",
+      "at": "2026-11-11T12:46:51.114Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "모래는 지금 이 상태로: 무게 0.7, 뭉침 0.3, 끈기 0.7, 탄성 0.8, 알갱이 1.0, 털 0",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "materials.sand.feel",
+        "how": "none"
+      }
+    },
+    {
+      "id": "f14",
+      "at": "2026-11-11T13:04:51.024Z",
+      "by": "Claude Code",
+      "status": "new",
+      "text": "진열대에서 집어서 번지는 건 좋다. 왼손 핀치 고정은 좋은데 저장·멈춤·재개 기준이 원활하지 않다. 저장한 적 없는데 저장 판정될 때가 있고 재개도 마음대로 잘 안 된다. 엄지톡 말고 쓸기 같은 더 확실한 동작으로",
+      "textBy": "Claude Code",
+      "source": "cli",
+      "target": {
+        "id": "interactions.freeze_save",
+        "how": "none"
+      }
+    }
+  ]
+}

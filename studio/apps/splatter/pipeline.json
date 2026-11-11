@@ -1,0 +1,1525 @@
+{
+  "version": 3,
+  "project": {
+    "name": "Letter Pigment Splat",
+    "subtitle": "짧은 영상 루프 물감을 3D 가우시안 스플랫 글자마다 매 프레임 입히는 Quest 3 MR 앱",
+    "template": "video-first",
+    "createdAt": "2026-11-09T07:30:28.083Z"
+  },
+  "stages": [
+    {
+      "id": "define",
+      "title": "정의",
+      "goal": "무엇을, 어떤 조건으로 만들지 정한다"
+    },
+    {
+      "id": "reference",
+      "title": "레퍼런스",
+      "goal": "눈과 공간의 기준을 모은다"
+    },
+    {
+      "id": "video",
+      "title": "영상",
+      "goal": "보고 싶은 화면을 영상으로 고정한다"
+    },
+    {
+      "id": "spec",
+      "title": "명세",
+      "goal": "영상을 구현 계약으로 번역한다"
+    },
+    {
+      "id": "build",
+      "title": "구현",
+      "goal": "명세대로 헤드셋에서 돌아가게 만든다"
+    },
+    {
+      "id": "review",
+      "title": "검수",
+      "goal": "실기와 원본의 차이를 찾아 되돌린다"
+    }
+  ],
+  "nodes": [
+    {
+      "owner": "Claude",
+      "id": "brief",
+      "type": "note",
+      "title": "앱 개요",
+      "stage": "define",
+      "order": 0,
+      "goal": "이 앱만의 조건을 한 장으로",
+      "output": "brief README 의 개요 표",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "brief-draft",
+      "parent": "brief",
+      "kind": "write",
+      "by": "agent",
+      "title": "개요 표 초안 채우기",
+      "order": 0,
+      "how": "대화와 메모에서 채운다. 공통 조건(플랫폼 조건)은 다시 적지 않는다",
+      "updatedAt": "2026-11-09T07:34:06.498Z",
+      "updatedBy": "Gemini Argon",
+      "success": "studio/apps/splatter/nodes/brief/README.md 에 개요 표와 스플랫 명세가 작성되어 있고 비어 있는 필수 행이 없다",
+      "proofAt": "2026-11-09T07:34:06.100Z"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "brief-confirm",
+      "parent": "brief",
+      "kind": "decide",
+      "by": "human",
+      "title": "개요 확정",
+      "order": 1,
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude",
+      "id": "concept",
+      "type": "concept",
+      "title": "콘셉트: 기준안 깨기",
+      "stage": "define",
+      "order": 1,
+      "goal": "예측이 뻔한 지점을 골라 의도적으로 깬다",
+      "output": "고른 대안 (concept README)",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "concept-baseline",
+      "parent": "concept",
+      "kind": "write",
+      "by": "agent",
+      "title": "측정용 기준안 쓰기",
+      "order": 0,
+      "how": "가장 뻔한 흐름을 일부러 쓴다. 창의성을 넣지 않는다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "concept-map",
+      "parent": "concept",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "관습·기능·예측 지도 표",
+      "order": 1,
+      "how": "요소마다 따르는 관습, 그 관습이 하는 일, 관객의 예측 정도(상·중·하)",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "concept-pick",
+      "parent": "concept",
+      "kind": "decide",
+      "by": "human",
+      "title": "깰 지점 2~3개 고르기",
+      "order": 2,
+      "how": "에이전트는 추천만 하고 결정은 사람에게 넘긴다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "concept-diverge",
+      "parent": "concept",
+      "kind": "write",
+      "by": "agent",
+      "title": "지점별 대안 5개",
+      "order": 3,
+      "how": "하던 일은 지키고 형식만 깬다. 5개가 서로 다른 축(시간, 공간, 주체, 감각, 자유)",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "concept-choose",
+      "parent": "concept",
+      "kind": "decide",
+      "by": "human",
+      "title": "대안 고르기",
+      "order": 4,
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude",
+      "id": "moodboard",
+      "type": "reference",
+      "title": "무드보드: 시각 언어",
+      "stage": "reference",
+      "order": 0,
+      "goal": "형용사 대신 쓸 구체적인 어휘를 만든다",
+      "output": "어휘표 (moodboard README \"분석 결과\")",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "moodboard-collect",
+      "parent": "moodboard",
+      "kind": "collect",
+      "by": "human",
+      "title": "에셋 올리고 이유 메모 달기",
+      "order": 0,
+      "how": "파일마다 \"전체 분위기 / 이 색감만 / 이 빛만\" 같은 메모",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "moodboard-analyze",
+      "parent": "moodboard",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "색·빛·질감·움직임 어휘표",
+      "order": 1,
+      "how": "메모가 \"이 부분만\"이면 그 부분만 반영. 결과는 README의 \"분석 결과\"에 덧붙인다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "moodboard-confirm",
+      "parent": "moodboard",
+      "kind": "decide",
+      "by": "human",
+      "title": "어휘표 확인",
+      "order": 2,
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude",
+      "id": "space-photo",
+      "type": "reference",
+      "title": "현실 공간 기준",
+      "stage": "reference",
+      "order": 1,
+      "goal": "영상과 구현이 같은 시점과 크기를 쓰게 한다",
+      "output": "시점·스케일 기준 메모",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "space-photo-photos",
+      "parent": "space-photo",
+      "kind": "collect",
+      "by": "human",
+      "title": "공간 사진 3장과 실제 크기",
+      "order": 0,
+      "how": "정면 눈높이, 위, 대각선. 파일 메모에 크기(cm)",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "space-photo-frame",
+      "parent": "space-photo",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "시점과 스케일 기준 정리",
+      "order": 1,
+      "how": "눈높이, 공간 크기, 첫 장면 프레이밍",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude",
+      "id": "video",
+      "type": "video",
+      "title": "참조 영상 만들기",
+      "stage": "video",
+      "order": 0,
+      "goal": "보고 싶은 화면을 영상으로 고정한다",
+      "output": "final.mp4 와 컷별 메모 (video assets)",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "video-cuts",
+      "parent": "video",
+      "kind": "write",
+      "by": "agent",
+      "title": "컷 구성과 타이밍",
+      "order": 0,
+      "how": "1인칭 고정 시점, 컷마다 변화 하나. 음악이 있으면 박에 맞춘다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "video-prompts",
+      "parent": "video",
+      "kind": "write",
+      "by": "agent",
+      "title": "컷별 프롬프트",
+      "order": 1,
+      "how": "무드보드 어휘 그대로, 공간 사진을 참조 이미지로. 72fps 규칙의 impossible 표현은 넣지 않는다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "video-generate",
+      "parent": "video",
+      "kind": "make",
+      "by": "human",
+      "title": "영상 생성",
+      "order": 2,
+      "how": "영상 모델에서 사람이 직접",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "video-upload",
+      "parent": "video",
+      "kind": "collect",
+      "by": "human",
+      "title": "컷 올리고 사용·버림 메모",
+      "order": 3,
+      "how": "버린 컷도 지우지 않고 이유를 적는다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "video-check",
+      "parent": "video",
+      "kind": "verify",
+      "by": "agent",
+      "title": "컷 검토: 멀미와 72fps",
+      "order": 4,
+      "how": "빠른 카메라 이동, 구현 불가 표현을 표시해 사람에게 넘긴다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "video-final",
+      "parent": "video",
+      "kind": "decide",
+      "by": "human",
+      "title": "최종본 확정 (final.mp4)",
+      "order": 5,
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude",
+      "id": "spec",
+      "type": "spec",
+      "title": "장면 명세",
+      "stage": "spec",
+      "order": 0,
+      "goal": "영상을 구현 계약으로 번역한다",
+      "output": "scene_spec.yaml",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "spec-break",
+      "parent": "spec",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "영상 분해",
+      "order": 0,
+      "how": "영상이면 1초 간격 프레임, 스토리보드면 컷 표를 읽는다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "spec-write",
+      "parent": "spec",
+      "kind": "write",
+      "by": "agent",
+      "title": "objects · timeline · interactions 작성",
+      "order": 1,
+      "how": "좌표는 공통 플랫폼 조건의 책상 좌표, 제스처 이름은 공통 핸드 패턴",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "spec-perf",
+      "parent": "spec",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "72fps 태그와 대체안",
+      "order": 2,
+      "how": "공통 72fps 성능 규칙의 ok / costly / impossible",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "spec-unknowns",
+      "parent": "spec",
+      "kind": "decide",
+      "by": "human",
+      "title": "unknowns 답하기",
+      "order": 3,
+      "how": "원본만으로 정할 수 없는 것. 에이전트가 질문을 정리해 둔다",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "",
+      "id": "use-calibration",
+      "type": "shared",
+      "title": "",
+      "stage": "build",
+      "order": 0,
+      "ref": "calibration",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude Code",
+      "id": "build",
+      "type": "build",
+      "title": "Unity 구현",
+      "stage": "build",
+      "order": 1,
+      "goal": "명세대로 헤드셋에서 동작하게",
+      "output": "unity/<앱 id>/ 프로젝트와 APK",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "build-setup",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "프로젝트 세팅",
+      "order": 0,
+      "how": "공통 Unity 버전, 패스스루, 핸드트래킹, 캘리브레이션 모듈 가져오기. 위치는 unity/<앱 id>/",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "build-objects",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "오브젝트 배치",
+      "order": 1,
+      "how": "scene_spec.yaml 의 objects",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "build-timeline",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "타임라인과 흐름",
+      "order": 2,
+      "how": "scene_spec.yaml 의 timeline",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "build-interact",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "인터랙션과 사운드",
+      "order": 3,
+      "how": "scene_spec.yaml 의 interactions",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "build-sim",
+      "parent": "build",
+      "kind": "verify",
+      "by": "agent",
+      "title": "시뮬레이터에서 확인",
+      "order": 4,
+      "how": "Meta XR Simulator. 배치, 순서, 사운드 연결",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "build-device",
+      "parent": "build",
+      "kind": "verify",
+      "by": "human",
+      "title": "실기 확인: 72fps와 손끝",
+      "order": 5,
+      "how": "APK 빌드 후 헤드셋에서",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "owner": "Claude",
+      "id": "review",
+      "type": "review",
+      "title": "검수: 실기 vs 원본 영상",
+      "stage": "review",
+      "order": 0,
+      "goal": "차이를 찾아 구현으로 되돌린다",
+      "output": "scene_spec.yaml 의 review 블록",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "review-record",
+      "parent": "review",
+      "kind": "collect",
+      "by": "human",
+      "title": "헤드셋 녹화 올리기",
+      "order": 0,
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "review-diff",
+      "parent": "review",
+      "kind": "analyze",
+      "by": "agent",
+      "title": "원본 영상과의 차이 목록",
+      "order": 1,
+      "how": "scene_spec.yaml 의 review 블록에 시간, 대상, 차이, 수정안",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "review-pass",
+      "parent": "review",
+      "kind": "decide",
+      "by": "human",
+      "title": "통과 여부",
+      "order": 2,
+      "how": "고칠 게 있으면 구현의 해당 하위 과업을 다시 todo 로",
+      "updatedAt": "2026-11-09T07:30:28.083Z",
+      "updatedBy": "Gemini Argon"
+    },
+    {
+      "id": "build-414a",
+      "title": "splatter 브랜치 분기 및 물감·스플랫 코어 초기 세팅",
+      "owner": "",
+      "updatedAt": "2026-11-09T07:34:22.596Z",
+      "updatedBy": "Gemini Argon",
+      "type": "build",
+      "stage": "build",
+      "order": 2,
+      "status": "todo",
+      "goal": "unity/mood-picker 에 splatter 브랜치를 분기하고 PigmentCore(LoopFinder/PeriodicTile/FlipbookLayout/TwoToneExtractor)와 PigmentCommon.hlsl, Splatter 어셈블리 골격을 세팅한다",
+      "output": "Assets/Scripts/Pigment/, Assets/Scripts/Splatter/, Assets/Shaders/Pigment/"
+    },
+    {
+      "id": "build-414a-build-28a1",
+      "title": "splatter 브랜치 생성, PigmentCore(루프·주기화·플립북·2톤) 및 Splatter 코어 어셈블리 세팅",
+      "owner": "",
+      "updatedAt": "2026-11-09T07:42:51.743Z",
+      "updatedBy": "Gemini Argon",
+      "parent": "build-414a",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "unity/mood-picker 에서 splatter 브랜치 분기, Assets/Scripts/Pigment/Core 및 Assets/Scripts/Splatter/Core 세팅 후 컴파일·주석 게이트 검증",
+      "success": "splatter 브랜치 활성, Pigment/Splatter Core Roslyn 컴파일 및 GateFileChecks 주석·파일 게이트 PASS, 단위 검증 통과",
+      "proofAt": "2026-11-09T07:42:39.575Z"
+    },
+    {
+      "id": "build-541d",
+      "title": "글자 메시 표면 스플랫 샘플러 (면적 비례 + 외곽선 스플랫 층)",
+      "owner": "",
+      "updatedAt": "2026-11-09T07:34:38.813Z",
+      "updatedBy": "Gemini Argon",
+      "type": "build",
+      "stage": "build",
+      "order": 3,
+      "status": "todo",
+      "goal": "글자 3D 메시 표면(앞·뒤·옆·베벨)에서 면적 비례로 스플랫 중심·노멀·접평면 스케일·쿼터니언을 샘플링하고 2톤 셀용 외곽선 스플랫 한 겹을 생성한다",
+      "output": "Assets/Scripts/Splatter/Core/MeshSplatSampler.cs"
+    },
+    {
+      "id": "build-bb7f",
+      "title": "GPU 가우시안 스플랫 렌더러 & 5종 셰이더 (트라이플래너 플립북)",
+      "owner": "",
+      "updatedAt": "2026-11-09T07:34:39.014Z",
+      "updatedBy": "Gemini Argon",
+      "type": "build",
+      "stage": "build",
+      "order": 4,
+      "status": "todo",
+      "goal": "StructuredBuffer 기반 인스턴스드 스플랫 쿼드 렌더러와 5종 셰이더(그대로·2톤셀·Glint·Chrome 유한차분·Caustic)를 구현한다",
+      "output": "Assets/Shaders/Splatter/LetterSplatURP.shader, Assets/Scripts/Splatter/Runtime/SplatLetterRenderer.cs"
+    },
+    {
+      "id": "build-d4b6",
+      "title": "물감 3슬롯 & 글자별 선택·애니메이션 컨트롤러",
+      "owner": "",
+      "updatedAt": "2026-11-09T07:34:39.217Z",
+      "updatedBy": "Gemini Argon",
+      "type": "build",
+      "stage": "build",
+      "order": 5,
+      "status": "todo",
+      "goal": "영상 루프 물감 3슬롯 관리, 글자별 슬롯·셰이더 지정, 회전·둥실 애니메이션 및 스케일·강도 제어를 연결한다",
+      "output": "Assets/Scripts/Splatter/Runtime/SplatWordController.cs, Assets/Scenes/Splatter.unity"
+    },
+    {
+      "id": "build-541d-build-a242",
+      "title": "메시 삼각형 면적 가중 샘플링, 접평면 스케일·노멀 쿼터니언 및 외곽선 스플랫 층 생성",
+      "owner": "",
+      "updatedAt": "2026-11-09T08:06:05.879Z",
+      "updatedBy": "Gemini Argon",
+      "parent": "build-541d",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "Assets/Scripts/Splatter/Core/MeshSplatSampler.cs 구현 및 단위 테스트",
+      "success": "삼각형 면적 비례 분포·노멀 정규화·외곽선 스플랫 오프셋(0.018*size) 단위 테스트 통과",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-09T08:06:05.450Z",
+          "by": "Gemini Argon",
+          "label": "MeshSplatSampler 면적 가중 층화 샘플링 + Welded 스무스 노멀 외곽선 층 구현 및 NUnit 7/7 검증",
+          "result": "ok"
+        }
+      ]
+    },
+    {
+      "id": "build-bb7f-build-cbae",
+      "title": "LetterSplatURP.shader (5종 모드·트라이플래너 플립북·유한차분 범프) 및 SplatLetterRenderer 구현",
+      "owner": "",
+      "updatedAt": "2026-11-09T08:09:28.447Z",
+      "updatedBy": "Gemini Argon",
+      "parent": "build-bb7f",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "PigmentCommon.hlsl 활용 스플랫 인스턴스드 쿼드 셰이더 및 GraphicsBuffer 렌더러 구현",
+      "success": "5종 모드(그대로/2톤셀/Glint/Chrome/Caustic) 셰이더 정적·컴파일 게이트 및 렌더러 검증 통과",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-09T08:09:28.023Z",
+          "by": "Gemini Argon",
+          "label": "SplatCloudMeshBuilder + LetterSplatURP.shader (5종 모드·트라이플래너 플립북·유한차분 범프·스테레오) + SplatLetterRenderer 구현 및 검증",
+          "result": "ok"
+        }
+      ]
+    },
+    {
+      "id": "build-d4b6-build-7c9f",
+      "title": "물감 3슬롯 로더, 글자별 슬롯·모드 할당 및 회전·둥실 애니메이션 연결",
+      "owner": "",
+      "updatedAt": "2026-11-09T08:11:36.779Z",
+      "updatedBy": "Gemini Argon",
+      "parent": "build-d4b6",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "SplatWordController 및 Splatter 씬 구성",
+      "success": "슬롯 1~3 프레임 독립 진행, 선택 글자 슬롯·모드 변경 및 회전·둥실 수식 검증 통과",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-09T08:11:36.355Z",
+          "by": "Gemini Argon",
+          "label": "PigmentAtlasBuilder(루프탐색·크로스페이드·주기화·2톤 추출 및 샘플 물결 슬롯) + SplatWordState + SplatWordController 구현 및 NUnit 10/10 통과",
+          "result": "ok"
+        }
+      ]
+    },
+    {
+      "id": "build-d4b6-verify-2edf",
+      "title": "실기 확인: Quest 3에서 스플랫 글자 2톤 셀·Glint 루프 재생 및 30fps 이상",
+      "owner": "",
+      "updatedAt": "2026-11-09T12:27:20.796Z",
+      "updatedBy": "나",
+      "parent": "build-d4b6",
+      "kind": "verify",
+      "by": "human",
+      "status": "done",
+      "order": 1,
+      "how": "Quest 3 실기에서 루프 이음매·타일 경계·프레임레이트 확인"
+    },
+    {
+      "id": "shared-5c48",
+      "title": "",
+      "owner": "",
+      "updatedAt": "2026-11-09T12:27:21.019Z",
+      "updatedBy": "Antigravity",
+      "type": "shared",
+      "stage": "build",
+      "order": 6,
+      "ref": "build-e68e"
+    },
+    {
+      "id": "shared-da40",
+      "title": "",
+      "owner": "",
+      "updatedAt": "2026-11-09T14:08:46.312Z",
+      "updatedBy": "agent",
+      "type": "shared",
+      "stage": "build",
+      "order": 7,
+      "ref": "build-9691"
+    },
+    {
+      "id": "build-9c56",
+      "title": "글자 폰트 Fraunces + 소환·소멸 연출 재설계",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:00.057Z",
+      "updatedBy": "Claude Code",
+      "type": "build",
+      "stage": "build",
+      "order": 8,
+      "status": "todo",
+      "goal": "대문자 A 를 Fraunces 로 바꾸고, 소환은 손끝에서 시작해 글자로 흘러드는 인과가 보이게, 소멸은 힘 빠지듯 아래로 떨어지는 과정이 보이게 한다",
+      "output": "Assets/Models/LETTER_UPPER_A.glb, Assets/Shaders/Splatter/LetterSplatURP.shader, SplatWordController.cs"
+    },
+    {
+      "id": "build-9c56-build-8c8f",
+      "title": "글자 폰트를 Fraunces 72pt Black 으로 교체",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:41.686Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9c56",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "unity/mood-picker tools/splatter-glyph/make_glyph.py (Blender) → Assets/Models/LETTER_UPPER_A.glb, 폰트는 Assets/Fonts/Fraunces/"
+    },
+    {
+      "id": "build-9c56-build-9286",
+      "title": "소환: 손끝에서 시작해 곡선으로 흘러 글자 윤곽에 응축",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:42.540Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9c56",
+      "kind": "build",
+      "by": "agent",
+      "status": "review",
+      "order": 1,
+      "how": "LetterSplatURP.shader 소환 블록 + SplatWordController 가 핀치 위치를 _SummonOriginWS 로 전달",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T05:25:42.328Z",
+          "by": "Claude Code",
+          "label": "외곽 나선 수렴을 글자 반경 0.22 안으로 줄이고 왼→오 순차 안착(3.4초)",
+          "result": "fail",
+          "why": "녹화(videref 12.52.26): 구름이 시야 위쪽 띠로 따로 떠 있고 글자는 0.5초 만에 왼쪽부터 따로 생김. 파티클→글자 인과가 약함"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-10T05:25:42.540Z",
+          "by": "Claude Code",
+          "label": "손끝(핀치 위치)에서 시작해 곡선으로 흐르고 윤곽에 응축 (빌드 8c63c15-dirty-1110-103808)",
+          "result": "pending",
+          "why": "녹화(videref 10.46.50): 손→흐름→글자 연결은 생김. 손끝 덩어리가 10cm 털뭉치로 1.2초 정지, 흐름이 두꺼운 털 원뿔이라 개별 입자가 안 보임"
+        }
+      ]
+    },
+    {
+      "id": "build-9c56-build-2d8e",
+      "title": "소멸: 힘 빠지듯 처졌다가 가속해 아래로 떨어진다",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:42.750Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9c56",
+      "kind": "build",
+      "by": "agent",
+      "status": "review",
+      "order": 2,
+      "how": "LetterSplatURP.shader 소멸 블록, 크기를 줄이지 않고 0.35~0.65m 구간에서만 사라짐",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T05:25:42.750Z",
+          "by": "Claude Code",
+          "label": "0.25초 처짐 후 가속 낙하, 크기 유지, 0.35~0.65m 구간에서만 소멸 (빌드 8c63c15-dirty-1110-004859)",
+          "result": "pending",
+          "why": "사람이 소멸 장면을 아직 평가하지 않음. 낙하 과정이 보이는지 미확인"
+        }
+      ]
+    },
+    {
+      "id": "build-9c56-build-08c4",
+      "title": "소환 수치 조정: 손끝 덩어리 축소, 늘이기 상한, 경로 갈라짐",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:10.695Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9c56",
+      "kind": "build",
+      "by": "agent",
+      "status": "todo",
+      "order": 3,
+      "how": "다음 빌드에서 적용. 덩어리 반경 절반, 늘이기 6배→2.5배, 비행 크기 0.55→0.4, 갈라짐 ±35%→±20%, 출발 0.5→0.25초"
+    },
+    {
+      "id": "build-9c56-decide-634f",
+      "title": "글자 위치: 소환할 때 시선 정면 팔 길이에 고정할지",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:10.917Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9c56",
+      "kind": "decide",
+      "by": "human",
+      "status": "todo",
+      "order": 4,
+      "how": "녹화에서 글자가 오른쪽 아래로 치우쳐 얼굴 가까이 기울어 보였음. 선택지는 노트에"
+    },
+    {
+      "id": "build-9c56-verify-1340",
+      "title": "실기 확인: 손→글자 인과와 소멸 낙하가 보이는가",
+      "owner": "",
+      "updatedAt": "2026-11-10T05:25:11.127Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9c56",
+      "kind": "verify",
+      "by": "human",
+      "status": "todo",
+      "order": 5,
+      "how": "헤드셋 화면 녹화를 videref 에 넣고 프레임으로 비교"
+    },
+    {
+      "id": "build-4a39",
+      "title": "물성 채집 도구: 입자 모델 통합 (위치·속도를 기억하는 CPU 시뮬레이션)",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:12:09.464Z",
+      "updatedBy": "Claude Code",
+      "type": "build",
+      "stage": "build",
+      "order": 9,
+      "status": "todo",
+      "goal": "손 속도 전달·손가락 단위 충돌·방울로 갈라졌다 합쳐짐이 가능하도록 입자가 자기 위치와 속도를 기억한다. 발열이 기존 빌드보다 나빠지지 않는다 (1110 인계 문서 7번)",
+      "output": "Assets/Scripts/Splatter/Sim/, LetterSplatURP.shader, 조율 패널, 실기 발열 비교 기록"
+    },
+    {
+      "id": "build-4a39-write-c947",
+      "title": "전환 기준점: 입자 모델을 바꾸기 전 트리를 gather 브랜치 첫 커밋으로 남긴다",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:12:32.579Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "write",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "소환·소멸 수식이 든 현재 트리를 그대로 커밋. 실기 APK 는 evidence/build-d4b6-verify-2edf/8c63c15-dirty-1110-103808/"
+    },
+    {
+      "id": "build-4a39-build-f7a2",
+      "title": "시뮬레이션 코어: 제자리 용수철·감쇠·손 밀기와 속도 전달·무리 뭉침·중력·도착 시간·고정",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:28:59.113Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 1,
+      "how": "Assets/Scripts/Splatter/Sim/ 에 Burst 잡. EditMode 테스트로 수렴·에너지·잠들기 확인",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T06:28:58.625Z",
+          "by": "Claude Code",
+          "label": "커널 첫 판: 제자리 용수철·감쇠·손 밀기/끌기·무리 2단계 용수철·소환·소멸. .NET 테스트 10개 중 7개 통과",
+          "result": "fail",
+          "why": "뭉침이 퍼짐을 못 줄임, 묻어남 0개, 소환이 3.4cm 지나침"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-10T06:28:58.843Z",
+          "by": "Claude Code",
+          "label": "무리 속도로 끌어당기는 점성 추가, 묻어남은 손 근처·제자리 근처에서만 충전, 소환 응답 30/s. 테스트 10/10",
+          "result": "ok"
+        }
+      ]
+    },
+    {
+      "id": "build-4a39-build-d0ce",
+      "title": "셰이더가 입자 위치 텍스처를 읽어 그린다 (가만히 있을 때 일렁임은 셰이더가 맡는다)",
+      "owner": "",
+      "updatedAt": "2026-11-10T11:53:41.227Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 2,
+      "how": "LetterSplatURP.shader 정점 단계, SplatLetterRenderer 가 위치 텍스처를 올림",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T06:35:14.912Z",
+          "by": "Claude Code",
+          "label": "셰이더가 입자 위치 텍스처(RGBAFloat 256폭, 입자당 2텍셀)를 정점에서 읽음. 에디터 배치 렌더로 쓸기·소환·소멸 시트 확인 (증거 L2)",
+          "result": "pending",
+          "why": "기기에서 정점 텍스처 읽기와 Burst 잡이 도는지는 실기 미확인"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-10T11:43:57.500Z",
+          "by": "Claude Code",
+          "label": "빌드 42ba43f-dirty-1110-204027 실기: 예외 0, 72fps, 손 닿을 때 시뮬레이션 1.6~1.9ms, 손 떼면 잠듦 (증거 L3, unity/mood-picker/evidence/build-4a39/42ba43f-dirty-1110-204027/)",
+          "result": "pending",
+          "why": "사람 판정과 발열 비교 전"
+        }
+      ]
+    },
+    {
+      "id": "build-4a39-build-2681",
+      "title": "손가락 단위 충돌체: 손마다 손끝 다섯과 손바닥을 따로 넘긴다",
+      "owner": "",
+      "updatedAt": "2026-11-10T11:53:41.451Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 3,
+      "how": "SplatOvrHandBridge",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T06:35:15.124Z",
+          "by": "Claude Code",
+          "label": "손마다 손끝 다섯+손바닥을 공용 손 입력(IHandInput) 경유로 넘김. HandPose 에 새끼손가락 끝 추가. EditMode 297/298 (실패 1개는 손대지 않은 Folio 테스트)",
+          "result": "pending",
+          "why": "실기 미확인"
+        }
+      ]
+    },
+    {
+      "id": "build-4a39-build-b775",
+      "title": "조율 패널: 모든 값을 헤드셋 안에서 바꾼다 (Immersive Debugger)",
+      "owner": "",
+      "updatedAt": "2026-11-10T12:10:07.004Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 4,
+      "how": "설정 한곳(SplatSimSettings)에 모으고 DebugMember 로 노출",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T06:35:15.333Z",
+          "by": "Claude Code",
+          "label": "SplatTuning 한곳에 값 60여 개. Immersive Debugger 켜고 타입 등록, 맥에서 tuning.json 을 밀어 넣는 경로도 추가",
+          "result": "pending",
+          "why": "패널이 손만으로 조작되는지 실기 미확인"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-10T11:43:57.711Z",
+          "by": "Claude Code",
+          "label": "첫 빌드는 패널용 오버레이 셰이더가 빌드에서 빠져 매 프레임 예외",
+          "result": "fail",
+          "why": "OVROverlayCanvasSettings 에셋이 없어 런타임 Shader.Find 가 null"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-10T11:43:57.924Z",
+          "by": "Claude Code",
+          "label": "씬 구성에서 OVROverlayCanvasSettings 에셋 생성 → 패널이 기기에 뜨고 내 범주(1 Spring~)가 보임 (스크린샷)",
+          "result": "pending",
+          "why": "손으로 값이 바뀌는지는 사람 확인 전"
+        }
+      ]
+    },
+    {
+      "id": "build-4a39-verify-133b",
+      "title": "실기 발열·프레임 비교: 기존 빌드와 새 빌드를 같은 조건으로 10분씩",
+      "owner": "",
+      "updatedAt": "2026-11-10T11:53:41.000Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "verify",
+      "by": "human",
+      "status": "done",
+      "order": 5,
+      "how": "기존 APK 8c63c15-dirty-1110-103808 대 새 빌드. 온도·VrApi FPS·CPU/GPU 레벨 기록. 나쁘면 기존 방식 유지"
+    },
+    {
+      "id": "build-4a39-verify-7df5",
+      "title": "실기 조율: 물방울 느낌을 헤드셋에서 값 돌리며 찾기",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:12:21.038Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "verify",
+      "by": "human",
+      "status": "todo",
+      "order": 6,
+      "how": "조율 패널. 찾은 값은 설정 에셋 기본값으로 옮긴다"
+    },
+    {
+      "id": "build-9580",
+      "title": "채집 실험: 카메라 화면 조각을 스플랫 질감으로 (1110 인계 문서 8번)",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:35:22.312Z",
+      "updatedBy": "Claude Code",
+      "type": "build",
+      "stage": "build",
+      "order": 10,
+      "status": "todo",
+      "goal": "권한·SDK 문제 없이 되는지, 실내 화질로도 질감이 예쁜지, 성능 부담이 어떤지 반나절 안에 판정한다",
+      "output": "Assets/Scripts/Splatter/Ovr/SplatCameraCatch.cs, 실기 판정 메모"
+    },
+    {
+      "id": "build-9580-build-959a",
+      "title": "실시간 카메라 가운데 조각을 글자 질감으로 입히고, 찰칵으로 512px 정지 질감으로 고정",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:35:36.891Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9580",
+      "kind": "build",
+      "by": "agent",
+      "status": "review",
+      "order": 0,
+      "how": "조율 패널 8 Catch: liveCamera 켜기, Catch, ReleaseCatch. 카메라는 켰을 때만 돈다",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T06:35:36.681Z",
+          "by": "Claude Code",
+          "label": "SplatCameraCatch: 카메라 GPU 텍스처를 읽기 복사 없이 바로 셰이더에 물림(거울 타일링 + 가운데 크롭), 찰칵은 512px RenderTexture 로 Blit. 컴파일·EditMode 규칙 통과",
+          "result": "pending",
+          "why": "카메라 접근은 실기에서만 돈다"
+        }
+      ]
+    },
+    {
+      "id": "build-9580-verify-5857",
+      "title": "실기 판정: 되는가, 실내에서 예쁜가, 프레임·발열은",
+      "owner": "",
+      "updatedAt": "2026-11-10T06:35:28.161Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-9580",
+      "kind": "verify",
+      "by": "human",
+      "status": "todo",
+      "order": 1,
+      "how": "liveCamera 를 켜고 방 안 여러 곳을 본다. cameraCrop·cameraGamma·triplanarScale 을 돌려 본다"
+    },
+    {
+      "id": "build-4a39-build-5784",
+      "title": "조율을 마이크로제스처로: 엄지 쓸기로 항목 고르고 값 바꾸기, 톡으로 숨기기. 움직임 값만 보이는 작은 목록",
+      "owner": "",
+      "updatedAt": "2026-11-10T12:10:06.552Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 7,
+      "how": "Hands 에 IMicrogestureInput, Splatter/Ovr/SplatFeelDial. 오른손. 바꾼 값은 자동 저장",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T12:10:06.311Z",
+          "by": "Claude Code",
+          "label": "빌드 26d07fa-dirty-1110-205527: 오른손 엄지 쓸기·톡으로 값 목록 조작",
+          "result": "ok",
+          "why": "사람 확인(채팅): 마이크로제스처 잘 인식됨, 한글로 바꿀 필요 없음"
+        }
+      ]
+    },
+    {
+      "id": "build-4a39-build-8324",
+      "title": "눈마다 다른 반짝임: 영상에 구워진 반짝임 대신 점마다의 기울기와 각 눈의 시선으로 계산",
+      "owner": "",
+      "updatedAt": "2026-11-11T00:48:30.682Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 8,
+      "how": "LetterSplatURP.shader 정점 단계 glint, 다이얼 Glint 6항목",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-10T16:25:15.572Z",
+          "by": "Claude Code",
+          "label": "첫 판: 반짝이는 점을 1.8배 키워 시선 쪽으로 세움 → 에디터 렌더에서 이웃에 잘린 초승달 조각 10여 개",
+          "result": "fail",
+          "why": "크고 적고 모양이 깨짐"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-10T16:25:15.778Z",
+          "by": "Claude Code",
+          "label": "둘째 판: 앞으로 띄우고 부드러운 가장자리 → 둥근 흰 구슬이 뭉쳐 보임 (사람이 싫어한 스티로폼 쪽)",
+          "result": "fail",
+          "why": "물결 기울기가 이웃끼리 같아 무리 지음, 점 전체가 밝음"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-10T16:25:15.994Z",
+          "by": "Claude Code",
+          "label": "셋째 판: 점마다 고유한 면 기울기 + 약한 물결, 가운데만 밝은 작은 빛점. 두 눈 위치 렌더에서 밝은 화소 약 12300개씩 중 겹침 약 4950 (증거 L2, evidence/build-4a39/editor-stereo-glint-1111.png). 빌드 94bf813-dirty-1111-012234 설치",
+          "result": "pending",
+          "why": "헤드셋 미착용이라 실행·체감 미확인"
+        },
+        {
+          "n": 4,
+          "at": "2026-11-11T00:48:30.243Z",
+          "by": "Claude Code",
+          "label": "빌드 94bf813-dirty-1111-012234 실기에서 사람이 봄",
+          "result": "fail",
+          "why": "사람 판정: 너무 후처리 느낌, 윤슬엔 별로. 롤백"
+        }
+      ]
+    },
+    {
+      "id": "build-4a39-build-67dd",
+      "title": "윤슬 실사감 1: 셰이더가 영상 위에 더하던 하늘색 물빛 띠와 흰 하이라이트를 다이얼 Overlay 로 끌 수 있게",
+      "owner": "",
+      "updatedAt": "2026-11-11T00:58:43.504Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-4a39",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 9,
+      "how": "LetterSplatURP.shader mode 0, _GlowParams.z. 기본 1(지금과 같음), 0 이면 촬영한 색만",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T00:54:35.906Z",
+          "by": "Claude Code",
+          "label": "빌드 70922fa-dirty-1111-095150 설치·실행 (빌드 ID 일치, 예외 0). 다이얼 Overlay 0~1, 4칸",
+          "result": "pending",
+          "why": "켜고 끈 차이의 사람 판정 전"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T00:58:43.277Z",
+          "by": "Claude Code",
+          "label": "사람이 다이얼로 Overlay 0 과 1 을 비교",
+          "result": "ok",
+          "why": "사람 판정: 오버레이는 있는 게 낫다 → 기본 1 유지"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0",
+      "title": "한 바퀴: 진열대에서 재료를 집어 형태에 대면 번지며 바뀌고, 형태를 바꾸고, 고정하고, 저장한다 (1110 인계 문서 6번 갖는다·쓴다)",
+      "owner": "",
+      "updatedAt": "2026-11-11T01:38:20.904Z",
+      "updatedBy": "Claude Code",
+      "type": "build",
+      "stage": "build",
+      "order": 11,
+      "status": "todo",
+      "goal": "판정자가 혼자 3분 안에: 진열대와 형태가 보임 → 만지면 반응 → 재료를 집어 형태에 댐 → 고정하고 저장",
+      "output": "SplatShelf, SplatStillCapture, 형태 28개(A~Z·구·도넛), 편집기 한 바퀴 시트"
+    },
+    {
+      "id": "build-8ac0-build-c188",
+      "title": "진열대: 재료 덩어리 + 채집 시각 이름표. 집기(핀치)·나르기·놓으면 돌아가기·흡수 뒤 다시 자라기",
+      "owner": "",
+      "updatedAt": "2026-11-11T13:04:50.171Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "SplatShelf. 재료는 SplatSurfaceMaterial, 에셋은 SplatPigmentSlotAsset.capturedAt",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T01:38:41.931Z",
+          "by": "Claude Code",
+          "label": "편집기 한 바퀴 시트 (증거 L2, evidence/build-4a39/9d9e0b0-dirty-1111-103533/editor-loop.png). 코어 16/16, 시뮬레이션 10/10, EditMode 304/304. 빌드 9d9e0b0-dirty-1111-103533 설치",
+          "result": "pending",
+          "why": "헤드셋 미착용이라 실행 미확인"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T13:04:49.941Z",
+          "by": "Claude Code",
+          "label": "사람이 헤드셋에서 진열대 구슬을 집어 형태에 댐",
+          "result": "ok",
+          "why": "사람: 진열대에서 집어서 번지는 건 좋다"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0-build-e6e9",
+      "title": "쓰기: 덩어리가 형태에 닿으면 닿은 점에서 새 재료가 번져 나감 (파면에 살짝 부풂)",
+      "owner": "",
+      "updatedAt": "2026-11-11T13:04:50.603Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 1,
+      "how": "셰이더 _Atlas2/_Apply, SplatApplyWave",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T01:38:42.340Z",
+          "by": "Claude Code",
+          "label": "편집기 한 바퀴 시트 (증거 L2, evidence/build-4a39/9d9e0b0-dirty-1111-103533/editor-loop.png). 코어 16/16, 시뮬레이션 10/10, EditMode 304/304. 빌드 9d9e0b0-dirty-1111-103533 설치",
+          "result": "pending",
+          "why": "헤드셋 미착용이라 실행 미확인"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T13:04:50.379Z",
+          "by": "Claude Code",
+          "label": "사람이 헤드셋에서 구슬을 대어 번짐을 봄",
+          "result": "ok",
+          "why": "사람: 집어서 번지는 건 좋다"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0-build-ccce",
+      "title": "형태 28개: A(확정 글자)·B~Z(같은 Fraunces, 같은 배율)·구·도넛. 왼손 엄지 쓸기로 바꿈, 바꿀 때 흩어졌다 손끝에서 다시 모임",
+      "owner": "",
+      "updatedAt": "2026-11-11T06:13:52.763Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 2,
+      "how": "tools/splatter-glyph/make_alphabet.py, SplatShapeMeshes, 백그라운드 스레드 샘플링",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T01:38:41.510Z",
+          "by": "Claude Code",
+          "label": "편집기 한 바퀴: B 가 거울상으로 보임 (A 는 좌우 대칭이라 그동안 안 드러남)",
+          "result": "fail",
+          "why": "glTF 앞면이 사용자 반대쪽. 형태 몸체를 Y 180도 돌려 해결"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T01:38:41.722Z",
+          "by": "Claude Code",
+          "label": "편집기에서 형태 빌드가 끝나지 않음",
+          "result": "fail",
+          "why": "편집기 루프가 실제 시간보다 빨라 백그라운드 작업(147ms)을 안 기다림. 미리보기만 실제 시간 대기로 수정, 런타임 버그 아님"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-11T01:38:42.750Z",
+          "by": "Claude Code",
+          "label": "편집기 한 바퀴 시트 (증거 L2, evidence/build-4a39/9d9e0b0-dirty-1111-103533/editor-loop.png). 코어 16/16, 시뮬레이션 10/10, EditMode 304/304. 빌드 9d9e0b0-dirty-1111-103533 설치",
+          "result": "pending",
+          "why": "헤드셋 미착용이라 실행 미확인"
+        },
+        {
+          "n": 4,
+          "at": "2026-11-11T06:13:52.306Z",
+          "by": "Claude Code",
+          "label": "사람이 헤드셋에서 A→B 를 바꿔 봄",
+          "result": "ok",
+          "why": "사람: 그 자리에서 퍼졌다 모이는 모습은 괜찮았다"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0-build-2f7a",
+      "title": "고정과 저장: 왼손 엄지 앞으로 쓸기 = 고정(고정 중이면 저장), 뒤로 쓸기 = 재개. 투명 배경 2048px PNG",
+      "owner": "",
+      "updatedAt": "2026-11-11T13:12:42.607Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 3,
+      "how": "SplatStillCapture, 기기 경로 files/stills/",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T01:38:43.160Z",
+          "by": "Claude Code",
+          "label": "편집기 한 바퀴 시트 (증거 L2, evidence/build-4a39/9d9e0b0-dirty-1111-103533/editor-loop.png). 코어 16/16, 시뮬레이션 10/10, EditMode 304/304. 빌드 9d9e0b0-dirty-1111-103533 설치",
+          "result": "pending",
+          "why": "헤드셋 미착용이라 실행 미확인"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T13:04:50.813Z",
+          "by": "Claude Code",
+          "label": "왼손 짧은 핀치 = 고정 토글, 왼손 엄지 톡 = 저장 (빌드 8ea1792-dirty-1111-214407)",
+          "result": "fail",
+          "why": "사람: 저장한 적 없는데 저장되거나, 재개가 마음대로 안 됨. 엄지 톡 말고 쓸기 같은 더 확실한 동작으로"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-11T13:08:27.865Z",
+          "by": "Claude Code",
+          "label": "엄지 톡·짧은 핀치를 빼고 앞/뒤 쓸기로. 핀치 중·덩어리 들고 있을 때·핀치 직후 0.35초는 왼손 쓸기 무시. 고정·재개·저장 때 글자 표시. 코어 19/19. 빌드 4e8f69d-dirty-1111-220553 설치·실행 예외 0",
+          "result": "pending",
+          "why": "사람 판정 전"
+        },
+        {
+          "n": 4,
+          "at": "2026-11-11T13:12:42.379Z",
+          "by": "Claude Code",
+          "label": "사람이 앞뒤 쓸기로 고정·재개·저장 (빌드 4e8f69d-dirty-1111-220553). 기기 저장본 splat-20261111-221130.png 2048px 투명 배경 확인",
+          "result": "ok",
+          "why": "사람: 좋아요 이거 베리굿"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0-verify-e2c3",
+      "title": "실기: 한 바퀴를 혼자 돌 수 있는가, 프레임·예외",
+      "owner": "",
+      "updatedAt": "2026-11-11T13:12:43.045Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "verify",
+      "by": "human",
+      "status": "done",
+      "order": 4,
+      "how": "헤드셋에서 집기→대기→형태 바꾸기→고정→저장"
+    },
+    {
+      "id": "build-8ac0-build-ff89",
+      "title": "움직임 두 층: 형태 바뀜(소환·해제·제자리 변형) × 물성 다섯 값(무게·뭉침·끈기·탄성·알갱이; 물·모래·잎·젤리). 재료를 입히면 형태의 물성도 바뀜",
+      "owner": "",
+      "updatedAt": "2026-11-11T06:13:52.540Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 5,
+      "how": "SplatFeel/SplatFeelMap (Sim), Bursting·Gathering 모드, MapByShape. 다이얼 맨 위 다섯 줄",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T05:57:28.010Z",
+          "by": "Claude Code",
+          "label": "첫 판: 제자리 변형이 20cm 가까이 퍼짐",
+          "result": "fail",
+          "why": "퍼짐 속도 0.6m/s·감쇠 3.3 → 이동 약 19cm. 속도 0.16~0.3, 감쇠 3.5~7 로 줄여 3~7cm"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T05:57:28.216Z",
+          "by": "Claude Code",
+          "label": "기기에서 물 물성의 무게로 몇 mm 처진 채 시뮬레이션이 잠들지 않음 (1.8ms 계속)",
+          "result": "fail",
+          "why": "잠들기 판정이 제자리 거리 기준. 속도 기준으로 바꾸고 처진 모양을 유지한 채 잠들게 수정 → 0.00ms 확인"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-11T05:57:28.422Z",
+          "by": "Claude Code",
+          "label": "편집기 시트(evidence/build-8ac0/9d9e0b0-dirty-1111-145147/editor-loop.png), 시뮬레이션 14/14(물이 모래보다 덩어리로 뭉침 포함), 빌드 9d9e0b0-dirty-1111-145511 기기 실행·잠들기 확인",
+          "result": "pending",
+          "why": "사람 체감 전"
+        },
+        {
+          "n": 4,
+          "at": "2026-11-11T06:12:17.468Z",
+          "by": "Claude Code",
+          "label": "사람이 헤드셋에서 물성 다섯 값을 돌려 물방울 값을 찾음 → SplatFeel.Water 와 윤슬 두 재료에 넣고 테스트로 고정. 빌드 9d9e0b0-dirty-1111-151006",
+          "result": "ok",
+          "why": "사람: 현재 파라미터가 가장 물방울 같이 느껴진다"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0-build-3c5e",
+      "title": "은행나무 재료: IMG_4543(11.10 13:30) + 빛 모드(잔잔한 색 바탕 + 순간 반짝임·번짐)",
+      "owner": "",
+      "updatedAt": "2026-11-11T12:53:46.789Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 6,
+      "how": "Pigment LightLayers, 셰이더 mode 5, Slot2_IMG4543_{Atlas,Calm,Spark}",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T05:57:28.630Z",
+          "by": "Claude Code",
+          "label": "루프 1.00초(30프레임), 반짝임 덮는 비율 4.0%. 편집기에서 A 에 대면 아래 오른쪽부터 금빛으로 번짐",
+          "result": "pending",
+          "why": "기기에서 빛 모드 미확인"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T12:53:46.560Z",
+          "by": "Claude Code",
+          "label": "사람이 헤드셋에서 은행 색 구슬을 봄 (빌드 8ea1792-dirty-1111-214407, 보이는 값은 모두 기본값)",
+          "result": "ok",
+          "why": "사람: 지금 은행 상태 마음에 든다"
+        }
+      ]
+    },
+    {
+      "id": "build-8ac0-build-b5dd",
+      "title": "구슬 두 종류: 색 구슬(윤슬·노을·은행·채집)은 색만, 물성 구슬(물방울·모래·복실털)은 움직임만 바꿈. 물성 구슬은 클레이(D14), 대면 닿은 자리를 찔러 새 물성이 바로 보임. 여섯째 값 털",
+      "owner": "",
+      "updatedAt": "2026-11-11T12:46:51.554Z",
+      "updatedBy": "Claude Code",
+      "parent": "build-8ac0",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 7,
+      "how": "SplatShelf 두 줄, SplatFeelAsset(Assets/Feels), SplatWordController.ApplyFeel, 셰이더 _FurParams",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-11T06:24:56.709Z",
+          "by": "Claude Code",
+          "label": "편집기 한 바퀴: 윤슬 A → 은행 구슬 → 은행 물방울 → 모래 구슬 → 은행 모래 → B 변형 → 복실털 구슬 → 은행 복실털 B (evidence/build-8ac0/8ea1792-dirty-1111-152209/editor-loop.png). 기기 실행 72fps·예외 0",
+          "result": "pending",
+          "why": "헤드셋 판정 전"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-11T12:40:35.927Z",
+          "by": "Claude Code",
+          "label": "사람이 복실털 구슬 값을 다이얼로 찾아 고정 요청 → SplatFeel.Fur·Assets/Feels/Fur.asset·테스트 고정. 빌드 8ea1792-dirty-1111-213823 실행·예외 0",
+          "result": "ok",
+          "why": "사람: 현재값을 fur 로 고정"
+        }
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "id": "brief__concept",
+      "source": "brief",
+      "target": "concept"
+    },
+    {
+      "id": "brief__moodboard",
+      "source": "brief",
+      "target": "moodboard"
+    },
+    {
+      "id": "concept__video",
+      "source": "concept",
+      "target": "video"
+    },
+    {
+      "id": "moodboard__video",
+      "source": "moodboard",
+      "target": "video"
+    },
+    {
+      "id": "space-photo__video",
+      "source": "space-photo",
+      "target": "video"
+    },
+    {
+      "id": "video__spec",
+      "source": "video",
+      "target": "spec"
+    },
+    {
+      "id": "spec__build",
+      "source": "spec",
+      "target": "build"
+    },
+    {
+      "id": "use-calibration__build",
+      "source": "use-calibration",
+      "target": "build"
+    },
+    {
+      "id": "build__review",
+      "source": "build",
+      "target": "review"
+    },
+    {
+      "id": "review__build",
+      "source": "review",
+      "target": "build",
+      "label": "차이 수정",
+      "kind": "feedback"
+    },
+    {
+      "id": "build-414a__build-541d",
+      "source": "build-414a",
+      "target": "build-541d"
+    },
+    {
+      "id": "build-541d__build-bb7f",
+      "source": "build-541d",
+      "target": "build-bb7f"
+    },
+    {
+      "id": "build-bb7f__build-d4b6",
+      "source": "build-bb7f",
+      "target": "build-d4b6"
+    }
+  ]
+}

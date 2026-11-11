@@ -1,0 +1,84 @@
+# 장면 명세서 — 영상 → 구현의 계약서
+# 원천 브리프: splatter/letter-pigment-splat-brief.md
+
+meta:
+  title: Letter Pigment Splat
+  source_video: splatter/letter-pigment-splat-brief.md
+  duration_s: 60
+  bpm: null
+
+desk:
+  origin: front_edge_center
+  axes: {x: right, y: up, z: into_desk}
+  units: m
+  size_m: [1.05, 0.50]
+  height_m: 0.75
+  surface_offset_mm: 0
+  calibration:
+    fingertip_pad_offset_mm: 6
+    touch_enter_mm: 5
+    touch_exit_mm: 12
+
+objects:
+  - id: splat_word
+    role: 표면 면적 비례 가우시안 스플랫 구름으로 구성된 3D 입체 글자 묶음
+    pos_m: [0.0, 0.25, 0.45]
+    size_m: [0.38, 0.085, 0.028]
+    appear: {t_s: 0.0, beat: null, how: "정면 호버링 상태로 등장"}
+    idle: "글자마다 sin(0.5T + 0.9*i)*0.55 회전 및 sin(1.3T + 0.9*i)*0.04*size 상하 둥실"
+    ref_frames: ["letter-pigment-splat-brief.md#4"]
+
+timeline: []
+
+interactions:
+  - {target: splat_word, gesture: pinch, response: "글자 선택 및 슬롯(1~3)·셰이더 모드(0~4: 그대로/2톤셀/Glint/Chrome/Caustic) 전환", sfx: null}
+
+perf:
+  - {target: splat_cloud, tag: costly, fallback: "스플랫 위치 고정 + GPU StructuredBuffer 인스턴스드 쿼드 + 스플랫 수 상한 슬라이더로 Quest 3 60~72fps 유지"}
+
+assumptions:
+  - {id: a1, task: build-414a, field: objects.splat_word.size_m, text: "초기 글자 묶음 규격은 ORION.glb 기준(폭 38cm, 높이 8.5cm, 두께 2.8cm)으로 출발", confidence: mid, status: open}
+  - {id: a2, task: build-541d, field: perf.splat_cloud, text: "글자당 스플랫 수는 10,000개 베이스라인(슬라이더 조절 가능)으로 시작하고, 기본 룩은 브리프 §7대로 2톤 셀(모드 1)로 둔다", confidence: mid, status: confirmed, resolvedBy: 나, resolvedAt: 2026-11-09T12:27:21.255Z}
+  - {id: a3, field: interactions.splat_word.water_splash, text: 불투명 구체(스티로폼) 배제하고 투명/반투명 빛의 파편 파쇄 효과로 전환, confidence: high, source: feel:f1, status: open, by: agent, at: 2026-11-09T14:07:18.913Z}
+  - {id: a4, field: interactions.pinch_magic, text: "왼손 단독 핀치는 소환(공중 수렴+빛남)/모래낙하소멸 상태 토글, 양손 핀치는 엄격한 거리·제스처 판정으로 이동·크기조절 전용 처리", confidence: mid, source: feel:f2, status: open, by: agent, at: 2026-11-09T14:29:40.219Z}
+  - {id: a5, field: interactions.summon_animation, text: "대문자 A 단일 글자 전환, 소환 지속시간 3.0초(외곽 나선 기류 수렴 + 가속 결집 + 안착 섬광)", confidence: mid, source: feel:f3, status: open, by: agent, at: 2026-11-09T15:00:05.689Z}
+  - {id: a6, field: interactions.summon_animation, text: "해석: 소환 시작을 글자 반경 0.22 안(시야 안)으로 줄이고, 왼쪽→오른쪽으로 순차 안착(3.4초), 소멸은 0.25초 처짐 후 가속 낙하(1.7초)로 바꿈. 영상으로 보니 구름과 글자가 따로 보여 인과가 약함 (f5)", confidence: low, source: feel:f4, status: rejected, by: Claude Code, at: 2026-11-09T16:03:12.566Z, note: 손끝 시작 방식(a8)으로 대체됨. 반경 0.22 구름 방식은 녹화에서 인과가 약해 폐기, resolvedBy: Claude Code, resolvedAt: 2026-11-10T05:25:58.855Z}
+  - {id: a7, task: build-9c56-build-8c8f, text: "굵기는 Fraunces 72pt Black(SOFT 0, WONK 0)으로 에이전트가 고름. 기존 Unbounded A 와 같은 크기(높이 0.18m, 두께 0.0324m)·중심", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T05:25:41.674Z}
+  - {id: a8, task: build-9c56, field: interactions.summon_animation, text: "소환 시작점은 왼손 핀치 위치, 손이 안 잡히면 얼굴 앞 가슴 높이", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T05:25:43.176Z}
+  - {id: a9, task: build-9c56, field: objects.splat_word.font, text: "글자 폰트 = Fraunces 72pt Black (사람: 폰트는 좋아요)", confidence: high, status: confirmed, by: Claude Code, at: 2026-11-10T05:25:43.399Z, resolvedBy: Claude Code, resolvedAt: 2026-11-10T05:25:58.639Z}
+  - {id: a10, task: build-4a39-write-c947, text: "build-9c56 의 남은 수치 조정(-08c4)·글자 위치 결정(-634f)은 접는다. 소환·소멸은 새 입자 모델의 도착 시간으로 다시 만든다 (사람 승인 2026-11-10: 발열이 괜찮다면 가능, 그 외 결정은 맡김)", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T06:12:32.574Z}
+  - {id: a11, task: build-4a39, field: interactions.summon_animation, text: "해석: 파티클과 글자가 따로 보이는 것은 수식으로 그린 구름이라 입자가 실제로 이동하지 않기 때문. 수치 조정 대신 입자가 손에서 출발해 용수철로 제자리에 끌려가는 모델(build-4a39)로 바꾼다", confidence: mid, source: feel:f5, status: open, by: Claude Code, at: 2026-11-10T06:12:32.797Z}
+  - {id: a12, task: build-4a39-build-f7a2, text: "물방울 기본값(용수철 180, 감쇠 5, 뭉침 0.7, 손 밀기 60, 끌기 18 등)은 전부 베이스라인. 헤드셋에서 조율 전", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T06:28:59.099Z}
+  - {id: a13, task: build-4a39-build-f7a2, text: 시뮬레이션은 월드 공간. 형태가 움직이면 입자가 (1-carry) 만큼 뒤처져 출렁인다 (carry 0.85), confidence: mid, status: open, by: Claude Code, at: 2026-11-10T06:28:59.107Z}
+  - {id: a14, task: build-4a39-verify-133b, text: "사람 체감 판정(2026-11-10 채팅): 발열은 기존 빌드 대비 괜찮은 듯. 10분 대 10분 수치 비교는 하지 않았다. 기기 로그상 72~73fps, CPU/GPU 레벨 2/2", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T11:53:40.994Z}
+  - {id: a15, task: build-4a39-build-d0ce, text: "사람 확인(2026-11-10 채팅): 손 느낌은 잘 바뀐다. 초기 값은 젖은 모래 같았다 → 물방울 기본값은 아직 못 찾음", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T11:53:41.222Z}
+  - {id: a16, task: build-4a39-build-2681, text: "사람 확인(2026-11-10 채팅): 손 느낌은 잘 바뀐다. 초기 값은 젖은 모래 같았다 → 물방울 기본값은 아직 못 찾음", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T11:53:41.445Z}
+  - {id: a17, task: build-4a39-build-5784, text: "쓸기 방향(앞/뒤=항목, 오른쪽/왼쪽=값)과 한 칸 크기(범위의 1/16)는 베이스라인. 사람이 방향을 문제 삼지 않음", confidence: mid, status: open, by: Claude Code, at: 2026-11-10T12:10:06.540Z}
+  - {id: a18, task: build-4a39-build-67dd, text: "덧칠이 실사감을 깎는다는 내 가정은 틀렸다 (사람 판정). 기본값 1 유지, 다이얼 항목은 남겨 둠", confidence: mid, status: open, by: Claude Code, at: 2026-11-11T00:58:43.498Z}
+  - {id: a19, task: build-8ac0, text: "진열대 위치 = 형태 아래 17cm·앞 7cm, 덩어리 반지름 2.6cm·간격 7.5cm, 집기 반경 덩어리+3.5cm, 닿음 = 표면까지 반지름의 0.8, 번짐 속도 0.32m/s. 전부 베이스라인", confidence: low, status: open, by: Claude Code, at: 2026-11-11T01:38:43.582Z}
+  - {id: a20, task: build-8ac0, text: "물성 프리셋 값: 물(무게0.15 뭉침0.85 끈기0.25 탄성0.7 알갱이0.2), 모래(0.85/0.12/0.75/0.1/0.85), 잎(0.3/0.25/0.55/0.35/0.65). 윤슬 두 재료=물, 은행나무=잎. 다섯 값→세부 값 대응도 전부 베이스라인", confidence: low, status: rejected, by: Claude Code, at: 2026-11-11T05:57:29.260Z, note: "물 프리셋 추정(뭉침 0.85 등)은 틀렸음. 사람이 찾은 값: 무게 0.2 뭉침 0.2 끈기 0.1 탄성 0.2 알갱이 1.0. 모래·잎·젤리는 아직 추정", resolvedBy: Claude Code, resolvedAt: 2026-11-11T06:12:17.692Z}
+  - {id: a21, task: build-8ac0-build-ff89, text: 모래·잎·젤리 프리셋 값과 형태 바꿀 때의 퍼짐 크기(3~7cm)·모임 순서는 베이스라인. 물만 사람이 찾은 값, confidence: mid, status: open, by: Claude Code, at: 2026-11-11T06:13:52.526Z}
+  - {id: a22, task: build-8ac0-build-ccce, text: B~Z 는 A 와 같은 Fraunces·두께로 새로 만들었지만 배율은 H 높이 기준이라 기존 A 와 비율이 미묘하게 다를 수 있음, confidence: mid, status: open, by: Claude Code, at: 2026-11-11T06:13:52.757Z}
+  - {id: a23, task: build-8ac0, text: "모래(무게0.85 뭉침0.12 끈기0.75 탄성0.1 알갱이0.85)·복실털(0.15/0.6/0.4/0.8/0.3, 털1) 값과 털 길이 3배는 베이스라인. 물방울만 사람 확인. 물성 구슬 이름표는 영어(drop/sand/fur), 색 구슬은 채집 시각", confidence: low, status: rejected, by: Claude Code, at: 2026-11-11T06:24:57.138Z, note: "모래·복실털 추정값은 사람이 찾은 값으로 바뀜 (모래 0.7/0.3/0.7/0.8/1/0, 복실털 0.1/0.7/0.2/0.7/1/1)", resolvedBy: Claude Code, resolvedAt: 2026-11-11T12:46:51.772Z}
+  - {id: a24, task: build-8ac0-build-b5dd, text: "물성 구슬 이름표는 영어(drop/sand/fur), 색 구슬은 채집 시각. 털 길이 3배는 전역 값", confidence: mid, status: open, by: Claude Code, at: 2026-11-11T12:46:51.548Z}
+  - {id: a25, task: build-8ac0-build-3c5e, text: "빛 모드 수치(바탕 흐림 7px, 반짝임 문턱, 따뜻한 그림자 색)는 웹 아티팩트 그대로 옮긴 값. 사람이 확인", confidence: high, status: open, by: Claude Code, at: 2026-11-11T12:53:46.782Z}
+  - {id: a26, task: build-8ac0-build-c188, text: 진열대 위치·구슬 크기·집는 거리는 베이스라인이지만 사람이 쓰는 데 문제 삼지 않음, confidence: mid, status: open, by: Claude Code, at: 2026-11-11T13:04:50.165Z}
+  - {id: a27, task: build-8ac0-build-e6e9, text: "번짐 속도 0.32m/s·파면 부풂 4mm 는 베이스라인, 사람이 문제 삼지 않음", confidence: mid, status: open, by: Claude Code, at: 2026-11-11T13:04:50.596Z}
+  - {id: a28, task: build-8ac0-build-2f7a, text: "앞/뒤 방향 배정과 핀치 직후 0.35초 무시는 베이스라인, 사람이 문제 삼지 않음. 21:49 의 8초 사이 저장 5장은 엄지 톡 오인식으로 추정", confidence: mid, status: open, by: Claude Code, at: 2026-11-11T13:12:42.601Z}
+  - {id: a29, task: build-8ac0-verify-e2c3, text: "사람(제작자)이 채팅으로 확인: 진열대 집기·번짐 좋다, 제자리 변형 괜찮다, 물방울·모래·복실털 값 고정, 은행 마음에 든다, 쓸기 고정·저장 베리굿. 기기 72fps·예외 0", confidence: high, status: open, by: Claude Code, at: 2026-11-11T13:12:43.031Z}
+
+compromises:
+  - {id: c1, task: build-9c56-build-8c8f, text: 없음, status: accepted, by: Claude Code, at: 2026-11-10T05:25:41.681Z, resolvedBy: Claude Code, resolvedAt: 2026-11-10T05:25:58.206Z}
+  - {id: c2, task: build-4a39-build-b775, text: "Immersive Debugger 패널은 손 드래그가 힘들어 끔 (사람 판정). 60여 개 값은 SplatTuning 에 남아 있고, 헤드셋에서는 다이얼 23항목만 조작. 나머지는 맥에서 tuning.json 으로", status: open, by: Claude Code, at: 2026-11-10T12:10:06.999Z}
+  - {id: c3, task: build-4a39-build-8324, text: 윤슬에서는 끔(기본 0)이고 화면은 넣기 전과 같다. 코드는 SplatGlint.hlsl 모듈로 분리해 다른 재료용으로 보류 (서랍), status: open, by: Claude Code, at: 2026-11-11T00:48:30.676Z}
+
+unknowns:
+  - {id: u1, task: build-d4b6, question: "대문자 A 폰트 선택: Fraunces / DM Serif Display / Playfair Display / Instrument Serif / Bodoni Moda / Cormorant Garamond 중 무엇으로 갈지", ask: human, status: answered, by: agent, at: 2026-11-10T01:18:19.914Z, answer: 현재는 Fraunces, resolvedBy: human, resolvedAt: 2026-11-10T06:09:13.822Z}
+  - {id: u2, task: build-9c56-build-8c8f, question: 없음, ask: human, status: answered, by: Claude Code, at: 2026-11-10T05:25:41.684Z, answer: 해당 없음 (done 때 --none 대신 '없음' 문구를 잘못 남김), resolvedBy: Claude Code, resolvedAt: 2026-11-10T05:25:58.423Z}
+  - {id: u3, task: build-9c56, question: "소환할 때 글자를 시선 정면 팔 길이에 고정할지, 지금처럼 머리 방향을 따라가게 둘지", ask: human, status: answered, by: Claude Code, at: 2026-11-10T05:25:43.619Z, answer: 지금처럼 머리 방향 따라가게, resolvedBy: human, resolvedAt: 2026-11-10T06:09:28.132Z}
+  - {id: u4, task: build-4a39-build-f7a2, question: 3만 입자 Burst 계산이 Quest 3S 에서 몇 ms 이고 발열이 어떤지 (실기 측정 전), ask: human, status: open, by: Claude Code, at: 2026-11-10T06:28:59.112Z}
+  - {id: u5, task: build-8ac0, question: 두 번째 기본 재료(Slot1_IMG4398)는 윤슬이고 촬영 시각을 모름. 핑크뮬리 영상은 이 프로젝트에 없음, ask: human, status: answered, by: Claude Code, at: 2026-11-11T01:38:43.806Z, answer: "사람: 핑크뮬리 대신 은행나무로 바꿈. 은행나무 원본 = videref/IMG_4543.mov (2026-11-10 13:30). IMG_4398 촬영 시각은 아직 모름", resolvedBy: Claude Code, resolvedAt: 2026-11-11T05:57:29.480Z}
+  - {id: u6, task: build-8ac0-build-ff89, question: 은행나무(잎) 물성을 사람이 어떤 값으로 느끼는지, ask: human, status: open, by: Claude Code, at: 2026-11-11T06:13:52.537Z}
+  - {id: u7, task: build-8ac0-verify-e2c3, question: 제작자가 아닌 사람이 설명 없이 3분 안에 한 바퀴를 도는지 (17일 다른 사람 두세 명 시험), ask: human, status: open, by: Claude Code, at: 2026-11-11T13:12:43.042Z}
+
+review: []

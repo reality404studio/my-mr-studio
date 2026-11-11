@@ -1,0 +1,5 @@
+$ grep -q PeriodicTile studio/apps/splatter/nodes/brief/README.md
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 1
+# at: 2026-11-09T07:33:41.358Z
+

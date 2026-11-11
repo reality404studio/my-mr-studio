@@ -1,0 +1,25 @@
+$ python3 -B unity/mood-picker/Assets/Scripts/Splatter/Verification~/verify_compile.py
+# cwd: /Users/rafaela/01_PROJECT_NOW/my-vr-colorpicker/my-mr-studio
+# exit: 0
+# at: 2026-11-09T07:42:39.574Z
+
+Evidence directory: /var/folders/n_/8p5lyp65519c7k__7vz83jgm0000gn/T/splatter-core-check-3b3t6wnj
+PASS Roslyn Checker: 2 source files
+[INFO] xr-loader: Android 로더 1개
+[INFO] render-pipeline: 파이프라인 에셋 있음 (Graphics 기본)
+[INFO] manifest: horizonos.permission.HEADSET_CAMERA 있음
+[INFO] skybox: FirstLight: None
+[INFO] camera: FirstLight: OVRCameraRig 1개
+[INFO] outline-shader: 외곽선 셰이더 1개 검사
+[INFO] shader-colormask: 알파를 빼는 ColorMask 없음 (셰이더 5개)
+[INFO] forbidden-api: 없음 (Shader.Find, ReadPixels, WebCamTexture, OVRInput)
+[INFO] hand-tracking: ControllersAndHands
+[INFO] comment: 주석 없음 (배치 실행 안내 머리말 제외)
+files: PASS
+
+PASS Roslyn MoodPicker.Pigment: 4 source files
+PASS Roslyn MoodPicker.Splatter: 1 source files
+PASS Roslyn Splatter.CoreTests: 2 source files
+Core NUnit (.NET): passed=5 failed=0 skipped=0
+
+PASS Splatter Core & PigmentCore NUnit tests

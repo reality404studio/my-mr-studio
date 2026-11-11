@@ -1,0 +1,48 @@
+[
+  {
+    "file": "splatter-preview.png",
+    "memo": ""
+  },
+  {
+    "file": "splatter-preview-2.png",
+    "memo": "Unity URP 배치모드 오프스크린 렌더링: 상단 2톤 셀+외곽선(#2E3350) 3슬롯, 하단 5모드(Raw, 2-Tone Cel, Glint, Chrome, Caustic) 비교",
+    "addedBy": "Antigravity",
+    "addedAt": "2026-11-09T08:41:08.068Z"
+  },
+  {
+    "file": "splatter-yunseul.gif",
+    "memo": ""
+  },
+  {
+    "file": "splatter-yunseul-2.gif",
+    "memo": "24프레임 윤슬 루프 GIF: 큰 물결 2톤 띠 + 스플랫별 미세 법선(SplatHash3) 윤슬 반짝임 + 2패스 가우시안 페더링",
+    "addedBy": "Antigravity",
+    "addedAt": "2026-11-09T08:54:30.158Z"
+  },
+  {
+    "file": "splatter-real-yunseul.gif",
+    "memo": ""
+  },
+  {
+    "file": "splatter-real-yunseul-2.gif",
+    "memo": "실제 윤슬 영상(IMG_4392.mov 512x524, IMG_4398.MOV)에서 추출한 6x5/7x7 아틀라스 + 브리프 원문 셰이더 5모드 30프레임 루프",
+    "addedBy": "Antigravity",
+    "addedAt": "2026-11-09T11:11:31.786Z"
+  },
+  {
+    "file": "splatter-quest3s.mp4",
+    "memo": ""
+  },
+  {
+    "file": "splatter-quest3s-2.mp4",
+    "memo": "Quest 3S 패스스루 실기기 녹화 (상단 IMG_4392.mov 5종, 하단 IMG_4398.MOV 5종)",
+    "addedBy": "Antigravity",
+    "addedAt": "2026-11-09T11:37:26.629Z"
+  },
+  {
+    "file": "font_candidates_A.png",
+    "memo": "대문자 A 폰트 후보 6종 비교 (스플랫 30,000개, 두께 6mm, 윤슬 질감 동일, 가만히/손 닿음)",
+    "addedBy": "agent",
+    "addedAt": "2026-11-10T01:18:19.655Z"
+  }
+]

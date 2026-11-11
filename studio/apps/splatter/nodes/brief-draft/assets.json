@@ -1,0 +1,32 @@
+[
+  {
+    "file": "check-2026-11-09T07-33-29-451Z.log",
+    "memo": "$ grep -q 한 줄 소개 | 짧은 영상 3개를 studio/apps/splatter/nodes/brief/README.md → exit 127 (실패)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-09T07:33:29.453Z",
+    "check": {
+      "cmd": "grep -q 한 줄 소개 | 짧은 영상 3개를 studio/apps/splatter/nodes/brief/README.md",
+      "exit": 127
+    }
+  },
+  {
+    "file": "check-2026-11-09T07-33-41-358Z.log",
+    "memo": "$ grep -q PeriodicTile studio/apps/splatter/nodes/brief/README.md → exit 1 (실패)",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-09T07:33:41.359Z",
+    "check": {
+      "cmd": "grep -q PeriodicTile studio/apps/splatter/nodes/brief/README.md",
+      "exit": 1
+    }
+  },
+  {
+    "file": "check-2026-11-09T07-34-06-099Z.log",
+    "memo": "$ grep -q Moisan studio/apps/splatter/nodes/brief/README.md → exit 0",
+    "addedBy": "Gemini Argon",
+    "addedAt": "2026-11-09T07:34:06.102Z",
+    "check": {
+      "cmd": "grep -q Moisan studio/apps/splatter/nodes/brief/README.md",
+      "exit": 0
+    }
+  }
+]

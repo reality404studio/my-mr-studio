@@ -456,6 +456,71 @@
       "by": "agent",
       "success": "npm test 의 sessions 테스트(죽은 pid 제외, cwd 필터, 마지막 카드 조인)와 npm run build 통과",
       "proofAt": "2026-11-04T04:50:09.030Z"
+    },
+    {
+      "id": "build-e68e",
+      "title": "영상→가우시안 스플랫 변환 모듈 (VideoSplat)",
+      "owner": "",
+      "updatedAt": "2026-11-09T12:27:39.804Z",
+      "updatedBy": "Antigravity",
+      "type": "build",
+      "stage": "modules",
+      "order": 2,
+      "status": "done",
+      "goal": "임의의 짧은 영상을 심리스 루프 + FFT 주기화 플립북 아틀라스로 굽고 3D 메시를 Quest 3/3S 72fps 고정 가우시안 스플랫으로 렌더링하는 재사용 모듈",
+      "output": "unity/shared/VideoSplat/, unity/mood-picker/Assets/Editor/VideoSplatPipeline.cs"
+    },
+    {
+      "id": "build-9691",
+      "title": "스플랫 글자 핸드 인터랙션 모듈 (SplatWordInteraction)",
+      "owner": "",
+      "updatedAt": "2026-11-09T14:08:14.951Z",
+      "updatedBy": "agent",
+      "type": "build",
+      "stage": "modules",
+      "order": 3,
+      "status": "todo",
+      "goal": "단일·복수 스플랫 글자를 손 닿는 위치(30cm)에 띄우고 한 손 핀치 1:1 드래그 픽업, 양손 핀치 이동·회전·스케일(0.3x~3.8x), 손끝 속도 추적 및 물결·파문·빛 파편 튐 물리 피드백을 제공하는 공용 인터랙션 모듈",
+      "output": "Assets/Scripts/Splatter/Runtime/SplatWordController.cs, Assets/Scripts/Splatter/Ovr/SplatOvrHandBridge.cs"
+    },
+    {
+      "id": "build-9691-build-4ae1",
+      "title": "단일/복수 글자 한 손 1:1 드래그 및 양손 이동·회전·스케일 구현",
+      "owner": "",
+      "updatedAt": "2026-11-09T14:08:35.849Z",
+      "updatedBy": "agent",
+      "parent": "build-9691",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "how": "SplatWordController.cs: UpdateHandInteraction"
+    },
+    {
+      "id": "build-9691-build-bfa3",
+      "title": "손끝 이펙터 속도 추적 및 물결·파문·튐 셰이더 피드백 연결",
+      "owner": "",
+      "updatedAt": "2026-11-09T14:08:36.074Z",
+      "updatedBy": "agent",
+      "parent": "build-9691",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 1,
+      "how": "SplatOvrHandBridge.cs: OVRSkeleton 팁/관절 추적"
+    },
+    {
+      "id": "build-9691-verify-c34f",
+      "title": "실기 검증: Quest 3S에서 30cm 앞 배치, 한 손 픽업 및 양손 스케일, 72fps 고정",
+      "owner": "",
+      "updatedAt": "2026-11-09T14:08:36.321Z",
+      "updatedBy": "agent",
+      "parent": "build-9691",
+      "kind": "verify",
+      "by": "human",
+      "status": "done",
+      "order": 2,
+      "how": "Quest 3S 실기기 조작 녹화(splatter_hand_test.mp4)"
     }
   ],
   "edges": [

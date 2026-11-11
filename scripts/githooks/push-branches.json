@@ -3,6 +3,8 @@
     "mood-picker-setup"
   ],
   "unity/mood-picker": [
-    "orion"
+    "orion",
+    "splatter",
+    "gather"
   ]
 }

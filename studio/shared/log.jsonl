@@ -73,3 +73,30 @@
 {"ts":"2026-11-04T04:50:09.032Z","actor":"Claude Code","action":"asset.add","nodeId":"sessions-panel","detail":"check-2026-11-04T04-50-09-029Z.log","session":"my-vr-colorpicker-c7"}
 {"ts":"2026-11-04T04:50:15.379Z","actor":"Claude Code","action":"notes.append","nodeId":"sessions-panel","detail":"활성 세션 줄 붙임. /api/sessions 가 ~/.claude/sessions/<pid>.json 에서 이름·상태·cwd·시각만 읽고 (.","session":"my-vr-colorpicker-c7"}
 {"ts":"2026-11-04T04:50:15.578Z","actor":"Claude Code","action":"node.update","nodeId":"sessions-panel","detail":"status=done","session":"my-vr-colorpicker-c7"}
+{"ts":"2026-11-09T12:09:32.662Z","actor":"Antigravity","action":"node.create","nodeId":"build-e68e","detail":"영상→가우시안 스플랫 변환 모듈 (VideoSplat)"}
+{"ts":"2026-11-09T12:09:52.905Z","actor":"Antigravity","action":"notes.append","nodeId":"build-e68e","detail":"공용 모듈 구성 완료: (1) unity/shared/VideoSplat/extract_video_frames.sh (ffmpeg 256x256"}
+{"ts":"2026-11-09T12:09:53.122Z","actor":"Antigravity","action":"notes.append","nodeId":"perf-rules","detail":"가우시안 스플랫(VideoSplat) Quest 3S 72fps 고정 규칙 (실기 측정 18fps/55ms -> 72fps/9.95ms): (1"}
+{"ts":"2026-11-09T12:27:39.805Z","actor":"Antigravity","action":"node.update","nodeId":"build-e68e","detail":"status=done"}
+{"ts":"2026-11-09T14:07:28.859Z","actor":"agent","action":"drawer.add","nodeId":null,"detail":"내 눈: 스플랫 튐 시 불투명하고 빽빽한 구체(스티로폼 충전제 같은 덩어리)는 징그러워서 버림. 빛의 방울이 산산이 "}
+{"ts":"2026-11-09T14:07:48.657Z","actor":"agent","action":"drawer.add","nodeId":null,"detail":"번역표: 물처럼 / 빛의 방울"}
+{"ts":"2026-11-09T14:08:14.953Z","actor":"agent","action":"node.create","nodeId":"build-9691","detail":"스플랫 글자 핸드 인터랙션 모듈 (SplatWordInteraction)"}
+{"ts":"2026-11-09T14:08:26.086Z","actor":"agent","action":"sub.create","nodeId":"build-9691-build-4ae1","detail":"단일/복수 글자 한 손 1:1 드래그 및 양손 이동·회전·스케일 구현"}
+{"ts":"2026-11-09T14:08:26.328Z","actor":"agent","action":"sub.create","nodeId":"build-9691-build-bfa3","detail":"손끝 이펙터 속도 추적 및 물결·파문·튐 셰이더 피드백 연결"}
+{"ts":"2026-11-09T14:08:26.546Z","actor":"agent","action":"sub.create","nodeId":"build-9691-verify-c34f","detail":"실기 검증: Quest 3S에서 30cm 앞 배치, 한 손 픽업 및 양손 스케일, 72fps 고정"}
+{"ts":"2026-11-09T14:08:35.849Z","actor":"agent","action":"node.update","nodeId":"build-9691-build-4ae1","detail":"status=done"}
+{"ts":"2026-11-09T14:08:36.076Z","actor":"agent","action":"node.update","nodeId":"build-9691-build-bfa3","detail":"status=done"}
+{"ts":"2026-11-09T14:08:36.321Z","actor":"agent","action":"node.update","nodeId":"build-9691-verify-c34f","detail":"status=done"}
+{"ts":"2026-11-09T14:29:31.615Z","actor":"agent","action":"drawer.add","nodeId":null,"detail":"번역표: 소환 / 모래 낙하 소멸"}
+{"ts":"2026-11-09T14:29:35.884Z","actor":"agent","action":"drawer.add","nodeId":null,"detail":"내 눈: 단손 이동 배제, 양손 핀치만으로 엄격한 확대/축소/이동 제한"}
+{"ts":"2026-11-09T14:55:03.324Z","actor":"agent","action":"notes.append","nodeId":"build-9691","detail":"단어를 threads(7글자)로 전환하고 왼손 단독 핀치로 공중 파티클 모임 소환(잠시 섬광)+재핀치 시 중력 모래 낙하 소멸 토글 구현. 단손"}
+{"ts":"2026-11-09T15:00:00.767Z","actor":"agent","action":"drawer.add","nodeId":null,"detail":"번역표: 신비로운 3초 소환"}
+{"ts":"2026-11-09T15:09:15.462Z","actor":"agent","action":"notes.append","nodeId":"build-9691","detail":"대문자 알파벳 A 로 교체(30,000 스플랫). 소환 연출을 3초 신비로운 나선 소용돌이 수렴 + 반짝이는 별빛 파티클 결집 + 안착 시 고휘"}
+{"ts":"2026-11-10T05:25:59.693Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"보류: 털뭉치(성게) 질감 — 스플랫을 이동 방향으로 늘려 겹쳐 놓은 털 같은 덩어리"}
+{"ts":"2026-11-11T00:48:29.817Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"내 눈: 윤슬에 계산으로 얹은 반짝임(눈마다 다른 빛점)은 버림. 후처리처럼 보인다. 윤슬 반짝임은 최대한 실사 같아"}
+{"ts":"2026-11-11T00:48:30.028Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"보류: 눈별 반짝임 모듈 (점마다의 면 기울기 + 각 눈의 시선으로 빛점 계산)"}
+{"ts":"2026-11-11T00:58:43.067Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"내 눈: 윤슬 셰이더의 물빛 덧칠(하늘색 물빛 띠 + 흰 하이라이트)은 유지. 촬영한 색만 남긴 것보다 낫다"}
+{"ts":"2026-11-11T06:12:17.255Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"번역표: 물방울 같다"}
+{"ts":"2026-11-11T12:40:35.718Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"번역표: 복실털"}
+{"ts":"2026-11-11T12:46:51.328Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"번역표: 모래"}
+{"ts":"2026-11-11T12:53:46.999Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"내 눈: 은행 색 구슬(빛 모드: 흐린 금빛 바탕 + 그 순간만 있는 흰 반짝임)은 지금 상태 그대로 좋다"}
+{"ts":"2026-11-11T13:12:43.253Z","actor":"Claude Code","action":"drawer.add","nodeId":null,"detail":"내 눈: 고정·재개·저장은 엄지 톡·짧은 핀치보다 엄지 앞/뒤 쓸기가 확실하다 (앞=고정, 고정 중 앞=저장, 뒤=재"}

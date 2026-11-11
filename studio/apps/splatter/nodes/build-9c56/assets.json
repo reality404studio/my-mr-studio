@@ -1,0 +1,20 @@
+[
+  {
+    "file": "LetterSplatURP.fur-ball-8c63c15-dirty-1110-103808.shader.txt",
+    "memo": "털뭉치 질감이 나온 시점의 셰이더 (빌드 8c63c15-dirty-1110-103808). 소환 블록의 streakDispWS 늘이기(최대 6배)와 손끝 덩어리(jit)가 털 질감의 원인. 수치 조정 후에는 이 효과가 약해지니 보관",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-10T05:25:59.076Z"
+  },
+  {
+    "file": "SplatWordController.fur-ball-8c63c15-dirty-1110-103808.cs.txt",
+    "memo": "같은 시점의 컨트롤러 (핀치 위치를 _SummonOriginWS 로 전달)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-10T05:25:59.281Z"
+  },
+  {
+    "file": "videref-1046-summon-8fps.png",
+    "memo": "털뭉치 질감 녹화 프레임 (videref 화면 기록 10.46.50, 0~3.6초 8fps)",
+    "addedBy": "Claude Code",
+    "addedAt": "2026-11-10T05:25:59.489Z"
+  }
+]
