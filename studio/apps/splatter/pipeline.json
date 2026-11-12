@@ -1451,6 +1451,201 @@
           "why": "사람: 현재값을 fur 로 고정"
         }
       ]
+    },
+    {
+      "id": "build-b8af",
+      "title": "재료 추가: 단풍(IMG_4566)·하늘(IMG_4565) 색 구슬, 웹 랩 빛 모드 굽기 이식",
+      "owner": "",
+      "updatedAt": "2026-11-12T15:51:59.070Z",
+      "updatedBy": "agent",
+      "type": "build",
+      "stage": "build",
+      "order": 12,
+      "status": "done",
+      "goal": "진열대에 단풍·하늘 구슬이 생기고, 단풍은 그 자리 색으로 반짝이고 하늘은 구름 가장자리에 빛 알갱이가 돈다",
+      "output": "Slot3_IMG4566, Slot4_IMG4565, LightLayers.BuildAdaptive, _LightGlint",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-12T15:51:59.070Z",
+          "by": "agent",
+          "label": "하늘 그림자를 흰색으로 60% 올리기(airy)",
+          "result": "fail",
+          "why": "'너무 하얘졌네요' → 롤백. 탁함 원인은 그림자의 따뜻한 색 섞임으로 추정"
+        }
+      ]
+    },
+    {
+      "id": "build-627f",
+      "title": "물성 추가: 젤리(푸딩)·슬라임·전분",
+      "owner": "",
+      "updatedAt": "2026-11-12T14:23:10.056Z",
+      "updatedBy": "agent",
+      "type": "build",
+      "stage": "build",
+      "order": 13,
+      "status": "todo",
+      "goal": "손으로 쥐면 젤리는 탱글 찰랑, 슬라임은 끈적하게 모양이 남고, 전분은 빨리 치면 단단·천천히 누르면 스며든다",
+      "output": "SplatFeel squish/plastic/tack/thicken, 푸딩 뼈대 모드(field)"
+    },
+    {
+      "id": "build-627f-build-878e",
+      "title": "젤리: 쥐면 한 덩어리로 들어가고 푸딩처럼 찰랑 (푸딩 뼈대 모드)",
+      "owner": "",
+      "updatedAt": "2026-11-12T15:51:57.301Z",
+      "updatedBy": "agent",
+      "parent": "build-627f",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 0,
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-12T15:51:56.866Z",
+          "by": "agent",
+          "label": "입자별 손 밀기 + 덩어리 중심 기준 부풂(bulge)",
+          "result": "fail",
+          "why": "덩어리가 손을 피해 달아나 접촉 0.04, 부풂이 평균 0. 기기에서 '탱글 느낌 전혀 안나고 점끼리 뭉쳐서 어색' (뭉침 1 이 점을 덩어리 중심으로 끌어당김)"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-12T15:51:57.088Z",
+          "by": "agent",
+          "label": "푸딩 뼈대 첫 판: 이웃 k-최근접 한쪽 방향 스프링",
+          "result": "fail",
+          "why": "놓은 뒤 속도가 0.3→1.3m/s 로 커지는 발산. 비대칭 힘 → 양방향 간선으로 고침"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-12T15:51:57.301Z",
+          "by": "agent",
+          "label": "푸딩 뼈대: 양방향 간선 + 바닥 25% 고정 + 점 4개 섞기",
+          "result": "ok",
+          "why": "사람 확인 '오 예스 젤리 통과'"
+        }
+      ]
+    },
+    {
+      "id": "build-627f-build-e3d3",
+      "title": "슬라임: 끈적하게 늘어나고 모양이 남는다",
+      "owner": "",
+      "updatedAt": "2026-11-12T15:51:58.159Z",
+      "updatedBy": "agent",
+      "parent": "build-627f",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 1,
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-12T15:51:57.524Z",
+          "by": "agent",
+          "label": "입자별 끈적(stick) + 입자별 소성",
+          "result": "fail",
+          "why": "점 하나하나가 입자로 보임, 1.2cm 넘게 밀린 점은 셰이더가 물방울 빌보드로 그림"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-12T15:51:57.733Z",
+          "by": "agent",
+          "label": "뼈대 + 뼈대 마디 끈적 + 늘어난 곳 스플랫 2.5배",
+          "result": "fail",
+          "why": "손을 너무 의식(닿기 전 1cm·끌림 껍질), 영구 변형 상한 6cm 라 A 가 덩어리로 무너짐, 큰 스플랫 겹침으로 26~42fps"
+        },
+        {
+          "n": 3,
+          "at": "2026-11-12T15:51:57.945Z",
+          "by": "agent",
+          "label": "접촉을 뼈대 마디에서 판정",
+          "result": "fail",
+          "why": "마디 간격 2cm 라 손가락이 사이에 빠져 반응 0. 표면 점에서 판정해 무게대로 나눔으로 고침"
+        },
+        {
+          "n": 4,
+          "at": "2026-11-12T15:51:58.159Z",
+          "by": "agent",
+          "label": "표면 접촉 + 0.4초 끈적 + 당김 절반 + 3.5cm 떨어짐 + 1.5cm 상한·회복 + 스플랫 1.3배",
+          "result": "ok",
+          "why": "사람 확인 '좋아요 슬라임은 이대로', fps 중앙 72"
+        }
+      ]
+    },
+    {
+      "id": "build-627f-build-59d8",
+      "title": "전분: 빨리 치면 단단, 천천히 누르면 스며든다",
+      "owner": "",
+      "updatedAt": "2026-11-12T15:51:58.604Z",
+      "updatedBy": "agent",
+      "parent": "build-627f",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 2,
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-12T15:51:58.386Z",
+          "by": "agent",
+          "label": "빠른 손 3배·느린 손 0.15배 굳기 테스트(빠른 찌름 > 느린 누름)",
+          "result": "fail",
+          "why": "굳기를 꺼도 통과 — 빠른 손의 끌림만으로 차이가 남. 굳기 없는 전분과 비교하도록 바꿈 (변형 검사로 확인)"
+        },
+        {
+          "n": 2,
+          "at": "2026-11-12T15:51:58.604Z",
+          "by": "agent",
+          "label": "판 갈라짐(이웃 간선 끊김 + 판 가장자리 스플랫 축소 + 번짐 0.1초/칸)",
+          "result": "ok",
+          "why": "사람 확인 '음 좋아요'"
+        }
+      ]
+    },
+    {
+      "id": "build-627f-build-8b2e",
+      "title": "털: 쓰다듬으면 점은 그대로, 털결이 손 방향으로 눕고 남는다",
+      "owner": "",
+      "updatedAt": "2026-11-12T15:51:58.816Z",
+      "updatedBy": "agent",
+      "parent": "build-627f",
+      "kind": "build",
+      "by": "agent",
+      "status": "done",
+      "order": 3,
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-12T15:51:58.816Z",
+          "by": "agent",
+          "label": "털 방향을 점 속도 칸에 담아 손 방향으로 빗질",
+          "result": "ok",
+          "why": "첫 판은 한 번 쓸어 18% 만 빗김 → 속도 6→15/s. 사람 확인 '털은 이 상태 너무 좋네요'"
+        }
+      ]
+    },
+    {
+      "id": "build-16f1",
+      "title": "발열: 손이 닿는 동안 GPU 사용률 0.9 안팎",
+      "owner": "",
+      "updatedAt": "2026-11-12T15:52:11.003Z",
+      "updatedBy": "agent",
+      "type": "build",
+      "stage": "build",
+      "order": 14,
+      "status": "todo",
+      "goal": "30분 연속 사용에서 사람이 '발열 괜찮다'고 하고, 손이 닿는 동안 72fps 유지",
+      "output": "스플랫 수·정점 비용 조정, 측정 기록",
+      "attempts": [
+        {
+          "n": 1,
+          "at": "2026-11-12T15:52:11.003Z",
+          "by": "agent",
+          "label": "16비트 업로드 + 포비에이티드 High 동적 + 잠들기 4mm/s",
+          "result": "fail",
+          "why": "GPU 사용률 0.87~0.96 그대로 (이전 0.86~0.96). 비용이 픽셀이 아니라 정점 쪽으로 보임"
+        }
+      ]
     }
   ],
   "edges": [

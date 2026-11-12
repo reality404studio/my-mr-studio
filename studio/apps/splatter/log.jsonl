@@ -252,3 +252,39 @@
 {"ts":"2026-11-11T13:12:43.036Z","actor":"Claude Code","action":"knowledge.assume","nodeId":"build-8ac0-verify-e2c3","detail":"a29 사람(제작자)이 채팅으로 확인: 진열대 집기·번짐 좋다, 제자리 변형 괜찮다, 물방울·모래·복실털 값 고정, 은행 마음에 든다"}
 {"ts":"2026-11-11T13:12:43.044Z","actor":"Claude Code","action":"knowledge.unknown","nodeId":"build-8ac0-verify-e2c3","detail":"u7 제작자가 아닌 사람이 설명 없이 3분 안에 한 바퀴를 도는지 (17일 다른 사람 두세 명 시험)"}
 {"ts":"2026-11-11T13:12:43.045Z","actor":"Claude Code","action":"node.update","nodeId":"build-8ac0-verify-e2c3","detail":"status=done"}
+{"ts":"2026-11-11T13:28:24.702Z","actor":"Claude Code","action":"notes.append","nodeId":"build-8ac0","detail":"2026-11-11 사람(제작자) 말: 이게 뭐가 될지는 모르겠는데 제 기준 마음에 든다. 사람들 반응: '마이너리티 리포트 같다', '창의적 "}
+{"ts":"2026-11-12T13:35:00.466Z","actor":"agent","action":"node.create","nodeId":"build-b8af","detail":"재료 추가: 단풍(IMG_4566)·하늘(IMG_4565) 색 구슬, 웹 랩 빛 모드 굽기 이식"}
+{"ts":"2026-11-12T13:35:08.782Z","actor":"agent","action":"notes.append","nodeId":"build-b8af","detail":"사람 확인(채팅) 빌드 5428c62-dirty-1112-223138: '좋아요 단풍이랑 sky 이걸로 커밋'. 하늘 그림자 희게 올리는 안(a"}
+{"ts":"2026-11-12T13:35:09.012Z","actor":"agent","action":"knowledge.unknown","nodeId":"build-b8af","detail":"u8 5구슬에서 fps 유지되는가"}
+{"ts":"2026-11-12T13:35:09.013Z","actor":"agent","action":"node.update","nodeId":"build-b8af","detail":"status=done"}
+{"ts":"2026-11-12T14:23:10.056Z","actor":"agent","action":"node.create","nodeId":"build-627f","detail":"물성 추가: 젤리(푸딩)·슬라임·전분"}
+{"ts":"2026-11-12T14:23:14.973Z","actor":"agent","action":"notes.append","nodeId":"build-627f","detail":"젤리 사람 확인(채팅) 빌드 44bf83d-dirty-1112-231103: '오 예스 젤리 통과. 굿굿 이거지요 젤리 대박스'. 첫 안(입자별"}
+{"ts":"2026-11-12T14:25:03.597Z","actor":"agent","action":"sub.create","nodeId":"build-627f-build-878e","detail":"젤리: 쥐면 한 덩어리로 들어가고 푸딩처럼 찰랑 (푸딩 뼈대 모드)"}
+{"ts":"2026-11-12T14:25:03.823Z","actor":"agent","action":"sub.create","nodeId":"build-627f-build-e3d3","detail":"슬라임: 끈적하게 늘어나고 모양이 남는다"}
+{"ts":"2026-11-12T14:25:04.102Z","actor":"agent","action":"sub.create","nodeId":"build-627f-build-59d8","detail":"전분: 빨리 치면 단단, 천천히 누르면 스며든다"}
+{"ts":"2026-11-12T14:25:11.881Z","actor":"agent","action":"knowledge.unknown","nodeId":"build-627f-build-878e","detail":"u9 손이 닿는 동안 47~53fps 원인"}
+{"ts":"2026-11-12T14:25:11.882Z","actor":"agent","action":"node.update","nodeId":"build-627f-build-878e","detail":"status=done"}
+{"ts":"2026-11-12T15:06:12.789Z","actor":"agent","action":"notes.append","nodeId":"build-627f-build-e3d3","detail":"사람 확인(채팅) 빌드 da8910d-dirty-1112-235912: '좋아요 슬라임은 이대로 하고'. 거친 길: 입자별 밀기→뼈대(field"}
+{"ts":"2026-11-12T15:06:12.996Z","actor":"agent","action":"node.update","nodeId":"build-627f-build-e3d3","detail":"status=done"}
+{"ts":"2026-11-12T15:15:58.325Z","actor":"agent","action":"notes.append","nodeId":"build-627f-build-59d8","detail":"사람 확인(채팅) 빌드 da8910d-dirty-1113-000848: '음 좋아요'. 빠르게 치면 판이 갈라지고 이웃 판으로 번짐(0.1초/칸"}
+{"ts":"2026-11-12T15:15:58.547Z","actor":"agent","action":"knowledge.unknown","nodeId":"build-627f-build-59d8","detail":"u10 쩌저적 소리"}
+{"ts":"2026-11-12T15:15:58.548Z","actor":"agent","action":"node.update","nodeId":"build-627f-build-59d8","detail":"status=done"}
+{"ts":"2026-11-12T15:45:17.884Z","actor":"agent","action":"sub.create","nodeId":"build-627f-build-8b2e","detail":"털: 쓰다듬으면 점은 그대로, 털결이 손 방향으로 눕고 남는다"}
+{"ts":"2026-11-12T15:45:18.094Z","actor":"agent","action":"notes.append","nodeId":"build-627f-build-8b2e","detail":"사람 확인(채팅) 빌드 1fae59f-dirty-1113-003009: '털은 이 상태 너무 좋네요 이대로 부탁합니다'"}
+{"ts":"2026-11-12T15:45:18.296Z","actor":"agent","action":"node.update","nodeId":"build-627f-build-8b2e","detail":"status=done"}
+{"ts":"2026-11-12T15:51:56.867Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-878e","detail":"#1 실패: 입자별 손 밀기 + 덩어리 중심 기준 부풂(bulge)"}
+{"ts":"2026-11-12T15:51:57.089Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-878e","detail":"#2 실패: 푸딩 뼈대 첫 판: 이웃 k-최근접 한쪽 방향 스프링"}
+{"ts":"2026-11-12T15:51:57.301Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-878e","detail":"#3 통과: 푸딩 뼈대: 양방향 간선 + 바닥 25% 고정 + 점 4개 섞기"}
+{"ts":"2026-11-12T15:51:57.524Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-e3d3","detail":"#1 실패: 입자별 끈적(stick) + 입자별 소성"}
+{"ts":"2026-11-12T15:51:57.734Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-e3d3","detail":"#2 실패: 뼈대 + 뼈대 마디 끈적 + 늘어난 곳 스플랫 2.5배"}
+{"ts":"2026-11-12T15:51:57.946Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-e3d3","detail":"#3 실패: 접촉을 뼈대 마디에서 판정 (연속 실패 3)"}
+{"ts":"2026-11-12T15:51:58.160Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-e3d3","detail":"#4 통과: 표면 접촉 + 0.4초 끈적 + 당김 절반 + 3.5cm 떨어짐 + 1.5cm 상한·회복 + 스플랫 1.3배"}
+{"ts":"2026-11-12T15:51:58.387Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-59d8","detail":"#1 실패: 빠른 손 3배·느린 손 0.15배 굳기 테스트(빠른 찌름 > 느린 누름)"}
+{"ts":"2026-11-12T15:51:58.605Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-59d8","detail":"#2 통과: 판 갈라짐(이웃 간선 끊김 + 판 가장자리 스플랫 축소 + 번짐 0.1초/칸)"}
+{"ts":"2026-11-12T15:51:58.816Z","actor":"agent","action":"attempt","nodeId":"build-627f-build-8b2e","detail":"#1 통과: 털 방향을 점 속도 칸에 담아 손 방향으로 빗질"}
+{"ts":"2026-11-12T15:51:59.072Z","actor":"agent","action":"attempt","nodeId":"build-b8af","detail":"#1 실패: 하늘 그림자를 흰색으로 60% 올리기(airy)"}
+{"ts":"2026-11-12T15:52:10.583Z","actor":"agent","action":"node.create","nodeId":"build-16f1","detail":"발열: 손이 닿는 동안 GPU 사용률 0.9 안팎"}
+{"ts":"2026-11-12T15:52:10.795Z","actor":"agent","action":"notes.append","nodeId":"build-16f1","detail":"2026-11-13 사람 '발열 너무 심한데요' 로 헤드셋 끔 (배터리 40℃, 열 상태 1, 약 3시간 연속 + 충전 중). 측정: 손이 닿는"}
+{"ts":"2026-11-12T15:52:11.004Z","actor":"agent","action":"attempt","nodeId":"build-16f1","detail":"#1 실패: 16비트 업로드 + 포비에이티드 High 동적 + 잠들기 4mm/s"}
+{"ts":"2026-11-12T15:52:11.232Z","actor":"agent","action":"knowledge.answer","nodeId":"build-b8af","detail":"u8: 5구슬 이후 라운드 fps 중앙 72 (슬라임 수정 뒤). 손이 닿을 때 GPU 부하는 발열 카드 build"}
+{"ts":"2026-11-12T15:52:11.456Z","actor":"agent","action":"knowledge.answer","nodeId":"build-627f-build-878e","detail":"u9: 시뮬 비용 아님(3ms 안팎). 슬라임 큰 스플랫 겹침이 26~42fps 원인이었고 고친 뒤 중앙 72. 남"}

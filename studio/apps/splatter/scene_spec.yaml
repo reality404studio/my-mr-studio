@@ -80,5 +80,8 @@ unknowns:
   - {id: u5, task: build-8ac0, question: 두 번째 기본 재료(Slot1_IMG4398)는 윤슬이고 촬영 시각을 모름. 핑크뮬리 영상은 이 프로젝트에 없음, ask: human, status: answered, by: Claude Code, at: 2026-11-11T01:38:43.806Z, answer: "사람: 핑크뮬리 대신 은행나무로 바꿈. 은행나무 원본 = videref/IMG_4543.mov (2026-11-10 13:30). IMG_4398 촬영 시각은 아직 모름", resolvedBy: Claude Code, resolvedAt: 2026-11-11T05:57:29.480Z}
   - {id: u6, task: build-8ac0-build-ff89, question: 은행나무(잎) 물성을 사람이 어떤 값으로 느끼는지, ask: human, status: open, by: Claude Code, at: 2026-11-11T06:13:52.537Z}
   - {id: u7, task: build-8ac0-verify-e2c3, question: 제작자가 아닌 사람이 설명 없이 3분 안에 한 바퀴를 도는지 (17일 다른 사람 두세 명 시험), ask: human, status: open, by: Claude Code, at: 2026-11-11T13:12:43.042Z}
+  - {id: u8, task: build-b8af, question: 5구슬에서 fps 유지되는가, ask: human, status: answered, by: agent, at: 2026-11-12T13:35:09.006Z, answer: 5구슬 이후 라운드 fps 중앙 72 (슬라임 수정 뒤). 손이 닿을 때 GPU 부하는 발열 카드 build-16f1 로 넘김, resolvedBy: agent, resolvedAt: 2026-11-12T15:52:11.226Z}
+  - {id: u9, task: build-627f-build-878e, question: 손이 닿는 동안 47~53fps 원인, ask: human, status: answered, by: agent, at: 2026-11-12T14:25:11.874Z, answer: 시뮬 비용 아님(3ms 안팎). 슬라임 큰 스플랫 겹침이 26~42fps 원인이었고 고친 뒤 중앙 72. 남은 GPU 0.9 는 발열 카드 build-16f1, resolvedBy: agent, resolvedAt: 2026-11-12T15:52:11.449Z}
+  - {id: u10, task: build-627f-build-59d8, question: 쩌저적 소리, ask: human, status: open, by: agent, at: 2026-11-12T15:15:58.541Z}
 
 review: []
