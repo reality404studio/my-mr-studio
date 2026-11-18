@@ -1,5 +1,5 @@
 import {classifyHand,unit} from './gesture.js';
-import {identity,multiply} from './render.js?v=quest-entry-3';
+import {identity,multiply} from './render.js?v=quest-entry-4';
 
 const JOINTS=['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'];
 for(const f of ['index','middle','ring','pinky'])
@@ -107,7 +107,7 @@ export class Immersion {
       if(!gl.getContextAttributes()?.xrCompatible)await gl.makeXRCompatible();
       if(this.attempt!==attempt||attempt.stopping)return;
       this.progress('layer');
-      this.layer=new XRWebGLLayer(session,gl,{alpha:mode==='immersive-ar',antialias:false,depth:false,stencil:false,framebufferScaleFactor:.86});
+      this.layer=new XRWebGLLayer(session,gl,{alpha:true,antialias:false,depth:false,stencil:false,framebufferScaleFactor:.86});
       session.updateRenderState({baseLayer:this.layer,depthNear:.035,depthFar:90});
       this.progress('space');
       const space=await session.requestReferenceSpace('local');
@@ -162,7 +162,8 @@ export class Immersion {
   }
   renderFrame(ms,frame,sess){
     if(sess.visibilityState==='hidden'){this.game.interruptTracking();this.last=null;return;}
-    const layer=this.layer,gl=this.painter.gl;
+    const layer=sess.renderState?.baseLayer||this.layer,gl=this.painter.gl;
+    if(!layer)return;
     const passthrough=this.mode!=='immersive-vr'&&sess.environmentBlendMode==='alpha-blend';
     // Clear the actual XR framebuffer, even when the first pose or hands are unavailable.
     gl.bindFramebuffer(gl.FRAMEBUFFER,layer.framebuffer);
@@ -200,9 +201,6 @@ export class Immersion {
     }
     if(!this.presented&&viewsDrawn===pose.views.length){
       if(gl.isContextLost?.())throw new DOMException('WebGL context lost','InvalidStateError');
-      if(gl.checkFramebufferStatus&&gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)
-        throw new DOMException('XR framebuffer incomplete','FramebufferError');
-      if(gl.getError){const error=gl.getError();if(error!==gl.NO_ERROR)throw new DOMException('XR draw error','GL-'+error.toString(16));}
       this.presented=true;clearTimeout(this.timer);this.onProgress('ready');
       // A refresh-rate hint must never delay the first picture.
       if(sess.supportedFrameRates?.includes(72)&&typeof sess.updateTargetFrameRate==='function')
