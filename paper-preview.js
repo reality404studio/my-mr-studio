@@ -3,7 +3,7 @@
 import {STRIDE} from './ink.js';
 import {WashPreview} from './wash-preview.js';
 import {random} from './gesture.js';
-const tones=[[14,17,17],[46,62,65],[150,36,21],[240,228,195],[82,103,106],[148,159,151],[184,70,44],[186,133,63]];
+const tones=[[14,17,17],[46,62,65],[150,36,21],[246,242,228],[82,103,106],[158,172,164],[194,79,48],[198,143,66],[17,18,17],[252,248,218],[235,84,42],[242,244,235]];
 const masses=[.42,1,2,3.65];
 function atlas(){
   const size=44,tex=document.createElement('canvas');tex.width=size*12;tex.height=size*tones.length;
@@ -48,7 +48,7 @@ export class PaperPreview {
       const mass=data[j+8],m=mass<=.42?0:mass<=1?1:mass<=2?2:3,cell=m*3+Math.round(wet*2);
       ctx.globalAlpha=opacity*Math.min(1,mass/masses[m]);
       ctx.setTransform(cs*a,sn*a,-sn*b,cs*b,x,y);
-      ctx.drawImage(this.atlas,cell*44,Math.round(data[j+10])*44,44,44,-1,-1,2,2);
+      ctx.drawImage(this.atlas,cell*44,Math.min(tones.length-1,Math.max(0,Math.round(data[j+10])))*44,44,44,-1,-1,2,2);
     }
     ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;
   }
@@ -59,7 +59,7 @@ export class PaperPreview {
       this.key=key;const bg=this.background;bg.width=w;bg.height=h;
       const b=bg.getContext('2d');
       const fill=b.createRadialGradient(w*.43,h*.32,h*.05,w*.5,h*.48,Math.max(w,h)*.73);
-      fill.addColorStop(0,'#f1eee4');fill.addColorStop(1,'#dfddcd');b.fillStyle=fill;b.fillRect(0,0,w,h);
+      fill.addColorStop(0,'#f9f5eb');fill.addColorStop(1,'#eae4d3');b.fillStyle=fill;b.fillRect(0,0,w,h);
       const noise=document.createElement('canvas');noise.width=noise.height=96;const n=noise.getContext('2d'),p=n.createImageData(96,96),rng=random(701);
       for(let i=0;i<p.data.length;i+=4){p.data[i]=p.data[i+1]=p.data[i+2]=rng()>.5?235:58;p.data[i+3]=rng()*13;}
       n.putImageData(p,0,0);b.fillStyle=b.createPattern(noise,'repeat');b.fillRect(0,0,w,h);

@@ -15,7 +15,7 @@ out vec2 uv;
 flat out vec4 ink;
 flat out float spread;
 void main(){
-  if(material.z>7.5){
+  if(material.z>7.5 && material.z<8.5){
     vec3 world=center+axis*(corner.x*halfSize.x)+sheetDown*(corner.y*halfSize.y);
     gl_Position=projection*view*vec4(world,1.);uv=corner;ink=material;spread=1.;return;
   }
@@ -39,22 +39,46 @@ uniform sampler2D grain;
 uniform float opacity;
 out vec4 color;
 vec3 palette(float i){
-  if(i<.5) return vec3(.053,.065,.066);
-  if(i<1.5) return vec3(.18,.245,.255);
-  if(i<2.5) return vec3(.59,.141,.084);
-  if(i<3.5) return vec3(.94,.895,.766);
-  if(i<4.5) return vec3(.32,.405,.416);
-  if(i<5.5) return vec3(.58,.625,.591);
-  if(i<6.5) return vec3(.72,.274,.173);
-  return vec3(.73,.52,.246);
+  if(i<.5) return vec3(.048,.058,.060);
+  if(i<1.5) return vec3(.19,.255,.268);
+  if(i<2.5) return vec3(.64,.145,.085);
+  if(i<3.5) return vec3(.965,.948,.892);
+  if(i<4.5) return vec3(.34,.425,.436);
+  if(i<5.5) return vec3(.62,.675,.642);
+  if(i<6.5) return vec3(.76,.31,.19);
+  return vec3(.78,.56,.26);
 }
 void main(){
-  if(ink.z>7.5){
+  if(ink.z>7.5 && ink.z<8.5){
     // Tent kernels sum to one between four deposits. Optical depths add,
     // preserving a smooth wet wash even as the whole seal fades.
     vec2 weights=max(vec2(0.),1.-abs(uv));
     float alpha=1.-exp(-1.58*ink.x*weights.x*weights.y*opacity);
-    color=vec4(vec3(.067,.071,.067)*alpha,alpha);return;
+    color=vec4(vec3(.058,.063,.060)*alpha,alpha);return;
+  }
+  if(ink.z>=8.5 && ink.z<9.5){
+    float core=exp(-22.*uv.y*uv.y)*exp(-2.1*uv.x*uv.x);
+    float halo=exp(-4.5*uv.y*uv.y)*exp(-1.25*uv.x*uv.x);
+    float a=clamp(ink.x*(core*1.35+halo*.42),0.,1.)*opacity;
+    vec3 blade=mix(vec3(.84,.95,.82),vec3(1.,.98,.86),clamp(core*1.4,0.,1.));
+    color=vec4(blade*a*1.75,a*.22);return;
+  }
+  if(ink.z>=9.5 && ink.z<10.5){
+    float r2=dot(uv,uv);if(r2>1.)discard;
+    vec2 j=texture(grain,uv*.35+ink.w*vec2(5.1,3.7)).rg;
+    float edge=max(0.,r2+(j.x-.5)*.22);
+    float core=exp(-5.2*edge),flame=exp(-1.85*edge)*(1.-smoothstep(.68,1.,edge));
+    float a=clamp(ink.x*(core*.95+flame*.55),0.,1.)*opacity;
+    vec3 fire=mix(vec3(.82,.15,.07),vec3(1.,.78,.28),clamp(core*1.3,0.,1.));
+    color=vec4(fire*a*1.45,a*.42);return;
+  }
+  if(ink.z>=10.5){
+    float r2=dot(uv,uv);if(r2>1.)discard;
+    vec2 j=texture(grain,uv*vec2(.22,.38)+ink.w*vec2(3.1,6.7)).rg;
+    float wisp=exp(-1.95*max(0.,r2+(j.x-.5)*.26))*(.58+.42*j.y)*(1.-smoothstep(.62,1.,r2));
+    float a=(1.-exp(-ink.x*wisp*.85))*opacity;
+    vec3 mist=mix(vec3(.92,.95,.90),vec3(.98,.97,.93),j.y);
+    color=vec4(mist*a,a*.75);return;
   }
   float r2=dot(uv,uv);
   if(r2>1.) discard;
@@ -64,10 +88,10 @@ void main(){
   float core=exp(-2.2*max(0.,edge)*spread*spread);
   float wash=exp(-1.65*max(0.,edge))/spread;
   float tooth=mix(.25,1.,smoothstep(.14,.60,jitter.y+.30*water));
-  float stain=water*clamp((spread-1.)*1.9,0.,1.)*.23;
-  float rimOffset=sqrt(max(.001,edge))-.72;
-  float rim=exp(-56.*rimOffset*rimOffset)/spread;
-  float density=ink.x*(core*.76+wash*(.24-stain)+rim*stain)*tooth*(1.-smoothstep(.69,1.,edge));
+  float stain=water*(.16+clamp((spread-1.)*1.9,0.,1.)*.26);
+  float rimOffset=sqrt(max(.001,edge))-.73;
+  float rim=exp(-52.*rimOffset*rimOffset)/spread;
+  float density=ink.x*(core*.74+wash*(.26-stain*.65)+rim*stain*1.35)*tooth*(1.-smoothstep(.69,1.,edge));
   float a=(1.-exp(-density))*opacity;
   vec3 pigment=palette(ink.z)*(1.+.20*(jitter.x-.5));
   color=vec4(pigment*a,a);
@@ -82,8 +106,8 @@ void main(){
   float g=texture(grain,gl_FragCoord.xy/128.).r;
   float cloud=texture(grain,uv*1.3).b;
   float edge=dot(uv-.5,uv-.5);
-  vec3 paper=mix(vec3(.958,.942,.891),vec3(.876,.861,.805),clamp(.16+edge*.70+cloud*.24,0.,1.));
-  color=vec4(paper+(g-.5)*.033,1.);
+  vec3 paper=mix(vec3(.978,.964,.922),vec3(.916,.898,.842),clamp(.12+edge*.58+cloud*.20,0.,1.));
+  color=vec4(paper+(g-.5)*.028,1.);
 }`;
 const hudVert=`#version 300 es
 layout(location=0) in vec2 a;uniform mat4 view,projection;out vec2 uv;

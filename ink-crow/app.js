@@ -1,9 +1,9 @@
 import {Duel} from './duel.js';
-import {Painter,perspective,identity} from './render.js?v=quest-entry-4';
+import {Painter,perspective,identity} from './render.js?v=quest-entry-5';
 import {clamp,mul,dist,lerp3} from './gesture.js';
 import {PaperPreview} from './paper-preview.js';
 import {Rehearsal} from './rehearsal.js';
-import {Immersion,supportedModes,entrySteps} from './xr.js?v=quest-entry-4';
+import {Immersion,supportedModes,entrySteps} from './xr.js?v=quest-entry-5';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();

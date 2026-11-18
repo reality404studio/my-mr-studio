@@ -25,7 +25,7 @@ export function random(seed) {
 // tests act on arc-length samples so a slow corner cannot bias the fitted centre.
 export function fitSeal(points, eye=[0,0,0]) {
   const n = points.length;
-  if (n < 23) return null;
+  if (n < 16) return null;
   let area=[0,0,0], mean=[0,0,0], length=0;
   const first=points[0];
   for (let i=0;i<n;i++) {
@@ -34,7 +34,7 @@ export function fitSeal(points, eye=[0,0,0]) {
     mean=add(mean,a);
     if (i+1<n) length+=dist(a,b);
   }
-  if (len(area)<0.038) return null;
+  if (len(area)<0.024) return null;
   mean=mul(mean,1/n);
   let normal=unit(area);
   if (dot(normal,sub(eye,mean))<0) normal=mul(normal,-1);
@@ -48,17 +48,18 @@ export function fitSeal(points, eye=[0,0,0]) {
     depth2+=dot(d,normal)**2;
   }
   const w=xmax-xmin,h=ymax-ymin,r=(w+h)*.25;
-  if (r<.095 || r>.6 || Math.min(w,h)/Math.max(w,h)<.54 || Math.sqrt(depth2/n)>.27*r) return null;
-  if (dist(first,points[n-1])>r*.82 || length<4.65*r || length>8.65*r) return null;
+  if (r<.065 || r>.75 || Math.min(w,h)/Math.max(w,h)<.28 || Math.sqrt(depth2/n)>.34*r) return null;
+  if (dist(first,points[n-1])>r*1.25 || length<3.85*r || length>10.5*r) return null;
   const c=add(mean,add(mul(u,(xmin+xmax)*.5),mul(v,(ymin+ymax)*.5)));
+  const hw=Math.max(.03,w*.5),hh=Math.max(.03,h*.5);
   let last=0,winding=0,travel=0,error=0;
   for (let i=0;i<n;i++) {
-    const d=sub(points[i],c), x=dot(d,u), y=dot(d,v), a=Math.atan2(y,x);
+    const d=sub(points[i],c), x=dot(d,u), y=dot(d,v), nx=x/hw, ny=y/hh, a=Math.atan2(ny,nx);
     if (i) { const diff=Math.atan2(Math.sin(a-last),Math.cos(a-last)); winding+=diff; travel+=Math.abs(diff); }
     last=a;
-    error+=(Math.hypot(x,y)-r)**2;
+    error+=((Math.hypot(nx,ny)-1)*r)**2;
   }
-  if (Math.abs(winding)<5.36 || Math.abs(winding)<.80*travel || Math.sqrt(error/n)>.31*r) return null;
+  if (Math.abs(winding)<4.55 || Math.abs(winding)<.68*travel || Math.sqrt(error/n)>.46*r) return null;
   return {c,u,v,n:normal,r,sign:Math.sign(winding)};
 }
 
