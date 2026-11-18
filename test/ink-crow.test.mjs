@@ -145,4 +145,26 @@ test('messy potato loop snaps to a calligraphic circle, writes 鳥 stroke-by-str
   const flockIds=new Set(g.bird.map(b=>b.flockId));
   assert.equal(flockIds.size,9);
 });
+test('no middle guide popup in ready phase, natural hand mask volume, and summoned birds face enemy from frame 0',()=>{
+  const g=new Duel();
+  const handPose=classifyHand(skeleton([0,-.08,-.52],'right','open'),'right');
+  g.tick(dt,[handPose]);
+  g.paint();
+  assert.equal(g.decor.count,0);
+  assert.ok(g.handsCloud.count>120&&g.handsCloud.count<g.handsCloud.limit);
+  draw(g,circle(),'right');
+  const h=palm(g);
+  while(g.phase!=='release')g.tick(dt,[h]);
+  const f0=g.flight(0.01);
+  const toEnemy=unit([g.enemy[0]-f0.root[0],0,g.enemy[2]-f0.root[2]]);
+  const heading=[Math.cos(f0.yaw),0,Math.sin(f0.yaw)];
+  assert.ok(heading[0]*toEnemy[0]+heading[2]*toEnemy[2]>.99);
+  for(let k=1;k<9;k++){
+    const fk=g.flockFlight(0.01,f0)[k];
+    const dirK=unit([g.enemy[0]-fk.root[0],0,g.enemy[2]-fk.root[2]]);
+    const headK=[Math.cos(fk.yaw),0,Math.sin(fk.yaw)];
+    assert.ok(headK[0]*dirK[0]+headK[2]*dirK[2]>.99);
+  }
+});
+
 

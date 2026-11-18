@@ -1,8 +1,9 @@
-import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=quest-entry-6';
-import {WorldWash} from './world-wash.js?v=quest-entry-6';
-import {InkSpray} from './ink-spray.js?v=quest-entry-6';
-import {SplatBatch,springStep,spiral} from './ink.js?v=quest-entry-6';
-import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=quest-entry-6';
+import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=quest-entry-7';
+import {WorldWash} from './world-wash.js?v=quest-entry-7';
+import {InkSpray} from './ink-spray.js?v=quest-entry-7';
+import {SplatBatch,springStep,spiral} from './ink.js?v=quest-entry-7';
+import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=quest-entry-7';
+import {InkSound} from './sound.js?v=quest-entry-7';
 
 export const CHARGE_SECONDS=1.35;
 const ORIGIN=[0,0,0], FORWARD=[0,0,-1];
@@ -20,8 +21,8 @@ const lines={
 export class Duel {
   constructor(){
     this.brush=new WorldWash();this.spray=new InkSpray();this.land=landscape();this.enemyCloud=new SplatBatch(1850);
-    this.flow=new SplatBatch(4100);this.decor=new SplatBatch(2800);this.handsCloud=new SplatBatch(270);
-    this.traces=new SplatBatch(2400);this.bird=crowForm();
+    this.flow=new SplatBatch(4100);this.decor=new SplatBatch(2800);this.handsCloud=new SplatBatch(1200);
+    this.traces=new SplatBatch(2400);this.bird=crowForm();this.sound=new InkSound();
     const rng=random(306),glyph=glyphSamples(this.bird.length,rng);
     this.bird.forEach((b,i)=>{
       const a=rng()*TAU;
@@ -70,6 +71,7 @@ export class Duel {
     this.brush.tick(dt);this.spray.step(dt);
     if(this.abandoned!==null && this.time-this.abandoned>2.3){this.brush.reset();this.abandoned=null;}
     this.impacts=this.impacts.filter(i=>this.time-i.time<1.45);
+    this.sound.sync(this,dt);
   }
   interruptTracking(){
     if(this.phase==='trace'){this.brush.end();this.spray.stopMotion();this.resetCast(true);this.needLift=true;}
@@ -163,18 +165,24 @@ export class Duel {
     }
   }
   flight(t){
-    const s=this.seal,far=unit(sub(s.c,this.head)),scale=clamp(s.r/.24,.56,1.24);
-    const perch=add(s.c,[.27*scale,.23*scale,-.48*scale]);
-    const emerge=smooth((t-.20)/1.05),dive=smooth((t-1.85)/1.18);
+    const s=this.seal,scale=clamp(s.r/.24,.56,1.24);
+    const toEnemy=unit(sub(this.enemy,s.c));
+    // Emerge forward toward the Dokkaebi-bul while rising slightly, then dive into the target.
+    const perch=add(s.c,[toEnemy[0]*.42*scale,(.18+toEnemy[1]*.22)*scale,toEnemy[2]*.42*scale]);
+    const emerge=smooth(t/1.15),dive=smooth((t-1.85)/1.18);
     const root=lerp3(lerp3(s.c,perch,emerge),this.enemy,dive);
     const arch=Math.sin(dive*Math.PI);
-    root[0]-=.27*arch;root[1]+=.22*arch;
-    if(t<1.85)root[2]+=far[2]*.028*Math.sin(emerge*Math.PI);
-    return {root,scale:scale*(.14+.68*smooth((t-.23)/.77)),yaw:mix(.49,-1.05,dive),bank:-.34-.38*arch,
-      flap:.30+.69*Math.sin((t-.48)*6.5),dive};
+    root[0]-=.16*arch;root[1]+=.20*arch;
+    // Always face directly toward the Dokkaebi-bul from the instant of summoning.
+    const look=sub(this.enemy,root), horiz=Math.hypot(look[0],look[2]);
+    const yaw=horiz>.001?Math.atan2(look[2],look[0]):Math.atan2(toEnemy[2],toEnemy[0]);
+    const pitch=horiz>.001?clamp(Math.atan2(look[1],horiz),-.65,.65):0;
+    return {root,scale:scale*(.26+.58*smooth(t/.72)),yaw,pitch,bank:-.18-.28*arch,
+      flap:.30+.69*Math.sin((t-.15)*6.8),dive};
   }
   flockFlight(t,lead){
     const s=this.seal,baseScale=clamp(s.r/.24,.56,1.24);
+    const toEnemy=unit(sub(this.enemy,s.c));
     const poses=[];
     const offsets=[
       [0,0,0],[-.16,.14,-.18],[.19,.11,-.21],[-.29,-.07,-.31],[.27,-.11,-.35],
@@ -182,22 +190,30 @@ export class Duel {
     ];
     for(let id=0;id<9;id++){
       if(id===0){poses.push({...lead,birdGrow:1});continue;}
-      const delay=id*.034, lt=Math.max(.20,t-delay);
-      const emerge=smooth((lt-.20)/1.05), dive=smooth((lt-1.82)/(1.18-delay*.35));
-      const off=offsets[id], spread=baseScale*smooth((lt-.22)/.55)*(1-dive*.84);
-      const swirl=id*1.37+t*2.4, orb=.065*spread;
-      const perch=add(s.c,[(.27+off[0])*baseScale,(.23+off[1])*baseScale,(-.48+off[2])*baseScale]);
+      const delay=id*.034, lt=Math.max(0,t-delay);
+      const emerge=smooth(lt/1.15), dive=smooth((lt-1.82)/(1.18-delay*.35));
+      const off=offsets[id], spread=baseScale*smooth(lt/.55)*(1-dive*.84);
+      const swirl=id*1.37+t*2.4, orb=.055*spread;
+      const perch=add(s.c,[
+        (toEnemy[0]*.42+off[0])*baseScale,
+        (.18+toEnemy[1]*.22+off[1])*baseScale,
+        (toEnemy[2]*.42+off[2])*baseScale
+      ]);
       const root=lerp3(lerp3(s.c,perch,emerge),this.enemy,dive);
       const arch=Math.sin(dive*Math.PI);
-      root[0]+=-.27*arch+off[0]*spread+Math.cos(swirl)*orb;
-      root[1]+=.22*arch+off[1]*spread+Math.sin(swirl)*orb*.75;
+      root[0]+=-.16*arch+off[0]*spread+Math.cos(swirl)*orb;
+      root[1]+=.20*arch+off[1]*spread+Math.sin(swirl)*orb*.75;
       root[2]+=off[2]*spread*.65;
+      // Every bird in the flock looks directly at the Dokkaebi-bul from the moment it appears.
+      const look=sub(this.enemy,root), horiz=Math.hypot(look[0],look[2]);
+      const yaw=horiz>.001?Math.atan2(look[2],look[0]):lead.yaw;
+      const pitch=horiz>.001?clamp(Math.atan2(look[1],horiz),-.65,.65):lead.pitch;
       poses.push({
         root,
         scale:lead.scale*(.92-.03*id),
-        yaw:mix(.49+off[0]*.45,-1.05-off[0]*.35,dive),
-        bank:-.32-.38*arch+off[0]*.42,
-        flap:.30+.72*Math.sin((lt-.45)*(6.5+id*.22)+id*1.1),
+        yaw,pitch,
+        bank:-.16-.28*arch+off[0]*.35,
+        flap:.30+.72*Math.sin((lt-.15)*(6.5+id*.22)+id*1.1),
         dive
       });
     }
@@ -205,14 +221,14 @@ export class Duel {
   }
   release(dt){
     const t=this.phaseTime;
-    if(t<.25)return;
     const pose=this.flight(t),{root,scale}=pose;
     const flockPoses=this.flockFlight(t,pose);
-    const grow=smooth((t-.25)/.65);
+    const grow=smooth(t/.52);
     const sight=unit(sub(root,this.head));
     const carries=flockPoses.map((fp,id)=>sub(fp.root,this.flockPrev[id]));
     const trig=flockPoses.map(fp=>({
       cy:Math.cos(fp.yaw),sy:Math.sin(fp.yaw),
+      cp:Math.cos(fp.pitch??0),sp:Math.sin(fp.pitch??0),
       co:Math.cos(fp.bank),si:Math.sin(fp.bank),
       wCos:Math.cos(fp.flap),wSin:Math.sin(fp.flap),
       root:fp.root,scale:fp.scale
@@ -222,14 +238,19 @@ export class Duel {
       const side=b.wing, p=b.p;
       const reach=side?Math.max(0,Math.abs(p[2])-.035*b.birdScale):0;
       const z=side?side*(.035*b.birdScale+reach*tr.wCos):p[2], y=p[1]+reach*tr.wSin;
-      const ly=(y*tr.co-z*tr.si)*tr.scale,lz=(y*tr.si+z*tr.co)*tr.scale,lx=p[0]*tr.scale;
-      const h=this.home;h[0]=tr.root[0]+lx*tr.cy-lz*tr.sy;h[1]=tr.root[1]+ly;h[2]=tr.root[2]+lx*tr.sy+lz*tr.cy;
+      const ry=y*tr.co-z*tr.si, rz=y*tr.si+z*tr.co;
+      const px=(p[0]*tr.cp-ry*tr.sp)*tr.scale, py=(p[0]*tr.sp+ry*tr.cp)*tr.scale, pz=rz*tr.scale;
+      const h=this.home;
+      h[0]=tr.root[0]+px*tr.cy-pz*tr.sy;
+      h[1]=tr.root[1]+py;
+      h[2]=tr.root[2]+px*tr.sy+pz*tr.cy;
       for(let k=0;k<3;k++)b.pos[k]+=carry[k]*grow;
-      springStep(b.pos,b.vel,h,265*(.91+.18*b.f),12,22,4,dt);
+      springStep(b.pos,b.vel,h,310*(.92+.18*b.f),13,24,4,dt);
       const ax=b.axis[0],az=side?b.axis[2]*tr.wCos:b.axis[2],ay=b.axis[1]+(side?b.axis[2]*side*tr.wSin:0);
-      const yy=ay*tr.co-az*tr.si,zz=ay*tr.si+az*tr.co;
+      const ary=ay*tr.co-az*tr.si, arz=ay*tr.si+az*tr.co;
+      const apx=ax*tr.cp-ary*tr.sp, apy=ax*tr.sp+ary*tr.cp;
       b.depth=dot(b.pos,sight);
-      b.ax[0]=ax*tr.cy-zz*tr.sy;b.ax[1]=yy;b.ax[2]=ax*tr.sy+zz*tr.cy;
+      b.ax[0]=apx*tr.cy-arz*tr.sy;b.ax[1]=apy;b.ax[2]=apx*tr.sy+arz*tr.cy;
     }
     this.depthOrder.sort(this.sortDepth);
     this.lastSpringRoot=root.slice();this.crowRoot=root;this.crowScale=scale;this.wingGrow=grow;
@@ -277,10 +298,9 @@ export class Duel {
     const s=this.seal,t=this.phaseTime,releasing=this.phase==='release';
     const sealed=this.phase==='seal'||this.phase==='charge',finish=this.phase==='recover'||this.phase==='win'||this.phase==='lose';
     const alpha=finish?0:releasing?1-smooth((t-.60)/1.25):1;this.groups[3].alpha=this.abandoned===null?alpha:1-smooth((this.time-this.abandoned-.85)/1.45);
-    if(this.phase==='ready'&&this.abandoned===null)this.readyGuide();
     if(s && (sealed||releasing)){
       this.sealDetails(s,alpha);
-      if(sealed || t<.25)this.formation();
+      if(sealed)this.formation();
       else {
         const k=this.crowScale??.2,fade=(1-smooth((t-2.86)/.26));
         for(const i of this.depthOrder){
@@ -292,15 +312,6 @@ export class Duel {
     this.paintCombat();
     if(s&&this.livePalm&&sealed)this.palmStream(s);
     for(const h of this.handData)this.paintHand(h);
-  }
-  readyGuide(){
-    const b=this.decor,t=this.time,r=.175,cx=this.head[0],cy=this.head[1]-.04,cz=this.head[2]-.58;
-    const pulse=.32+.12*Math.sin(t*2.2);
-    for(let i=0;i<56;i++){
-      if(i%7>4)continue;
-      const a=TAU*i/56+t*.18,co=Math.cos(a),si=Math.sin(a);
-      b.put(cx+co*r,cy+si*r,cz,-si,co,0,.014,.0032,pulse,.52,i%14===0?2:1,i/56);
-    }
   }
   sealDetails(s,alpha){
     if(alpha<=0)return;
@@ -483,13 +494,88 @@ export class Duel {
   paintHand(h){
     const b=this.handsCloud, j=h.joints;
     if(j){
-      for(const f of ['index','middle','ring','pinky','thumb']){
-        const names=f==='thumb'?['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip']:
-          ['wrist',...['phalanx-proximal','phalanx-intermediate','phalanx-distal','tip'].map(s=>f+'-finger-'+s)];
-        for(let i=1;i<names.length;i++)if(j[names[i-1]]&&j[names[i]])stroke(b,j[names[i-1]],j[names[i]],.0035,1,.62,.4,.21,0);
+      const wrist=j.wrist, idx=j['index-finger-phalanx-proximal'], pnk=j['pinky-finger-phalanx-proximal'];
+      const mid=j['middle-finger-phalanx-proximal']|| (idx&&pnk?lerp3(idx,pnk,.35):null);
+      const rngK=j['ring-finger-phalanx-proximal']|| (idx&&pnk?lerp3(idx,pnk,.68):null);
+      // 1. Soft anatomical palm surface mask (손바닥/손등 살결 모양의 자연스러운 입체 마스크)
+      if(wrist&&idx&&pnk){
+        const across=sub(pnk,idx), palmW=Math.max(.045,len(across));
+        const uAxis=unit(across), vAxis=unit(sub(lerp3(idx,pnk,.5),wrist));
+        const knuckles=[idx, mid||lerp3(idx,pnk,.33), rngK||lerp3(idx,pnk,.66), pnk];
+        // Interpolate a smooth fleshy palm pad from wrist cuff to the curved knuckle arch
+        for(let row=0;row<6;row++){
+          const v=(row+.35)/6;
+          // Wrist is slightly narrower than the metacarpal knuckle arch
+          const widthScale=.72+.30*Math.sin(v*Math.PI*.65);
+          for(let col=0;col<7;col++){
+            const u=col/6;
+            const kFloat=u*3, kIdx=Math.min(2,Math.floor(kFloat)), kFrac=kFloat-kIdx;
+            const topPt=lerp3(knuckles[kIdx],knuckles[kIdx+1],kFrac);
+            const botPt=add(wrist,mul(uAxis,(u-.48)*palmW*widthScale));
+            const pt=lerp3(botPt,topPt,v);
+            const edge=Math.abs(u-.5)*2;
+            const rMajor=palmW*(.21-.03*edge), rMinor=palmW*(.18-.02*edge);
+            // Soft warm ivory skin-mask core (Tone 3) with subtle ink-wash contour rim (Tone 5 / Tone 4)
+            const isRim=edge>.78||row===0;
+            b.put(...pt,...vAxis, rMajor,rMinor, isRim?.95:1.55, .78, isRim?5:3, (row*7+col)/42);
+          }
+        }
+        // Thenar eminence (엄지 뿌리 두툼한 손바닥 근육 볼륨)
+        const thMeta=j['thumb-metacarpal']||lerp3(wrist,idx,.42);
+        const thProx=j['thumb-phalanx-proximal']||lerp3(wrist,idx,.75);
+        for(let k=0;k<6;k++){
+          const t=k/5, tp=lerp3(lerp3(wrist,thMeta,.5),lerp3(thProx,idx,.42),t);
+          const rad=palmW*(.19-.04*t);
+          b.put(...tp,...vAxis, rad*1.15,rad*.92, 1.45,.76, k===5?5:3, .13+k*.11);
+        }
+      }
+      // 2. Fleshy, tapered cylindrical fingers & rounded fingertip pads (뼈다귀 선이 아닌 실제 손가락 볼륨 마스크)
+      const fingerSpecs=[
+        ['thumb', ['thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'], .0125, .0092],
+        ['index', ['index-finger-phalanx-proximal','index-finger-phalanx-intermediate','index-finger-phalanx-distal','index-finger-tip'], .0108, .0076],
+        ['middle',['middle-finger-phalanx-proximal','middle-finger-phalanx-intermediate','middle-finger-phalanx-distal','middle-finger-tip'], .0114, .0080],
+        ['ring',  ['ring-finger-phalanx-proximal','ring-finger-phalanx-intermediate','ring-finger-phalanx-distal','ring-finger-tip'], .0105, .0074],
+        ['pinky', ['pinky-finger-phalanx-proximal','pinky-finger-phalanx-intermediate','pinky-finger-phalanx-distal','pinky-finger-tip'], .0092, .0065]
+      ];
+      for(let fIdx=0;fIdx<fingerSpecs.length;fIdx++){
+        const [fName,names,rBase,rTip]=fingerSpecs[fIdx];
+        const chain=names.map(n=>j[n]).filter(Boolean);
+        if(fName==='thumb'&&chain.length===1&&wrist)chain.unshift(lerp3(wrist,idx||wrist,.38));
+        const segs=chain.length-1;
+        for(let i=0;i<segs;i++){
+          const p0=chain[i], p1=chain[i+1];
+          const d=sub(p1,p0), l=len(d);if(l<.0005)continue;
+          const axis=unit(d), steps=Math.max(4,Math.ceil(l/.006));
+          for(let s=0;s<=steps;s++){
+            const t=s/steps, globalT=(i+t)/segs;
+            const pt=lerp3(p0,p1,t);
+            const rad=mix(rBase,rTip,globalT)*(.96+.06*Math.sin(t*Math.PI));
+            // Soft contour shading under each phalanx + warm natural hand mask fill
+            b.put(...pt,...axis, rad*1.32,rad*1.06, .75,.72, 5, (fIdx*19+i*7+s)%31/31);
+            b.put(...pt,...axis, rad*1.18,rad*.92, 1.65,.68, 3, (fIdx*23+i*11+s)%37/37);
+          }
+        }
+        // Rounded fingertip pad & subtle fingernail highlight
+        const tipPt=chain[segs], prevPt=chain[segs-1];
+        if(tipPt){
+          const dir=prevPt?unit(sub(tipPt,prevPt)):[0,1,0];
+          b.put(...tipPt,...dir, rTip*1.12,rTip*.98, 1.75,.62, 3, .41+fIdx*.1);
+        }
       }
     }
+    // 3. Subtle wet ink-brush tip or palm qi aura
     const p=h.open?h.palm:h.tip;
-    if(p) b.put(...p,1,0,0,h.open?.011:.006,h.open?.011:.006,2,.42,2,.5);
+    if(p){
+      if(h.open){
+        b.put(...p,1,0,0,.028,.028,1.15,.82,11,.35);
+        b.put(...p,1,0,0,.014,.014,1.35,.55,9,.52);
+      }else if(h.draw){
+        b.put(...p,1,0,0,.011,.009,2.1,.78,0,.48);
+        b.put(...p,1,0,0,.015,.006,1.4,.28,9,.72);
+      }else if(!j){
+        b.put(...p,1,0,0,.014,.011,1.4,.68,3,.5);
+      }
+    }
   }
 }
+

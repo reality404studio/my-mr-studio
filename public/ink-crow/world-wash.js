@@ -1,7 +1,7 @@
-import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js?v=quest-entry-6';
-import {SplatBatch} from './ink.js?v=quest-entry-6';
-import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=quest-entry-6';
-import {glyphStrokes} from './forms.js?v=quest-entry-6';
+import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js?v=quest-entry-7';
+import {SplatBatch} from './ink.js?v=quest-entry-7';
+import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=quest-entry-7';
+import {glyphStrokes} from './forms.js?v=quest-entry-7';
 
 const CELLS=472, CELL=.0056, HALF=CELLS*CELL*.5, SPACING=.012;
 export class WorldWash {

@@ -1,5 +1,5 @@
-import {classifyHand,unit} from './gesture.js?v=quest-entry-6';
-import {identity,multiply} from './render.js?v=quest-entry-6';
+import {classifyHand,unit} from './gesture.js?v=quest-entry-7';
+import {identity,multiply} from './render.js?v=quest-entry-7';
 
 const JOINTS=['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'];
 for(const f of ['index','middle','ring','pinky'])
@@ -93,6 +93,7 @@ export class Immersion {
   }
   async start(mode){
     if(this.attempt)return;
+    this.game.sound?.unlock?.();
     const attempt={session:null,message:'',finished:false};
     this.attempt=attempt;this.mode=mode;this.presented=false;this.step=null;this.progress('request');
     try{
@@ -179,24 +180,12 @@ export class Immersion {
     const hands=this.presented?this.handReader.read(frame,this.space,this.stage,sess.inputSources):[];
     const head=this.stage.local(m[12],m[13],m[14]);
     this.game.tick(delta,hands,head);this.update();
-    let [title,hint]=this.game.info();
-    if(!hands.length&&['ready','trace','seal','charge'].includes(this.game.phase)){
-      hint=sess.enabledFeatures&&!Array.from(sess.enabledFeatures).includes('hand-tracking')
-        ?'손 추적을 허용한 뒤 다시 입장하세요.':'손을 시야 안에 들어 주세요.';
-    }
-    if(this.game.phase==='charge')title+=' · '+(Math.floor(this.game.charge*10)*10)+'%';
-    if(this.game.shot)hint='붉은 먹이 다가옵니다. 고개를 옆으로 피하세요.';
-    const health='나 '+this.game.selfHP+'  /  상대 '+this.game.enemyHP;
-    if(this.metrics()&&this.hz)hint=health+'   '+this.hz.toFixed(0)+' Hz · '+(1000/this.hz).toFixed(1)+' ms';
-    else if(!hint)hint=health;
-    this.painter.label(title,hint);
     let viewsDrawn=0;
     for(const view of pose.views){
       const v=layer.getViewport(view);if(!v||!v.width||!v.height)continue;
       gl.viewport(v.x,v.y,v.width,v.height);
       multiply(this.viewMatrix,view.transform.inverse.matrix,this.stage.matrix);
-      multiply(this.hudMatrix,view.transform.inverse.matrix,m);
-      this.painter.eye(this.viewMatrix,view.projectionMatrix,this.game.groups,this.game.time,passthrough,this.hudMatrix);
+      this.painter.eye(this.viewMatrix,view.projectionMatrix,this.game.groups,this.game.time,passthrough,null);
       viewsDrawn++;
     }
     if(!this.presented&&viewsDrawn===pose.views.length){
