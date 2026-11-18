@@ -1,8 +1,8 @@
 # 실행과 검증
 
-[묵전 실행](https://mukjeon-ink-crow.gigglydeck4.chatgpt.site/)
+[묵전 실행](https://reality404studio.github.io/my-mr-studio/)
 
-Quest 3S의 Meta Quest Browser에서 위 주소를 직접 열고 이 작업을 만든 ChatGPT 계정으로 로그인한다. 손 추적을 켜고 **Quest 대련 시작**을 눌러 권한을 허용한다. 기본은 패스스루이고, **? → VR로 입장**을 선택하면 종이 산수화 배경에서 대련한다. 데스크톱에서는 **직접 그리기**나 **시연 보기**를 선택한다.
+Quest 3S의 Meta Quest Browser에서 위 주소를 직접 연다. 손 추적을 켜거나 컨트롤러를 들고 **VR 대련 시작**을 눌러 권한을 허용한다. 기본은 종이 산수화 배경의 VR 대련이고, **? → 패스스루로 시작**을 선택하면 현실 배경 위에서 대련한다. 데스크톱에서는 **직접 그리기**나 **시연 보기**를 선택한다.
 
 ## 저장소에서 실행
 

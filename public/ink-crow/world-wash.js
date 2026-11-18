@@ -16,6 +16,7 @@ export class WorldWash {
     this.brush.lift();this.brush.reload();this.paper.clear();this.marks.clear();
     this.depth.fill(0);this.nearest.fill(Infinity);this.points=[];this.travel=0;
     this.origin=null;this.local=null;this.clock=0;this.revision++;
+    this.normal=[0,0,1];this.right=[1,0,0];this.down=[0,-1,0];
     this.extent=[CELLS,CELLS,-1,-1];
   }
   begin(p,time,eye){

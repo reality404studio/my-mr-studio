@@ -1,5 +1,5 @@
-import {classifyHand} from './gesture.js';
-import {identity,multiply} from './render.js?v=quest-entry-2';
+import {classifyHand,unit} from './gesture.js';
+import {identity,multiply} from './render.js?v=quest-entry-3';
 
 const JOINTS=['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'];
 for(const f of ['index','middle','ring','pinky'])
@@ -23,7 +23,20 @@ export class HandReader {
   read(frame,ref,stage,sources){
     const found=[];
     for(const src of sources){
-      if(!src.hand)continue;
+      if(!src.hand){
+        const space=src.gripSpace||src.targetRaySpace;
+        if(!space)continue;
+        let pose;
+        try{pose=frame.getPose?.(space,ref);}catch{continue;}
+        const p=pose?.transform?.position,m=pose?.transform?.matrix;
+        if(!p||!Number.isFinite(p.x+p.y+p.z))continue;
+        const tip=stage.local(p.x,p.y,p.z),sm=stage.matrix;
+        const normal=m?unit([-(m[8]*sm[0]+m[10]*sm[2]),-m[9],-(m[8]*sm[8]+m[10]*sm[10])]):[0,0,-1];
+        const btns=src.gamepad?.buttons,trigger=Boolean(btns?.[0]?.pressed||btns?.[0]?.value>.35);
+        const side=src.handedness==='left'?'left':'right';
+        found.push({side,palm:tip,normal,tip,pinch:trigger,draw:trigger,open:!trigger,joints:null});
+        continue;
+      }
       let cache=this.sources.get(src);
       if(!cache){
         const names=JOINTS.filter(n=>src.hand.get(n));

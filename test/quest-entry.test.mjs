@@ -89,3 +89,13 @@ test('partial hand tracking cannot take down rendering when batch and individual
   const frame={fillPoses(){throw Error('unavailable');},getJointPose(){throw Error('joint unavailable');}};
   assert.deepEqual(reader.read(frame,ref,stage,[source]),[]);
 });
+test('controller input sources provide a drawing and charging fallback when bare-hand tracking is inactive',()=>{
+  const stage={matrix:identity(),local:(x,y,z)=>[x,y,z]},reader=new HandReader();
+  const space={},m=identity();
+  const frame={getPose:()=>({transform:{position:{x:.1,y:-.05,z:-.55},matrix:m}})};
+  const idle=reader.read(frame,{},stage,[{gripSpace:space,handedness:'right',gamepad:{buttons:[{pressed:false,value:0}]}}]);
+  assert.equal(idle.length,1);assert.equal(idle[0].draw,false);assert.equal(idle[0].open,true);
+  const drawing=reader.read(frame,{},stage,[{gripSpace:space,handedness:'right',gamepad:{buttons:[{pressed:true,value:1}]}}]);
+  assert.equal(drawing[0].draw,true);assert.equal(drawing[0].open,false);
+});
+

@@ -117,7 +117,7 @@ export function perspective(aspect,fov) {
 }
 export class Painter {
   constructor(canvas) {
-    const gl=canvas.getContext('webgl2',{alpha:true,antialias:false,premultipliedAlpha:true,depth:false,stencil:false,powerPreference:'high-performance'});
+    const gl=canvas.getContext('webgl2',{alpha:true,antialias:false,xrCompatible:Boolean(navigator.xr),premultipliedAlpha:true,depth:false,stencil:false,powerPreference:'high-performance'});
     if (!gl) throw Error('WebGL 2를 사용할 수 없습니다.');
     this.gl=gl; this.cloud=program(gl,quadVert,inkFrag);this.paper=program(gl,paperVert,paperFrag);this.hud=program(gl,hudVert,hudFrag);
     this.uniforms={};

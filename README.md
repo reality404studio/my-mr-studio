@@ -87,4 +87,4 @@ unity/      Unity 프로젝트 (앱별, 공용 모듈)
 
 ## 묵전 · 까마귀 소환
 
-Quest 3S용 WebXR 핸드트래킹 대련입니다. 한 손으로 먹진을 그린 뒤 손바닥을 펴서 까마귀를 부릅니다. [실행](https://mukjeon-ink-crow.gigglydeck4.chatgpt.site/) · [먹 엔진 설계](studio/apps/ink-crow/nodes/spec/README.md) · [로컬 실행과 테스트](studio/apps/ink-crow/nodes/build/README.md)
+Quest 3S용 WebXR 핸드트래킹 대련입니다. 한 손으로 먹진을 그린 뒤 손바닥을 펴서 까마귀를 부릅니다. [실행](https://reality404studio.github.io/my-mr-studio/) · [먹 엔진 설계](studio/apps/ink-crow/nodes/spec/README.md) · [로컬 실행과 테스트](studio/apps/ink-crow/nodes/build/README.md)

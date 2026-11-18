@@ -1,9 +1,9 @@
 import {Duel} from './duel.js';
-import {Painter,perspective,identity} from './render.js?v=quest-entry-2';
+import {Painter,perspective,identity} from './render.js?v=quest-entry-3';
 import {clamp,mul,dist,lerp3} from './gesture.js';
 import {PaperPreview} from './paper-preview.js';
 import {Rehearsal} from './rehearsal.js';
-import {Immersion,supportedModes,entrySteps} from './xr.js?v=quest-entry-2';
+import {Immersion,supportedModes,entrySteps} from './xr.js?v=quest-entry-3';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
@@ -83,7 +83,7 @@ function advanceManual(ms, target=null){
 function desktop(ms){
   if(xr?.session||painter?.gl?.isContextLost())return;
   anim=requestAnimationFrame(desktop);
-  if(document.hidden||guide.open){game.interruptTracking();last=null;manualClock=ms;return;}
+  if(document.hidden||guide.open){game.interruptTracking();last=null;manualClock=ms;paintedCover='';return;}
   if(mode==='demo'&&last!==null && ms-last>150)last=null;
   const dt=last===null?1/72:clamp((ms-last)/1000,0,.05);last=ms;
   if(mode!=='cover'){
@@ -95,7 +95,7 @@ function desktop(ms){
     else game.tick(dt,demo.hands(game,dt),[lean,0,0]);
     prepare();showHud();
   }
-  const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio,1.65);
+  const w=Math.max(1,canvas.clientWidth),h=Math.max(1,canvas.clientHeight),dpr=Math.min(devicePixelRatio||1,1.65);
   const key=w+'x'+h+'@'+dpr;
   if(viewportKey!==key){canvas.width=Math.max(1,Math.round(w*dpr));canvas.height=Math.max(1,Math.round(h*dpr));proj=perspective(w/h,screenFov(w,h));viewportKey=key;}
   if(mode==='cover'&&paintedCover===key)return;
@@ -179,7 +179,7 @@ function lift(e){
   down=false;afterLift=true;activePointer=null;
 }
 for(const evt of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(evt,lift);
-window.addEventListener('blur',()=>{game.interruptTracking();down=false;activePointer=null;afterLift=true;});
+window.addEventListener('blur',()=>{game.interruptTracking();down=false;activePointer=null;afterLift=true;paintedCover='';});
 $('playButton').onclick=()=>{if(painter){beginMode('play');canvas.focus({preventScroll:true});}};
 $('demoButton').onclick=()=>{if(painter)beginMode('demo');};
 $('helpButton').onclick=()=>showGuide();
@@ -197,7 +197,8 @@ canvas.addEventListener('webglcontextlost',e=>{
 canvas.addEventListener('webglcontextrestored',()=>{
   try{
     painter=new Painter(canvas);xr.painter=painter;
-    if(!xr.session){viewportKey='';paintedCover='';prepare();cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);}
+    viewportKey='';paintedCover='';prepare();
+    if(!xr.session){cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);}
   }catch{xr?.stop('그래픽을 다시 준비하지 못했습니다. [XR-restore]');showGuide('페이지를 새로고침해 주세요. [XR-restore]');}
 });
 navigator.xr?.addEventListener('devicechange',refreshModes);
