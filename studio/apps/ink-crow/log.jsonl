@@ -44,3 +44,4 @@
 {"ts":"2026-11-18T12:38:35.533Z","actor":"Codex","action":"node.update","nodeId":"build-sim","detail":"status=done"}
 {"ts":"2026-11-18T12:41:56.767Z","actor":"Codex","action":"notes.append","nodeId":"build","detail":"웹 실행본 배포와 데스크톱 시연, 자동 테스트 10개, GLES 픽셀 판독을 완료했다. Quest 3S 착용 검수 대기."}
 {"ts":"2026-11-18T12:41:56.884Z","actor":"Codex","action":"asset.add","nodeId":"build","detail":"mukjeon-crow-preview.jpg"}
+{"ts":"2026-11-18T13:55:45.527Z","actor":"Codex","action":"notes.append","nodeId":"spec","detail":"획 단위 먹 재질 연구판을 public/ink-study/에 추가했다. 12cm 붓이 거리·체류시간에서 물과 안료를 따로 방출하고 종이결을 따라"}
