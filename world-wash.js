@@ -1,4 +1,4 @@
-import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js';
+import {InkBrush, InkPaper, PAPER_STEP} from './ink-study/ink-engine.js';
 import {SplatBatch} from './ink.js';
 import {cross, dist, dot, lerp3, sub, unit} from './gesture.js';
 
