@@ -88,7 +88,7 @@ export class Immersion {
   draw(ms,frame){
     const sess=this.session;if(!sess)return;sess.requestAnimationFrame(this.draw);
     const pose=frame.getViewerPose(this.space);
-    if(!pose||sess.visibilityState==='hidden'){this.last=null;return;}
+    if(!pose||sess.visibilityState==='hidden'){this.game.interruptTracking();this.last=null;return;}
     const delta=this.last===null?1/72:(ms-this.last)/1000;this.last=ms;
     if(delta>0&&delta<.25){this.totalTime+=delta;this.samples++;}
     if(this.totalTime>=1.6){this.hz=this.samples/this.totalTime;this.totalTime=0;this.samples=0;}

@@ -1,6 +1,6 @@
 import {Duel} from './duel.js';
 import {Painter,perspective,identity} from './render.js';
-import {clamp,mul} from './gesture.js';
+import {clamp,mul,dist,lerp3} from './gesture.js';
 import {PaperPreview} from './paper-preview.js';
 import {Rehearsal} from './rehearsal.js';
 import {Immersion,supportedModes} from './xr.js';
@@ -9,14 +9,14 @@ const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
 let painter,xr,modes=[],mode='cover',demo=new Rehearsal(),last=null,anim=0,viewportKey='',proj;
 let paintedCover='';
-let pointer=null,down=false,afterLift=false,lean=0,lastHint='';
+let pointer=null,down=false,afterLift=false,lean=0,lastHint='',manualClock=0;
 const ds={ready:'빈 곳을 누르고 드래그해서 원을 그리세요.',trace:'처음 그은 자리 가까이 돌아오세요.',
   seal:'손을 뗀 뒤 원 가운데를 길게 누르세요.',charge:'손을 그대로 두면 까마귀가 깨어납니다.',
   release:'먹깃이 펼쳐지면 까마귀가 상대를 향해 날아갑니다.',recover:'다음 먹진을 그릴 준비를 하세요.'};
 function prepare(){
   game.paint();
   for(const g of game.groups){
-    const revision=g.scenery?0:g.batch===game.brush.marks?game.brush.generation*6000+game.brush.marks.count:game.frame;
+    const revision=g.scenery?0:g.batch===game.brush.marks?game.brush.revision:game.frame;
     painter.upload(g.batch,revision);
   }
 }
@@ -42,7 +42,7 @@ function showHud(){
   }else meter.style.display='none';
 }
 function beginMode(next){
-  mode=next;game.reset();demo=new Rehearsal();lean=0;down=false;pointer=null;afterLift=false;last=null;
+  mode=next;game.reset();demo=new Rehearsal();lean=0;down=false;pointer=null;afterLift=false;last=null;manualClock=performance.now();
   document.body.classList.toggle('manual',mode==='play');document.body.classList.toggle('watching',mode==='demo');
   if(mode==='cover'){
     for(let i=0;i<540;i++){
@@ -65,19 +65,34 @@ function mouseHands(){
   const casting=game.phase==='seal'||game.phase==='charge',p=pointer.p;
   return [{side:'right',draw:down&&!casting,tip:p,palm:p,normal:game.seal?mul(game.seal.n,-1):[0,0,-1],open:casting&&afterLift&&down}];
 }
+// Consume captured pointer positions on their own clock, including a quick
+// flick entirely between two display frames. Each interval is simulated once.
+function advanceManual(ms, target=null){
+  const dt=clamp((ms-manualClock)/1000,0,.05);
+  manualClock=Math.max(ms,manualClock);
+  const from=pointer, trace=down && from && target && (game.phase==='ready'||game.phase==='trace');
+  const steps=trace?Math.min(96,Math.max(1,Math.ceil(dist(from.p,target.p)/.032))):1;
+  for(let i=1;i<=steps&&dt>0;i++){
+    if(target)pointer=trace && i<steps?{...target,p:lerp3(from.p,target.p,i/steps)}:target;
+    const phase=game.phase;
+    game.tick(dt/steps,mouseHands(),[lean,0,0]);
+    if(phase==='trace'&&game.seal)afterLift=!down;
+  }
+  if(target)pointer=target;
+}
 function desktop(ms){
   if(xr?.session)return;
   anim=requestAnimationFrame(desktop);
-  if(document.hidden||guide.open){last=null;return;}
+  if(document.hidden||guide.open){game.interruptTracking();last=null;manualClock=ms;return;}
+  if(mode==='demo'&&last!==null && ms-last>150)last=null;
   const dt=last===null?1/72:clamp((ms-last)/1000,0,.05);last=ms;
   if(mode!=='cover'){
     if(mode==='play'&&!down){
       const target=game.shot&&pointer?clamp(pointer.x/canvas.clientWidth*2-1,-1,1)*.40:0;
       lean+=(target-lean)*(1-Math.exp(-dt*10));
     }
-    const p=game.phase;
-    game.tick(dt,mode==='demo'?demo.hands(game,dt):mouseHands(),[lean,0,0]);
-    if(p==='trace'&&game.seal)afterLift=!down;
+    if(mode==='play')advanceManual(ms);
+    else game.tick(dt,demo.hands(game,dt),[lean,0,0]);
     prepare();showHud();
   }
   const w=canvas.clientWidth,h=canvas.clientHeight,dpr=Math.min(devicePixelRatio,1.65);
@@ -125,12 +140,21 @@ canvas.addEventListener('pointerdown',e=>{
   if(!painter||activePointer!==null)return;
   if(mode!=='play')beginMode('play');
   canvas.focus({preventScroll:true});activePointer=e.pointerId;canvas.setPointerCapture(e.pointerId);
-  pointer=desktopPoint(e);down=true;
+  advanceManual(performance.now());pointer=desktopPoint(e);down=true;
+  if(game.phase==='ready')game.drawInput(0,mouseHands(),[lean,0,0]);
 });
-canvas.addEventListener('pointermove',e=>{if(mode==='play'&&(activePointer===null||activePointer===e.pointerId))pointer=desktopPoint(e);});
-function lift(e){if(e.pointerId!==activePointer)return;down=false;afterLift=true;activePointer=null;}
+canvas.addEventListener('pointermove',e=>{
+  if(mode!=='play'||(activePointer!==null&&activePointer!==e.pointerId))return;
+  if(down)advanceManual(performance.now(),desktopPoint(e));else pointer=desktopPoint(e);
+});
+function lift(e){
+  if(e.pointerId!==activePointer)return;
+  if(e.type==='pointerup')advanceManual(performance.now(),desktopPoint(e));
+  else game.interruptTracking();
+  down=false;afterLift=true;activePointer=null;
+}
 for(const evt of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(evt,lift);
-window.addEventListener('blur',()=>{down=false;activePointer=null;afterLift=true;});
+window.addEventListener('blur',()=>{game.interruptTracking();down=false;activePointer=null;afterLift=true;});
 $('playButton').onclick=()=>{if(painter){beginMode('play');canvas.focus({preventScroll:true});}};
 $('demoButton').onclick=()=>{if(painter)beginMode('demo');};
 $('helpButton').onclick=()=>showGuide();

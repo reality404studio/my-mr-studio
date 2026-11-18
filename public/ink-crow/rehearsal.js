@@ -1,4 +1,4 @@
-import {TAU,clamp,smooth,onSeal,lerp3,mul} from './gesture.js';
+import {TAU,smooth,onSeal,lerp3,mul} from './gesture.js';
 
 // Desktop rehearsal feeds the same gesture recognizer and combat clock as XR.
 export class Rehearsal {
@@ -9,7 +9,11 @@ export class Rehearsal {
     this.lastPhase=p;
     if(p==='ready'||p==='trace'){
       this.age+=dt;if(this.age<.24)return [];
-      const q=clamp((this.age-.24)/2.0),a=TAU*q+.54,rr=.257*(1+.044*Math.sin(a*3+.3)+.047*Math.cos(a*2));
+      // Linger at the shoulder of the seal, then flick through its lower arc.
+      // This preview feeds timed hand samples through the ordinary wash and spray.
+      const t=this.age-.24;
+      const q=.24*smooth(t/.60)+.39*smooth((t-.92)/.55)+.37*smooth((t-1.47)/.83);
+      const a=TAU*q+.54,rr=.257*(1+.044*Math.sin(a*3+.3)+.047*Math.cos(a*2));
       const tip=[-.225+Math.cos(a)*rr,-.048+Math.sin(a)*rr*.93,-1.22+.034*Math.sin(a+.4)];
       return [{side:'right',draw:true,pinch:false,open:false,tip,palm:tip,normal:[0,0,-1]}];
     }

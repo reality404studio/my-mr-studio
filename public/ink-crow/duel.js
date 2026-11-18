@@ -1,5 +1,7 @@
 import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js';
-import {Brush,SplatBatch,springStep,spiral} from './ink.js';
+import {WorldWash} from './world-wash.js';
+import {InkSpray} from './ink-spray.js';
+import {SplatBatch,springStep,spiral} from './ink.js';
 import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js';
 
 export const CHARGE_SECONDS=1.35;
@@ -17,7 +19,7 @@ const lines={
 };
 export class Duel {
   constructor(){
-    this.brush=new Brush();this.land=landscape();this.enemyCloud=new SplatBatch(1450);
+    this.brush=new WorldWash();this.spray=new InkSpray();this.land=landscape();this.enemyCloud=new SplatBatch(1450);
     this.flow=new SplatBatch(4100);this.decor=new SplatBatch(2200);this.handsCloud=new SplatBatch(270);
     this.traces=new SplatBatch(750);this.bird=crowForm();
     const rng=random(306),glyph=glyphSamples(this.bird.length,rng);
@@ -28,7 +30,7 @@ export class Duel {
     });
     this.groups=[
       {batch:this.land,alpha:1,scenery:true},{batch:this.enemyCloud,alpha:1},{batch:this.traces,alpha:1},
-      {batch:this.brush.marks,alpha:1},{batch:this.decor,alpha:1},{batch:this.flow,alpha:1},{batch:this.handsCloud,alpha:1}
+      {batch:this.brush.marks,alpha:1,sheet:this.brush},{batch:this.decor,alpha:1},{batch:this.flow,alpha:1},{batch:this.handsCloud,alpha:1},{batch:this.spray.marks,alpha:1}
     ];
     this.depthOrder=Uint16Array.from(this.bird,(_,i)=>i);
     this.sortDepth=(i,j)=>this.bird[j].depth-this.bird[i].depth;
@@ -36,13 +38,14 @@ export class Duel {
     this.reset();
   }
   reset(){
-    this.time=0;this.enemyHP=3;this.selfHP=3;this.hitFlash=0;this.hurtFlash=0;
+    this.spray.clear();this.time=0;this.enemyHP=3;this.selfHP=3;this.hitFlash=0;this.hurtFlash=0;
     this.enemy=[.83,-.16,-3.42];this.head=[0,0,0];this.shot=null;this.nextShot=Infinity;
     this.hasCast=false;this.handData=[];this.impacts=[];this.demo=false;this.resetCast();
   }
-  resetCast(){
+  resetCast(keepInk=false){
     this.phase='ready';this.phaseTime=0;this.charge=0;this.seal=null;this.owner=null;
-    this.brush.reset();this.wasDrawing=false;this.missing=0;this.previousTip=null;this.trail=[];this.struck=false;
+    this.brush.end();if(!keepInk)this.brush.reset();
+    this.abandoned=keepInk?this.time:null;this.spray.stopMotion();this.wasDrawing=false;this.missing=0;this.previousTip=null;this.trail=[];this.struck=false;
     this.needLift=false;this.livePalm=null;this.lastSpringRoot=null;this.traceAlpha=1;this.checkAt=0;
   }
   enter(p){this.phase=p;this.phaseTime=0;}
@@ -50,6 +53,7 @@ export class Duel {
     const l=lines[this.phase];return [l[0],l[1]];
   }
   tick(dt,hands=[],eye=ORIGIN){
+    if(dt>.15)this.interruptTracking();
     dt=clamp(dt,0,.05);this.time+=dt;this.phaseTime+=dt;this.frame++;
     this.handData=hands;this.head=eye;this.hitFlash=Math.max(0,this.hitFlash-dt);this.hurtFlash=Math.max(0,this.hurtFlash-dt);
     this.enemy[0]=.83+.085*Math.sin(this.time*.77);this.enemy[1]=-.16+.045*Math.sin(this.time*1.42);
@@ -62,41 +66,52 @@ export class Duel {
       if(this.phase==='recover'&&this.phaseTime>1.05)this.resetCast();
       this.enemyTurn(dt);
     }
+    this.brush.tick(dt);this.spray.step(dt);
+    if(this.abandoned!==null && this.time-this.abandoned>2.3){this.brush.reset();this.abandoned=null;}
     this.impacts=this.impacts.filter(i=>this.time-i.time<1.45);
+  }
+  interruptTracking(){
+    if(this.phase==='trace'){this.brush.end();this.spray.stopMotion();this.resetCast(true);this.needLift=true;}
   }
   drawInput(dt,hands,eye){
     if(this.needLift){if(!hands.some(h=>h.draw))this.needLift=false;return;}
     let h=this.owner?hands.find(h=>h.side===this.owner):hands.find(h=>h.draw);
     if(!h||!h.draw){
       if(this.phase==='trace'){
+        if(!this.missing){
+          if(h && !h.cancelled)this.spray.lift(this.previousTip,this.brush.normal,this.brush.brush);
+          else this.spray.stopMotion();
+          this.brush.end();
+        }
         this.missing+=dt;
         if(this.missing>(h?.14:.23)){
           const s=fitSeal(this.brush.points,eye);
-          if(s)this.lock(s);else this.resetCast();
+          if(s)this.lock(s);else this.resetCast(true);
         }
       }
       return;
     }
+    if(this.missing && this.previousTip && dist(h.tip,this.previousTip)>.04){this.interruptTracking();return;}
+    const resumed=this.missing>0;
     this.missing=0;
     if(this.phase==='ready'){
-      this.owner=h.side;this.enter('trace');this.brush.begin(h.tip);this.previousTip=h.tip.slice();this.checkAt=0;
+      this.owner=h.side;this.enter('trace');this.abandoned=null;this.brush.begin(h.tip,this.time,eye);this.spray.stopMotion();this.previousTip=h.tip.slice();this.checkAt=0;
       return;
     }
     const delta=dist(h.tip,this.previousTip);
-    if(delta>.18){this.resetCast();this.needLift=true;return;}
-    const speed=delta/Math.max(dt,.001);
-    this.brush.line(h.tip,this.time,speed,eye);this.previousTip=h.tip.slice();
+    if(delta>Math.min(.18,.065+3.2*dt)){this.interruptTracking();return;}
+    if(!resumed)this.spray.sample(this.previousTip,h.tip,dt,this.brush.normal,this.brush.brush);
+    this.brush.line(h.tip,this.time);this.previousTip=h.tip.slice();
     if(this.brush.travel-this.checkAt>.025){
       this.checkAt=this.brush.travel;
       const s=fitSeal(this.brush.points,eye);if(s)this.lock(s);
     }
-    if(this.phase==='trace'&&(this.brush.points.length>415 || this.phaseTime>10)){this.resetCast();this.needLift=true;}
+    if(this.phase==='trace'&&(this.brush.points.length>415 || this.phaseTime>10)){this.resetCast(true);this.needLift=true;}
   }
   lock(seal){
-    this.seal=seal;this.sealBorn=this.time;const ps=this.brush.points,a=ps[ps.length-1],b=ps[0],gap=dist(a,b);
+    this.seal=seal;this.sealBorn=this.time;const ps=this.brush.points;
     // Only the remaining gap is bridged. All captured metre-space samples stay intact.
-    for(let j=1,n=Math.max(1,Math.ceil(gap/.035));j<=n;j++)
-      this.brush.line(lerp3(a,b,j/n),this.time,.46,this.head,false);
+    this.brush.close(ps[0],this.time);this.spray.stopMotion();
     this.owner=null;this.enter('seal');
   }
   chargeInput(dt,hands){
@@ -204,7 +219,7 @@ export class Duel {
     this.flow.clear();this.decor.clear();this.traces.clear();this.enemyCloud.clear();this.handsCloud.clear();
     const s=this.seal,t=this.phaseTime,releasing=this.phase==='release';
     const sealed=this.phase==='seal'||this.phase==='charge',finish=this.phase==='recover'||this.phase==='win'||this.phase==='lose';
-    const alpha=finish?0:releasing?1-smooth((t-.60)/1.25):1;this.groups[3].alpha=alpha;
+    const alpha=finish?0:releasing?1-smooth((t-.60)/1.25):1;this.groups[3].alpha=this.abandoned===null?alpha:1-smooth((this.time-this.abandoned-.85)/1.45);
     if(s && (sealed||releasing)){
       this.sealDetails(s,alpha);
       if(sealed || t<.25)this.formation();

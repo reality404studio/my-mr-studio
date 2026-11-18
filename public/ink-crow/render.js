@@ -10,10 +10,15 @@ layout(location=4) in vec4 material;
 layout(location=5) in float born;
 uniform mat4 view,projection;
 uniform float time;
+uniform vec3 sheetDown;
 out vec2 uv;
 flat out vec4 ink;
 flat out float spread;
 void main(){
+  if(material.z>7.5){
+    vec3 world=center+axis*(corner.x*halfSize.x)+sheetDown*(corner.y*halfSize.y);
+    gl_Position=projection*view*vec4(world,1.);uv=corner;ink=material;spread=1.;return;
+  }
   vec4 p=view*vec4(center,1);
   vec3 cameraAxis=mat3(view)*axis;
   vec2 a=cameraAxis.xy-cameraAxis.z*p.xy/min(-.035,p.z);
@@ -44,6 +49,13 @@ vec3 palette(float i){
   return vec3(.73,.52,.246);
 }
 void main(){
+  if(ink.z>7.5){
+    // Tent kernels sum to one between four deposits. Optical depths add,
+    // preserving a smooth wet wash even as the whole seal fades.
+    vec2 weights=max(vec2(0.),1.-abs(uv));
+    float alpha=1.-exp(-1.58*ink.x*weights.x*weights.y*opacity);
+    color=vec4(vec3(.067,.071,.067)*alpha,alpha);return;
+  }
   float r2=dot(uv,uv);
   if(r2>1.) discard;
   vec2 jitter=texture(grain,uv*vec2(.17,.46)+ink.w*vec2(7.37,2.71)).rg;
@@ -109,7 +121,7 @@ export class Painter {
     if (!gl) throw Error('WebGL 2를 사용할 수 없습니다.');
     this.gl=gl; this.cloud=program(gl,quadVert,inkFrag);this.paper=program(gl,paperVert,paperFrag);this.hud=program(gl,hudVert,hudFrag);
     this.uniforms={};
-    for (const name of ['view','projection','time','opacity']) this.uniforms[name]=gl.getUniformLocation(this.cloud,name);
+    for (const name of ['view','projection','time','opacity','sheetDown']) this.uniforms[name]=gl.getUniformLocation(this.cloud,name);
     this.hudView=gl.getUniformLocation(this.hud,'view');this.hudProjection=gl.getUniformLocation(this.hud,'projection');
     gl.useProgram(this.cloud);gl.uniform1i(gl.getUniformLocation(this.cloud,'grain'),0);
     gl.useProgram(this.paper);gl.uniform1i(gl.getUniformLocation(this.paper,'grain'),0);
@@ -174,6 +186,7 @@ export class Painter {
     g.uniformMatrix4fv(this.uniforms.view,false,view);g.uniformMatrix4fv(this.uniforms.projection,false,projection);g.uniform1f(this.uniforms.time,time);
     for(const item of groups){
       if(passthrough&&item.scenery || !item.batch.count || item.alpha<=0)continue;
+      if(item.sheet)g.uniform3fv(this.uniforms.sheetDown,item.sheet.down);
       g.bindVertexArray(this.buffers.get(item.batch).vao);g.uniform1f(this.uniforms.opacity,item.alpha);
       g.drawArraysInstanced(g.TRIANGLE_STRIP,0,4,item.batch.count);
     }

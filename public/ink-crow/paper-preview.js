@@ -1,6 +1,7 @@
 // Canvas fallback for the flat rehearsal on browsers without WebGL 2.
 // The metre-space particle buffers, glyph, wing rig and combat logic are shared.
 import {STRIDE} from './ink.js';
+import {WashPreview} from './wash-preview.js';
 import {random} from './gesture.js';
 const tones=[[14,17,17],[46,62,65],[150,36,21],[240,228,195],[82,103,106],[148,159,151],[184,70,44],[186,133,63]];
 const masses=[.42,1,2,3.65];
@@ -30,10 +31,11 @@ export class PaperPreview {
   constructor(canvas){
     this.canvas=canvas;this.ctx=canvas.getContext('2d',{alpha:false});
     if(!this.ctx)throw Error('이 브라우저에서 미리보기를 열 수 없습니다.');
-    this.atlas=atlas();this.background=document.createElement('canvas');this.key='';
+    this.wash=new WashPreview();this.atlas=atlas();this.background=document.createElement('canvas');this.key='';
   }
   upload(){}
-  draw(ctx,b,opacity,time,f,w,h,eyeX){
+  draw(ctx,b,opacity,time,f,w,h,eyeX,sheet){
+    if(sheet){this.wash.draw(ctx,b,sheet,opacity,f,w,h,eyeX);return;}
     const data=b.data;
     for(let j=0;j<b.count*STRIDE;j+=STRIDE){
       const depth=-data[j+2];if(depth<.035)continue;
@@ -64,6 +66,6 @@ export class PaperPreview {
       this.draw(b,groups[0].batch,1,time,f,w,h,eyeX);
     }
     c.drawImage(this.background,0,0);
-    for(const item of groups)if(!item.scenery&&item.alpha>0)this.draw(c,item.batch,item.alpha,time,f,w,h,eyeX);
+    for(const item of groups)if(!item.scenery&&item.alpha>0)this.draw(c,item.batch,item.alpha,time,f,w,h,eyeX,item.sheet);
   }
 }
