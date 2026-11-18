@@ -1,8 +1,8 @@
-import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js';
-import {WorldWash} from './world-wash.js';
-import {InkSpray} from './ink-spray.js';
-import {SplatBatch,springStep,spiral} from './ink.js';
-import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js';
+import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=quest-entry-6';
+import {WorldWash} from './world-wash.js?v=quest-entry-6';
+import {InkSpray} from './ink-spray.js?v=quest-entry-6';
+import {SplatBatch,springStep,spiral} from './ink.js?v=quest-entry-6';
+import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=quest-entry-6';
 
 export const CHARGE_SECONDS=1.35;
 const ORIGIN=[0,0,0], FORWARD=[0,0,-1];

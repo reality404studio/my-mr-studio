@@ -1,5 +1,5 @@
-import {STRIDE} from './ink.js';
-import {random} from './gesture.js';
+import {STRIDE} from './ink.js?v=quest-entry-6';
+import {random} from './gesture.js?v=quest-entry-6';
 
 const quadVert=`#version 300 es
 layout(location=0) in vec2 corner;
