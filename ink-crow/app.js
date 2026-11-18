@@ -1,18 +1,15 @@
-import {Duel} from './duel.js?v=quest-entry-6';
-import {Painter,perspective,identity} from './render.js?v=quest-entry-6';
-import {clamp,mul,dist,lerp3} from './gesture.js?v=quest-entry-6';
-import {PaperPreview} from './paper-preview.js?v=quest-entry-6';
-import {Rehearsal} from './rehearsal.js?v=quest-entry-6';
-import {Immersion,supportedModes,entrySteps} from './xr.js?v=quest-entry-6';
+import {Duel} from './duel.js?v=quest-entry-7';
+import {Painter,perspective,identity} from './render.js?v=quest-entry-7';
+import {clamp,mul,dist,lerp3} from './gesture.js?v=quest-entry-7';
+import {PaperPreview} from './paper-preview.js?v=quest-entry-7';
+import {Rehearsal} from './rehearsal.js?v=quest-entry-7';
+import {Immersion,supportedModes} from './xr.js?v=quest-entry-7';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
 let painter,xr,modes=[],mode='cover',demo=new Rehearsal(),last=null,anim=0,viewportKey='',proj;
 let paintedCover='',modesChecked=false;
 let pointer=null,down=false,afterLift=false,lean=0,lastHint='',manualClock=0;
-const ds={ready:'빈 곳을 누르고 드래그해서 원을 그리세요.',trace:'처음 그은 자리 가까이 돌아오세요.',
-  seal:'손을 뗀 뒤 원 가운데를 길게 누르세요.',charge:'손을 그대로 두면 까마귀가 깨어납니다.',
-  release:'먹깃이 펼쳐지면 까마귀가 상대를 향해 날아갑니다.',recover:'다음 먹진을 그릴 준비를 하세요.'};
 function prepare(){
   game.paint();
   for(const g of game.groups){
@@ -22,13 +19,13 @@ function prepare(){
 }
 function showHud(){
   const p=game.phase,cover=mode==='cover',stage=p==='ready'||p==='trace'?1:p==='seal'||p==='charge'?2:3;
-  const headline=cover?'까마귀를 부르세요':game.info()[0];
-  let hint=cover?'한 손으로 먹진을 그리고, 손바닥으로 기운을 불어넣으세요.':mode==='demo'?(game.info()[1]||ds[p]||''):ds[p]||game.info()[1];
-  if(!cover&&game.shot)hint='붉은 먹이 다가옵니다. 포인터를 화면 옆으로 움직여 피하세요.';
-  if(!cover&&p==='charge')hint+='  '+Math.floor(game.charge*100)+'%';
+  const headline=cover?'까마귀를 부르세요':'';
+  const hint=cover?'한 손으로 먹진을 그리고, 손바닥으로 기운을 불어넣으세요.':'';
   const key=[mode,headline,hint,game.selfHP,game.enemyHP].join('|');
   if(key!==lastHint){
     lastHint=key;$('phaseTitle').textContent=headline;$('instruction').textContent=hint;
+    $('phaseTitle').hidden=!cover;$('instruction').hidden=!cover;
+    const prog=document.querySelector('#caption .progress');if(prog)prog.hidden=!cover;
     for(let i=1;i<=3;i++)$('step'+i).classList.toggle('active',i<=(cover?1:stage));
     $('playButton').innerHTML=mode==='play'?'다시 시작 <span aria-hidden="true">↻</span>':'직접 그리기 <span aria-hidden="true">↗</span>';
     $('demoButton').innerHTML=mode==='demo'?'시연 처음부터 <span aria-hidden="true">↺</span>':'시연 보기 <span aria-hidden="true">▷</span>';
@@ -83,7 +80,7 @@ function advanceManual(ms, target=null){
 function desktop(ms){
   if(xr?.session||painter?.gl?.isContextLost())return;
   anim=requestAnimationFrame(desktop);
-  if(document.hidden||guide.open){game.interruptTracking();last=null;manualClock=ms;paintedCover='';return;}
+  if(document.hidden){game.interruptTracking();last=null;manualClock=ms;paintedCover='';return;}
   if(mode==='demo'&&last!==null && ms-last>150)last=null;
   const dt=last===null?1/72:clamp((ms-last)/1000,0,.05);last=ms;
   if(mode!=='cover'){
@@ -103,65 +100,44 @@ function desktop(ms){
   const gl=painter.gl;if(gl){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);}
   view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null);
 }
-function showGuide(message=''){
-  $('notice').textContent=message;
-  $('vrAlternative').hidden=!modes.includes('immersive-vr');$('arAlternative').hidden=!modes.includes('immersive-ar');
-  if(!guide.open)guide.showModal();
-}
-function unavailable(){
-  if(!window.isSecureContext)return 'XR 입장에는 HTTPS 주소가 필요합니다. [XR-https]';
-  if(!navigator.xr)return '이 브라우저에서 WebXR을 찾을 수 없습니다. 퀘스트의 Meta Quest Browser에서 이 주소를 직접 열어 주세요. [XR-browser]';
-  if(!painter?.gl)return 'WebGL 2 화면을 만들 수 없습니다. 브라우저에서 페이지를 다시 열어 주세요. [XR-webgl]';
-  if(document.featurePolicy?.allowsFeature('xr-spatial-tracking')===false)
-    return '현재 페이지에서는 XR 공간 추적이 차단되어 있습니다. 링크를 새 탭에서 직접 열어 주세요. [XR-policy]';
-  return '브라우저에서 사용할 수 있는 몰입 모드가 없습니다. 퀘스트의 Meta Quest Browser에서 다시 열어 주세요. [XR-mode]';
-}
 async function refreshModes(){
   modes=painter?.gl?await supportedModes():[];modesChecked=true;
   $('questText').textContent=modes.includes('immersive-vr')?'VR 대련 시작':modes.includes('immersive-ar')?'패스스루로 시작':'Quest에서 열기';
-  $('vrAlternative').hidden=!modes.includes('immersive-vr');$('arAlternative').hidden=!modes.includes('immersive-ar');
+  if($('vrAlternative'))$('vrAlternative').hidden=!modes.includes('immersive-vr');
+  if($('arAlternative'))$('arAlternative').hidden=!modes.includes('immersive-ar');
 }
-const traceKey='mukjeon-xr-entry-v2';
-function showProgress(step){
+function showProgress(){
   const box=$('entryStatus');
-  box.hidden=step==='ready';
-  if(step==='ready'){
-    try{sessionStorage.removeItem(traceKey);}catch{}
-    return;
-  }
-  $('entryText').textContent=entrySteps[step]+' 기다리는 중…';
-  try{sessionStorage.setItem(traceKey,step);}catch{}
+  if(box)box.hidden=true;
 }
 function enterXR(chosen=modes[0]){
+  game.sound.unlock();
   if(xr?.attempt)return;
   if(!chosen&&!modesChecked&&navigator.xr&&painter?.gl&&window.isSecureContext)chosen='immersive-vr';
-  if(!chosen){showGuide(unavailable());return;}
-  if(guide.open)guide.close();
+  if(!chosen){beginMode('play');return;}
+  if(guide?.open)guide.close();
   $('questButton').disabled=true;
   // Keep the regular window painting while the browser decides the request.
   xr.start(chosen);
 }
-function resumePage(message){
-  $('questButton').disabled=false;$('entryStatus').hidden=true;
-  try{sessionStorage.removeItem(traceKey);}catch{}
+function resumePage(){
+  $('questButton').disabled=false;
+  if($('entryStatus'))$('entryStatus').hidden=true;
   if(!painter.gl?.isContextLost()){
     beginMode('play');cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);
   }
-  if(message)showGuide(message);
 }
 function boot(){
   try{painter=new Painter(canvas);}catch(e){
     if(!e.message.includes('WebGL 2'))throw e;
     painter=new PaperPreview(canvas);
   }
-  xr=new Immersion(painter,game,prepare,()=>$('metrics').checked,resumePage,showProgress);
+  xr=new Immersion(painter,game,prepare,()=>Boolean($('metrics')?.checked),resumePage,showProgress);
   beginMode('cover');anim=requestAnimationFrame(desktop);refreshModes();
-  let interrupted='';
-  try{interrupted=sessionStorage.getItem(traceKey);sessionStorage.removeItem(traceKey);}catch{}
-  if(Object.hasOwn(entrySteps,interrupted))showGuide('이전 입장은 '+entrySteps[interrupted]+' 단계에서 중단됐습니다. [XR-'+interrupted+']');
 }
 let activePointer=null;
 canvas.addEventListener('pointerdown',e=>{
+  game.sound.unlock();
   if(!painter||activePointer!==null)return;
   if(mode!=='play')beginMode('play');
   canvas.focus({preventScroll:true});activePointer=e.pointerId;canvas.setPointerCapture(e.pointerId);
@@ -180,16 +156,14 @@ function lift(e){
 }
 for(const evt of ['pointerup','pointercancel','lostpointercapture'])canvas.addEventListener(evt,lift);
 window.addEventListener('blur',()=>{game.interruptTracking();down=false;activePointer=null;afterLift=true;paintedCover='';});
-$('playButton').onclick=()=>{if(painter){beginMode('play');canvas.focus({preventScroll:true});}};
-$('demoButton').onclick=()=>{if(painter)beginMode('demo');};
-$('helpButton').onclick=()=>showGuide();
-$('questButton').onclick=()=>enterXR();$('vrAlternative').onclick=()=>enterXR('immersive-vr');
-$('arAlternative').onclick=()=>enterXR('immersive-ar');
-$('backToPage').onclick=()=>xr?.stop();
-$('closeGuide').onclick=()=>guide.close();
-$('copy').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('notice').textContent='접속 주소를 복사했습니다.';}
-  catch{$('notice').textContent=location.href;}};
-guide.addEventListener('click',e=>{if(e.target===guide){const r=guide.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)guide.close();}});
+$('playButton').onclick=()=>{game.sound.unlock();if(painter){beginMode('play');canvas.focus({preventScroll:true});}};
+$('demoButton').onclick=()=>{game.sound.unlock();if(painter)beginMode('demo');};
+if($('helpButton'))$('helpButton').hidden=true;
+$('questButton').onclick=()=>enterXR();
+if($('vrAlternative'))$('vrAlternative').onclick=()=>enterXR('immersive-vr');
+if($('arAlternative'))$('arAlternative').onclick=()=>enterXR('immersive-ar');
+if($('backToPage'))$('backToPage').onclick=()=>xr?.stop();
+if($('closeGuide'))$('closeGuide').onclick=()=>guide?.close();
 canvas.addEventListener('webglcontextlost',e=>{
   e.preventDefault();cancelAnimationFrame(anim);
   if(xr?.attempt && xr.step!=='graphics')xr.stop('그래픽 연결이 끊겼습니다. 복구 후 다시 입장해 주세요. [XR-context]');
@@ -199,7 +173,7 @@ canvas.addEventListener('webglcontextrestored',()=>{
     painter=new Painter(canvas);xr.painter=painter;
     viewportKey='';paintedCover='';prepare();
     if(!xr.session){cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);}
-  }catch{xr?.stop('그래픽을 다시 준비하지 못했습니다. [XR-restore]');showGuide('페이지를 새로고침해 주세요. [XR-restore]');}
+  }catch{xr?.stop('그래픽을 다시 준비하지 못했습니다. [XR-restore]');}
 });
 navigator.xr?.addEventListener('devicechange',refreshModes);
 try{boot();}catch(e){$('failure').hidden=false;$('failure').textContent='대련장을 열 수 없습니다. '+e.message;}
