@@ -1,14 +1,14 @@
 import {Duel} from './duel.js';
-import {Painter,perspective,identity} from './render.js';
+import {Painter,perspective,identity} from './render.js?v=quest-entry-2';
 import {clamp,mul,dist,lerp3} from './gesture.js';
 import {PaperPreview} from './paper-preview.js';
 import {Rehearsal} from './rehearsal.js';
-import {Immersion,supportedModes} from './xr.js';
+import {Immersion,supportedModes,entrySteps} from './xr.js?v=quest-entry-2';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
 let painter,xr,modes=[],mode='cover',demo=new Rehearsal(),last=null,anim=0,viewportKey='',proj;
-let paintedCover='';
+let paintedCover='',modesChecked=false;
 let pointer=null,down=false,afterLift=false,lean=0,lastHint='',manualClock=0;
 const ds={ready:'빈 곳을 누르고 드래그해서 원을 그리세요.',trace:'처음 그은 자리 가까이 돌아오세요.',
   seal:'손을 뗀 뒤 원 가운데를 길게 누르세요.',charge:'손을 그대로 두면 까마귀가 깨어납니다.',
@@ -81,7 +81,7 @@ function advanceManual(ms, target=null){
   if(target)pointer=target;
 }
 function desktop(ms){
-  if(xr?.session)return;
+  if(xr?.session||painter?.gl?.isContextLost())return;
   anim=requestAnimationFrame(desktop);
   if(document.hidden||guide.open){game.interruptTracking();last=null;manualClock=ms;return;}
   if(mode==='demo'&&last!==null && ms-last>150)last=null;
@@ -104,36 +104,61 @@ function desktop(ms){
   view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null);
 }
 function showGuide(message=''){
-  $('notice').textContent=message;$('vrAlternative').hidden=!modes.includes('immersive-vr');
+  $('notice').textContent=message;
+  $('vrAlternative').hidden=!modes.includes('immersive-vr');$('arAlternative').hidden=!modes.includes('immersive-ar');
   if(!guide.open)guide.showModal();
 }
-async function refreshModes(){
-  modes=painter?.gl?await supportedModes():[];
-  $('questText').textContent=modes.length?'Quest 대련 시작':'Quest에서 열기';
+function unavailable(){
+  if(!window.isSecureContext)return 'XR 입장에는 HTTPS 주소가 필요합니다. [XR-https]';
+  if(!navigator.xr)return '이 브라우저에서 WebXR을 찾을 수 없습니다. 퀘스트의 Meta Quest Browser에서 이 주소를 직접 열어 주세요. [XR-browser]';
+  if(!painter?.gl)return 'WebGL 2 화면을 만들 수 없습니다. 브라우저에서 페이지를 다시 열어 주세요. [XR-webgl]';
+  if(document.featurePolicy?.allowsFeature('xr-spatial-tracking')===false)
+    return '현재 페이지에서는 XR 공간 추적이 차단되어 있습니다. 링크를 새 탭에서 직접 열어 주세요. [XR-policy]';
+  return '브라우저에서 사용할 수 있는 몰입 모드가 없습니다. 퀘스트의 Meta Quest Browser에서 다시 열어 주세요. [XR-mode]';
 }
-async function enterXR(chosen=modes[0]){
-  if(!chosen){
-    showGuide(window.isSecureContext?'Quest 3S에서 이 주소를 Meta Quest Browser로 열고 손 추적을 켜세요.':'헤드셋에서는 HTTPS 또는 USB로 연결한 localhost 주소로 여세요.');return;
+async function refreshModes(){
+  modes=painter?.gl?await supportedModes():[];modesChecked=true;
+  $('questText').textContent=modes.includes('immersive-vr')?'VR 대련 시작':modes.includes('immersive-ar')?'패스스루로 시작':'Quest에서 열기';
+  $('vrAlternative').hidden=!modes.includes('immersive-vr');$('arAlternative').hidden=!modes.includes('immersive-ar');
+}
+const traceKey='mukjeon-xr-entry-v2';
+function showProgress(step){
+  const box=$('entryStatus');
+  box.hidden=step==='ready';
+  if(step==='ready'){
+    try{sessionStorage.removeItem(traceKey);}catch{}
+    return;
   }
-  if(guide.open)guide.close();$('questButton').disabled=true;
-  cancelAnimationFrame(anim);
-  try{await xr.start(chosen);}
-  catch(e){
-    const msg=e.name==='NotAllowedError'?'손 추적과 XR 사용 권한을 허용한 뒤 다시 입장하세요.':
-      'XR 세션을 시작하지 못했습니다. 손 추적 설정을 확인하거나 VR로 입장해 보세요.';
-    showGuide(msg+' ('+e.name+')');
-    cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);
-  }finally{$('questButton').disabled=false;}
+  $('entryText').textContent=entrySteps[step]+' 기다리는 중…';
+  try{sessionStorage.setItem(traceKey,step);}catch{}
+}
+function enterXR(chosen=modes[0]){
+  if(xr?.attempt)return;
+  if(!chosen&&!modesChecked&&navigator.xr&&painter?.gl&&window.isSecureContext)chosen='immersive-vr';
+  if(!chosen){showGuide(unavailable());return;}
+  if(guide.open)guide.close();
+  $('questButton').disabled=true;
+  // Keep the regular window painting while the browser decides the request.
+  xr.start(chosen);
+}
+function resumePage(message){
+  $('questButton').disabled=false;$('entryStatus').hidden=true;
+  try{sessionStorage.removeItem(traceKey);}catch{}
+  if(!painter.gl?.isContextLost()){
+    beginMode('play');cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);
+  }
+  if(message)showGuide(message);
 }
 function boot(){
   try{painter=new Painter(canvas);}catch(e){
     if(!e.message.includes('WebGL 2'))throw e;
     painter=new PaperPreview(canvas);
   }
-  xr=new Immersion(painter,game,prepare,()=>$('metrics').checked,()=>{
-    beginMode('play');cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);
-  });
+  xr=new Immersion(painter,game,prepare,()=>$('metrics').checked,resumePage,showProgress);
   beginMode('cover');anim=requestAnimationFrame(desktop);refreshModes();
+  let interrupted='';
+  try{interrupted=sessionStorage.getItem(traceKey);sessionStorage.removeItem(traceKey);}catch{}
+  if(Object.hasOwn(entrySteps,interrupted))showGuide('이전 입장은 '+entrySteps[interrupted]+' 단계에서 중단됐습니다. [XR-'+interrupted+']');
 }
 let activePointer=null;
 canvas.addEventListener('pointerdown',e=>{
@@ -159,10 +184,21 @@ $('playButton').onclick=()=>{if(painter){beginMode('play');canvas.focus({prevent
 $('demoButton').onclick=()=>{if(painter)beginMode('demo');};
 $('helpButton').onclick=()=>showGuide();
 $('questButton').onclick=()=>enterXR();$('vrAlternative').onclick=()=>enterXR('immersive-vr');
+$('arAlternative').onclick=()=>enterXR('immersive-ar');
+$('backToPage').onclick=()=>xr?.stop();
+$('closeGuide').onclick=()=>guide.close();
 $('copy').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('notice').textContent='접속 주소를 복사했습니다.';}
   catch{$('notice').textContent=location.href;}};
 guide.addEventListener('click',e=>{if(e.target===guide){const r=guide.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)guide.close();}});
-canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();cancelAnimationFrame(anim);xr?.session?.end().catch(()=>{});});
-canvas.addEventListener('webglcontextrestored',()=>{cancelAnimationFrame(anim);boot();});
+canvas.addEventListener('webglcontextlost',e=>{
+  e.preventDefault();cancelAnimationFrame(anim);
+  if(xr?.attempt && xr.step!=='graphics')xr.stop('그래픽 연결이 끊겼습니다. 복구 후 다시 입장해 주세요. [XR-context]');
+});
+canvas.addEventListener('webglcontextrestored',()=>{
+  try{
+    painter=new Painter(canvas);xr.painter=painter;
+    if(!xr.session){viewportKey='';paintedCover='';prepare();cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);}
+  }catch{xr?.stop('그래픽을 다시 준비하지 못했습니다. [XR-restore]');showGuide('페이지를 새로고침해 주세요. [XR-restore]');}
+});
 navigator.xr?.addEventListener('devicechange',refreshModes);
 try{boot();}catch(e){$('failure').hidden=false;$('failure').textContent='대련장을 열 수 없습니다. '+e.message;}

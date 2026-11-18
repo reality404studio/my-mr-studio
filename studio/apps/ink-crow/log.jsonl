@@ -46,3 +46,4 @@
 {"ts":"2026-11-18T12:41:56.884Z","actor":"Codex","action":"asset.add","nodeId":"build","detail":"mukjeon-crow-preview.jpg"}
 {"ts":"2026-11-18T13:55:45.527Z","actor":"Codex","action":"notes.append","nodeId":"spec","detail":"획 단위 먹 재질 연구판을 public/ink-study/에 추가했다. 12cm 붓이 거리·체류시간에서 물과 안료를 따로 방출하고 종이결을 따라"}
 {"ts":"2026-11-18T14:21:23.084Z","actor":"Codex","action":"notes.append","nodeId":"build","detail":"실제 대련의 손·포인터와 시연에 먹 실험판의 InkBrush/InkPaper를 연결했다. 안료를 나눠 쓰는 공중 먹방울, 가상 종이 충돌 자국,"}
+{"ts":"2026-11-18T14:40:10.350Z","actor":"Codex","action":"notes.append","nodeId":"review","detail":"Quest에서 입장 직후 검은 화면, 권한 창도 보이지 않았다는 실기 제보를 받았다. VR 우선 진입, 패스스루 선택, 첫 화면 이후 주사율 요"}
