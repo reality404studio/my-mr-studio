@@ -1,0 +1,209 @@
+{
+  "version": 3,
+  "project": {
+    "name": "묵전 · 까마귀 소환",
+    "subtitle": "손으로 먹진을 그리고 까마귀를 부르는 WebXR 대전",
+    "template": "storyboard-first",
+    "createdAt": "2026-11-18T12:15:33.991Z"
+  },
+  "stages": [
+    {
+      "id": "define",
+      "title": "정의",
+      "goal": "무엇을, 어떤 조건으로 만들지 정한다"
+    },
+    {
+      "id": "spec",
+      "title": "명세",
+      "goal": "스토리보드와 프로토타입을 구현 계약으로 번역한다"
+    },
+    {
+      "id": "build",
+      "title": "구현",
+      "goal": "명세대로 헤드셋에서 돌아가게 만든다"
+    },
+    {
+      "id": "review",
+      "title": "검수",
+      "goal": "실기와 스토리보드의 차이를 찾아 되돌린다"
+    }
+  ],
+  "nodes": [
+    {
+      "owner": "Codex",
+      "id": "brief",
+      "type": "note",
+      "title": "소환 흐름과 손동작",
+      "stage": "define",
+      "order": 0,
+      "goal": "검지 궤적과 안무된 입자 연출의 경계를 정한다",
+      "output": "nodes/brief/README.md",
+      "updatedAt": "2026-11-18T12:38:32.816Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "brief-draft",
+      "parent": "brief",
+      "kind": "write",
+      "by": "agent",
+      "title": "한 손 소환 흐름 기록",
+      "order": 0,
+      "how": "요청한 손동작과 반응을 앱 개요에 옮긴다.",
+      "updatedAt": "2026-11-18T12:38:34.375Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "owner": "Codex",
+      "id": "spec",
+      "type": "spec",
+      "title": "먹 스플랫 엔진 설계",
+      "stage": "spec",
+      "order": 0,
+      "goal": "기존 핵과 새 먹 재질을 연결한다",
+      "output": "scene_spec.yaml, nodes/spec/README.md",
+      "updatedAt": "2026-11-18T12:38:33.068Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "spec-write",
+      "parent": "spec",
+      "kind": "write",
+      "by": "agent",
+      "title": "원본 엔진 대조와 WebXR 명세",
+      "order": 1,
+      "how": "근거 브랜치, 포팅한 식과 물성, 입력·렌더 예산을 기록한다.",
+      "updatedAt": "2026-11-18T12:38:34.580Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "owner": "Codex",
+      "id": "build",
+      "type": "build",
+      "title": "WebXR 까마귀 대련",
+      "stage": "build",
+      "order": 0,
+      "goal": "손으로 그린 먹진에서 적 명중까지 플레이한다",
+      "output": "public/ink-crow/, test/ink-crow.test.mjs",
+      "updatedAt": "2026-11-18T12:38:33.373Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "build-setup",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "WebXR 입장과 양안 화면",
+      "order": 0,
+      "how": "핸드트래킹 세션, 미터 좌표와 양안 레이어를 연결한다.",
+      "updatedAt": "2026-11-18T12:38:34.764Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "build-objects",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "먹 스플랫과 까마귀 형태",
+      "order": 1,
+      "how": "붓결, 烏, 날개깃과 삿갓 쓴 상대를 입자 좌표로 만든다.",
+      "updatedAt": "2026-11-18T12:38:34.960Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "build-timeline",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "응축, 주입, 소환과 명중",
+      "order": 2,
+      "how": "진 입자에 새의 목표 위치를 주고 명중을 판정한다.",
+      "updatedAt": "2026-11-18T12:38:35.138Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "build-interact",
+      "parent": "build",
+      "kind": "build",
+      "by": "agent",
+      "title": "검지 궤적과 손바닥 판정",
+      "order": 3,
+      "how": "양손 관절과 데스크톱 입력을 동일한 상태기에 공급한다.",
+      "updatedAt": "2026-11-18T12:38:35.323Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "done",
+      "owner": "",
+      "id": "build-sim",
+      "parent": "build",
+      "kind": "verify",
+      "by": "agent",
+      "title": "입력·승패·셰이더 검증",
+      "order": 4,
+      "how": "Node 테스트, GLES 픽셀 판독과 브라우저 시연을 확인한다.",
+      "updatedAt": "2026-11-18T12:38:35.533Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "owner": "제작자",
+      "id": "review",
+      "type": "review",
+      "title": "Quest 3S 실기 검수",
+      "stage": "review",
+      "order": 0,
+      "goal": "손 추적, 먹 농담과 실제 프레임 간격을 확인한다",
+      "output": "실기 관찰 기록",
+      "updatedAt": "2026-11-18T12:38:34.117Z",
+      "updatedBy": "Codex"
+    },
+    {
+      "status": "todo",
+      "owner": "",
+      "id": "review-record",
+      "parent": "review",
+      "kind": "collect",
+      "by": "human",
+      "title": "Quest 3S에서 한 판 대련",
+      "order": 0,
+      "updatedAt": "2026-11-18T12:38:34.206Z",
+      "updatedBy": "Codex",
+      "how": "양쪽 손, 도중 이탈, 밝고 어두운 현실 배경, 세 번 명중과 프레임 간격을 본다."
+    }
+  ],
+  "edges": [
+    {
+      "id": "spec__build",
+      "source": "spec",
+      "target": "build"
+    },
+    {
+      "id": "build__review",
+      "source": "build",
+      "target": "review"
+    },
+    {
+      "id": "review__build",
+      "source": "review",
+      "target": "build",
+      "label": "차이 수정",
+      "kind": "feedback"
+    },
+    {
+      "id": "brief__spec",
+      "source": "brief",
+      "target": "spec"
+    }
+  ]
+}

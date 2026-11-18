@@ -84,3 +84,7 @@ unity/      Unity 프로젝트 (앱별, 공용 모듈)
 
 예전에는 `studio/` 바로 아래에 한 앱만 있었어요. 또 노드를 자유롭게 배치하던 보드는 처음 읽을 때 위치의 열을 단계로 바꿔 정렬해요. 서버나 CLI를 처음 실행할 때 예전 위치에 남은 파일
 (커밋하지 않은 무드보드 등)은 `studio/apps/desk-dream/` 과 `studio/shared/` 로 자동으로 옮겨져요.
+
+## 묵전 · 까마귀 소환
+
+Quest 3S용 WebXR 핸드트래킹 대련입니다. 한 손으로 먹진을 그린 뒤 손바닥을 펴서 까마귀를 부릅니다. [실행](https://mukjeon-ink-crow.gigglydeck4.chatgpt.site/) · [먹 엔진 설계](studio/apps/ink-crow/nodes/spec/README.md) · [로컬 실행과 테스트](studio/apps/ink-crow/nodes/build/README.md)
