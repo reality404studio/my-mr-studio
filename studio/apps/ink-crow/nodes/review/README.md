@@ -16,3 +16,8 @@ Quest에서 입장 직후 검은 화면, 권한 창도 보이지 않았다는 �
 **Antigravity** · 2026-11-18 15:08
 
 e321c61 수정본이 gh-pages에 반영되지 않아 실기 주소(GitHub Pages)에 이전 검은 화면 버전(e869b76)이 남아 있던 것을 확인했다. WebGL2 xrCompatible 초기 생성, 대기 상태 정면 먹진 가이드 고리, 컨트롤러 입력 폴백을 보강하고 gh-pages에 배포한다.
+
+---
+**Antigravity** · 2026-11-18 15:33
+
+Quest VR 입장 시 첫 프레임에서 XRWebGLLayer 불투명 프레임버퍼(opaque framebuffer)에 대해 gl.checkFramebufferStatus 검사가 FramebufferError를 던져 세션이 종료되던 문제를 수정했습니다. XRWebGLLayer의 alpha 옵션을 WebGL2 컨텍스트 및 OpenXR RGBA8 스왑체인과 일치하도록 true로 통일하고(VR 모드는 불투명 한지 배경으로 알파 1.0 유지), renderState.baseLayer 참조 보강 및 불투명 프레임버퍼의 checkFramebufferStatus/getError 강제 예외를 제거하고 컨텍스트 손실(isContextLost) 검사만 유지했습니다.

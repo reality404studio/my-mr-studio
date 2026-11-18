@@ -11,11 +11,13 @@ function fixture(t,options={}){
   const pose={transform:{matrix:identity()},views:[view,view]};
   const gl={FRAMEBUFFER:1,COLOR_BUFFER_BIT:2,FRAMEBUFFER_COMPLETE:3,NO_ERROR:0,
     getContextAttributes:()=>({xrCompatible:false}),makeXRCompatible:options.makeCompatible??(async()=>{}),
-    clearColor:(...rgba)=>colors.push(rgba),clear(){},bindFramebuffer(){},viewport(){},isContextLost:()=>false,
-    checkFramebufferStatus:()=>3,getError:()=>options.glError??0};
+    clearColor:(...rgba)=>colors.push(rgba),clear(){},bindFramebuffer(){},viewport(){},
+    isContextLost:()=>Boolean(options.contextLost),
+    checkFramebufferStatus:()=>options.fbStatus??3,getError:()=>options.glError??0};
   Object.assign(session,{enabledFeatures:[],visibilityState:'visible',inputSources:[],supportedFrameRates:[72],
     environmentBlendMode:options.blend??'opaque',requestReferenceSpace:async type=>{assert.equal(type,'local');return space;},
-    updateRenderState(){},requestAnimationFrame(cb){session.cb=cb;},updateTargetFrameRate(){events.push('refresh');return pending();},
+    updateRenderState(state){session.renderState={...session.renderState,...state};},requestAnimationFrame(cb){session.cb=cb;},
+    updateTargetFrameRate(){events.push('refresh');return pending();},
     async end(){events.push('end');session.dispatchEvent(new Event('end'));}});
   const api={isSessionSupported:async()=>true,requestSession:(mode,opts)=>{
     events.push('request');assert.deepEqual(opts,{optionalFeatures:['hand-tracking']});return options.request?.()??Promise.resolve(session);
@@ -39,10 +41,10 @@ function fixture(t,options={}){
   return {events,messages,progress,colors,passes,xr,session,draw,painter,gl};
 }
 test('button starts a VR request in the click turn, renders stereo without hands, then asks for 72 Hz',async t=>{
-  const f=fixture(t);assert.deepEqual(await supportedModes(),['immersive-vr','immersive-ar']);
+  const f=fixture(t,{fbStatus:0});assert.deepEqual(await supportedModes(),['immersive-vr','immersive-ar']);
   const start=f.xr.start('immersive-vr');assert.deepEqual(f.events,['request']);
-  await start;assert.equal(f.xr.layer.alpha,false);
-  f.draw(false);assert.equal(f.progress.at(-1),'pose');assert.ok(f.colors.at(-1)[0]>.9);
+  await start;assert.equal(f.xr.layer.alpha,true);
+  f.draw(false);assert.equal(f.progress.at(-1),'pose');assert.ok(f.colors.at(-1)[0]>.9);assert.equal(f.colors.at(-1)[3],1);
   f.draw();assert.deepEqual(f.events,['request','eye','eye']);
   await Promise.resolve();assert.deepEqual(f.events,['request','eye','eye','refresh']);
   assert.deepEqual(f.passes,[false,false]);assert.equal(f.progress.at(-1),'ready');f.xr.stop();
@@ -75,9 +77,9 @@ test('a stalled GPU setup or missing first headset pose returns to the page with
     });
   }
 });
-test('frame exceptions and first-frame GL errors end once instead of looping in black',async t=>{
-  for(const kind of ['exception','gl-error'])await t.test(kind,async sub=>{
-    const f=fixture(sub,kind==='gl-error'?{glError:0x0506}:{});
+test('frame exceptions and context loss end once instead of looping in black',async t=>{
+  for(const kind of ['exception','context-lost'])await t.test(kind,async sub=>{
+    const f=fixture(sub,kind==='context-lost'?{contextLost:true}:{});
     if(kind==='exception')f.painter.eye=()=>{throw Error('render');};
     await f.xr.start('immersive-vr');f.draw();await nextTurn();
     assert.equal(f.xr.session,null);assert.equal(f.messages.length,1);assert.match(f.messages[0],/XR-draw/);

@@ -48,3 +48,4 @@
 {"ts":"2026-11-18T14:21:23.084Z","actor":"Codex","action":"notes.append","nodeId":"build","detail":"실제 대련의 손·포인터와 시연에 먹 실험판의 InkBrush/InkPaper를 연결했다. 안료를 나눠 쓰는 공중 먹방울, 가상 종이 충돌 자국,"}
 {"ts":"2026-11-18T14:40:10.350Z","actor":"Codex","action":"notes.append","nodeId":"review","detail":"Quest에서 입장 직후 검은 화면, 권한 창도 보이지 않았다는 실기 제보를 받았다. VR 우선 진입, 패스스루 선택, 첫 화면 이후 주사율 요"}
 {"ts":"2026-11-18T15:08:26.465Z","actor":"Antigravity","action":"notes.append","nodeId":"review","detail":"e321c61 수정본이 gh-pages에 반영되지 않아 실기 주소(GitHub Pages)에 이전 검은 화면 버전(e869b76)이 남아 있던 "}
+{"ts":"2026-11-18T15:33:39.689Z","actor":"Antigravity","action":"notes.append","nodeId":"review","detail":"Quest VR 입장 시 첫 프레임에서 XRWebGLLayer 불투명 프레임버퍼(opaque framebuffer)에 대해 gl.checkFra"}
