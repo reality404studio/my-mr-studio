@@ -220,6 +220,7 @@ export class Duel {
     const s=this.seal,t=this.phaseTime,releasing=this.phase==='release';
     const sealed=this.phase==='seal'||this.phase==='charge',finish=this.phase==='recover'||this.phase==='win'||this.phase==='lose';
     const alpha=finish?0:releasing?1-smooth((t-.60)/1.25):1;this.groups[3].alpha=this.abandoned===null?alpha:1-smooth((this.time-this.abandoned-.85)/1.45);
+    if(this.phase==='ready'&&this.abandoned===null)this.readyGuide();
     if(s && (sealed||releasing)){
       this.sealDetails(s,alpha);
       if(sealed || t<.25)this.formation();
@@ -234,6 +235,15 @@ export class Duel {
     this.paintCombat();
     if(s&&this.livePalm&&sealed)this.palmStream(s);
     for(const h of this.handData)this.paintHand(h);
+  }
+  readyGuide(){
+    const b=this.decor,t=this.time,r=.175,cx=this.head[0],cy=this.head[1]-.04,cz=this.head[2]-.58;
+    const pulse=.32+.12*Math.sin(t*2.2);
+    for(let i=0;i<56;i++){
+      if(i%7>4)continue;
+      const a=TAU*i/56+t*.18,co=Math.cos(a),si=Math.sin(a);
+      b.put(cx+co*r,cy+si*r,cz,-si,co,0,.014,.0032,pulse,.52,i%14===0?2:1,i/56);
+    }
   }
   sealDetails(s,alpha){
     if(alpha<=0)return;

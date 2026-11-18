@@ -10,3 +10,7 @@ dialog{position:relative;max-width:min(420px,calc(100vw - 34px));width:420px;bac
 [hidden]{display:none!important}body.manual #field{cursor:crosshair}body.manual #caption,body.watching #caption{background:linear-gradient(90deg,#eae6d7cc,#eae6d700);padding:9px 10px 10px 0}body.manual #caption h2,body.watching #caption h2{font-size:clamp(21px,2vw,32px)}body.manual #caption .actions button,body.watching #caption .actions button{min-height:34px}
 @media(max-width:620px){header{top:18px}.wordmark{gap:8px}.chapter{font-size:11px;padding-left:8px;margin-left:2px}.quest{font-size:11px;padding:0 10px;min-height:34px}nav{gap:7px}.icon{width:25px;height:25px;min-height:25px}.stamp{width:21px;height:32px;font-size:13px}h1{font-size:27px}#caption{bottom:22px;max-width:90%}#vitals{top:72px;bottom:auto}#instruction{max-width:310px}.progress{margin-bottom:8px}}
 @media(max-height:520px){header{top:10px}#caption{bottom:8px}#instruction{margin:4px 0}.progress{display:none}.actions button{min-height:30px}.chapter{font-size:11px}}
+
+#entryStatus{position:absolute;z-index:4;left:50%;top:25%;transform:translateX(-50%);width:max-content;max-width:90vw;padding:14px 18px;background:#f2eede;color:#292b26;border:1px solid #9e9786;font-size:14px;box-shadow:0 4px 20px #32342a20}
+#entryStatus:not([hidden]){display:flex;align-items:center;flex-wrap:wrap;gap:12px}
+#entryStatus button{color:inherit;background:transparent;border:1px solid #aba697;padding:6px 9px}.dialogActions{flex-wrap:wrap}
