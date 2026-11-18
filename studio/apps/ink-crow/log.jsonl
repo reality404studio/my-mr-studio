@@ -49,3 +49,4 @@
 {"ts":"2026-11-18T14:40:10.350Z","actor":"Codex","action":"notes.append","nodeId":"review","detail":"Quest에서 입장 직후 검은 화면, 권한 창도 보이지 않았다는 실기 제보를 받았다. VR 우선 진입, 패스스루 선택, 첫 화면 이후 주사율 요"}
 {"ts":"2026-11-18T15:08:26.465Z","actor":"Antigravity","action":"notes.append","nodeId":"review","detail":"e321c61 수정본이 gh-pages에 반영되지 않아 실기 주소(GitHub Pages)에 이전 검은 화면 버전(e869b76)이 남아 있던 "}
 {"ts":"2026-11-18T15:33:39.689Z","actor":"Antigravity","action":"notes.append","nodeId":"review","detail":"Quest VR 입장 시 첫 프레임에서 XRWebGLLayer 불투명 프레임버퍼(opaque framebuffer)에 대해 gl.checkFra"}
+{"ts":"2026-11-18T15:37:15.033Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"비주얼·에셋 4종 전면 개편: 1) 새 조(鳥) 초서/행서 11획 레퍼런스 적용 및 수묵 엔진(InkBrush/InkPaper) 획순 실시간 필"}

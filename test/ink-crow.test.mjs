@@ -128,3 +128,21 @@ test('immersive frame updates the game once, samples both eye views, and renders
   assert.equal(g.frame,1);assert.equal(calls.length,2);assert.ok(calls[0][0]<0&&calls[1][0]>0);
   assert.ok(calls.every(x=>x[1]));
 });
+test('messy potato loop snaps to a calligraphic circle, writes 鳥 stroke-by-stroke, and launches a 9-bird ink flock',()=>{
+  const g=new Duel(),messy=[];
+  for(let i=0;i<72;i++){
+    const a=TAU*.86*i/71, rx=.24+.045*Math.sin(a*3)+.028*Math.cos(a*5), ry=.115+.025*Math.cos(a*2);
+    messy.push(onSeal(plane,Math.cos(a)*rx,Math.sin(a)*ry,.015*Math.sin(a*2)));
+  }
+  draw(g,messy,'right');
+  assert.equal(g.phase,'seal');
+  assert.ok(g.brush.glyphQueue.length>100);
+  const initialCursor=g.brush.glyphCursor;
+  assert.ok(initialCursor>0&&initialCursor<g.brush.glyphQueue.length);
+  const h=palm(g);
+  tickN(g,40,[h]);g.paint();
+  assert.ok(g.brush.glyphCursor>initialCursor);
+  const flockIds=new Set(g.bird.map(b=>b.flockId));
+  assert.equal(flockIds.size,9);
+});
+
