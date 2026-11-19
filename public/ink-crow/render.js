@@ -1,5 +1,6 @@
-import {STRIDE} from './ink.js?v=bns-core-1';
-import {random} from './gesture.js?v=bns-core-1';
+import {STRIDE} from './ink.js?v=bns-phase2';
+import {random} from './gesture.js?v=bns-phase2';
+import {RIBBON_STRIDE} from './ribbon.js?v=bns-phase2';
 
 const quadVert=`#version 300 es
 layout(location=0) in vec2 corner;
@@ -173,7 +174,7 @@ void main(){
   color=vec4(pigment*a,a);
 }`;
 
-// Dedicated Layer 1 3D SVG-SDF 鳥 Seal Shader (single quad, razor-sharp jet-black calligraphy + BnS cyan/gold rim)
+// Dedicated Layer 1 3D SVG-SDF 鳥 Seal Shader (single quad, razor-sharp jet-black calligraphy + BnS cyan/gold rim + hand ripple)
 const sealVert=`#version 300 es
 layout(location=0) in vec2 corner;
 uniform mat4 view,projection;
@@ -181,6 +182,7 @@ uniform vec3 sealCenter,sealRight,sealUp,sealNormal;
 uniform float sealRadius,time;
 uniform vec4 sealParams; // x: writeProgress, y: charge, z: dissolve, w: alpha
 out vec2 uv;
+out vec3 worldPos;
 flat out float eyeSafe;
 void main(){
   float charge=sealParams.y;
@@ -190,6 +192,7 @@ void main(){
     +sealRight*(corner.x*span+tremor)
     +sealUp*(corner.y*span-tremor*.7)
     +sealNormal*(.0045+.008*charge);
+  worldPos=world;
   vec4 vp=view*vec4(world,1.);
   vec4 vc=view*vec4(sealCenter,1.);
   eyeSafe=clamp((-vc.z-.12)/.16,0.,1.);
@@ -200,12 +203,14 @@ void main(){
 const sealFrag=`#version 300 es
 precision mediump float;
 in vec2 uv;
+in vec3 worldPos;
 flat in float eyeSafe;
 uniform sampler2D grain;
 uniform sampler2D glyphSdf;
 uniform highp float time;
 uniform float passthrough;
 uniform highp vec4 sealParams; // x: writeProgress, y: charge, z: dissolve, w: alpha
+uniform highp vec4 handRipple; // xyz: hand world pos, w: smoothed ripple energy
 out vec4 color;
 
 void main(){
@@ -218,7 +223,6 @@ void main(){
   float strokeOrd=g.b;   // 0..1 top-to-bottom calligraphic ignition order
   float radial=g.a;      // 0..1 radial distance from seal center
 
-  // Multi-scale ink & energy noise
   vec4 nBase=texture(grain,uv*2.4);
   vec4 nFlow=texture(grain,uv*1.9+vec2(time*.16,-time*.22));
   vec4 nSpark=texture(grain,uv*5.4+vec2(-time*.12,time*.10));
@@ -226,6 +230,10 @@ void main(){
   float writeP=sealParams.x;
   float charge=sealParams.y;
   float dissolve=sealParams.z;
+
+  // Hand-velocity radial qi ripple propagating across the 3D seal surface
+  float hDist=length(worldPos-handRipple.xyz);
+  float hWave=(.5+.5*sin(hDist*22.-time*11.))*exp(-hDist*3.2)*handRipple.w;
 
   // 1. Calligraphic reveal sweep
   float revealEdge=writeP*1.22-(nBase.r-.5)*.14;
@@ -243,9 +251,7 @@ void main(){
 
   // 3. True Jet-Black Sumi-e Ink Core (preserve real dry-brush 갈필 holes via inkMask!)
   float sdfCore=smoothstep(.492,.514,sdf+(nBase.r-.5)*.010);
-  // Honor actual SVG cutouts & dry-brush texture from inkMask while keeping edges anti-aliased
   float body=clamp(min(sdfCore,smoothstep(.12,.68,inkMask)+smoothstep(.54,.64,sdf)*.25)*(.90+.10*nBase.g),0.,1.);
-  // Also preserve detached ink splatters from original SVG
   body=max(body,smoothstep(.35,.75,inkMask)*(.88+.12*nBase.g));
   float inkA=body*vis;
 
@@ -254,18 +260,14 @@ void main(){
   float hotRim=exp(-pow((sdf-.492)*46.,2.))*smoothstep(.38,.514,sdf);
   float outerDist=max(0.,.496-sdf);
   float outerHalo=exp(-pow(outerDist*7.8,2.))*smoothstep(.16,.500,sdf)*outsideOnly*(.74+.26*nFlow.r);
-  // Traveling radial energy wave sweeping across the rim during charge
   float wavePos=fract(time*.58+charge*.35);
-  float waveBand=exp(-pow((radial-wavePos)*5.5,2.))*(.20+.95*charge);
-  // Very subtle metallic cyan sheen on the ink surface only right on the traveling wave crest
-  float innerSheen=body*waveBand*pow(charge,1.5)*nBase.g*.14;
-  // Gold-dust (금분) micro-sparkle dancing on the rim, dry-brush edges, and burn front
-  float goldSpark=pow(nSpark.b,3.1)*(.65+.35*sin(time*11.+nBase.b*30.))*(hotRim*1.65+burnEdge*2.2+writeFront*1.6+body*.22*charge);
+  float waveBand=exp(-pow((radial-wavePos)*5.5,2.))*(.20+.95*charge)+hWave*1.15;
+  float innerSheen=body*waveBand*pow(clamp(charge+hWave*.5,0.,1.),1.4)*nBase.g*.14;
+  float goldSpark=pow(nSpark.b,3.1)*(.65+.35*sin(time*11.+nBase.b*30.))*(hotRim*(1.65+hWave*1.2)+burnEdge*2.2+writeFront*1.6+body*(.22*charge+hWave*.35));
 
-  // True obsidian Sumi-e ink (#04060A) with subtle wet-brush tonal depth
   vec3 inkCol=vec3(.014,.018,.024)+vec3(.018,.026,.032)*(nBase.g*.45);
-  vec3 cyan=vec3(.14,.96,.90);       // #24F5E6 Electric Celadon/Cyan
-  vec3 deepTeal=vec3(.01,.58,.64);   // High-contrast teal-cyan backing on light paper
+  vec3 cyan=vec3(.14,.96,.90);
+  vec3 deepTeal=vec3(.01,.58,.64);
   vec3 hotWhite=vec3(.97,1.,1.);
   vec3 gold=vec3(1.,.80,.34);
 
@@ -284,10 +286,212 @@ void main(){
   float glowAlphaShare=mix(.54,.16,passthrough);
   float glowLum=clamp(max(totalGlow.r,max(totalGlow.g,totalGlow.b)),0.,1.);
 
-  // Premultiplied single-pass composite: pure obsidian ink silhouette framed by blazing cyan/white/gold rim
   vec3 outRgb=inkCol*inkA + totalGlow*glowBoost;
   float outA=clamp(inkA + glowLum*glowAlphaShare*(1.-inkA),0.,1.);
   color=vec4(outRgb,outA);
+}`;
+
+// Dedicated 1-Draw-Call WorldWash Enso Quad Shader (replaces ~4,465 splats with crisp fluid ink texture!)
+const washVert=`#version 300 es
+layout(location=0) in vec2 corner;
+uniform mat4 view,projection;
+uniform vec3 washOrigin,washRight,washDown,washNormal;
+uniform float washHalfSpan;
+out vec2 uv;
+out vec3 worldPos;
+flat out float eyeSafe;
+void main(){
+  vec3 world=washOrigin
+    +washRight*(corner.x*washHalfSpan)
+    +washDown*(corner.y*washHalfSpan);
+  worldPos=world;
+  vec4 vp=view*vec4(world,1.);
+  vec4 vc=view*vec4(washOrigin,1.);
+  eyeSafe=clamp((-vc.z-.10)/.16,0.,1.);
+  gl_Position=projection*vp;
+  uv=corner*.5+.5;
+}`;
+
+const washFrag=`#version 300 es
+precision mediump float;
+in vec2 uv;
+in vec3 worldPos;
+flat in float eyeSafe;
+uniform sampler2D grain;
+uniform sampler2D washTex;
+uniform highp float time;
+uniform float passthrough;
+uniform float washAlpha;
+uniform float washCharge;
+uniform highp vec4 handRipple;
+out vec4 color;
+
+void main(){
+  float master=washAlpha*eyeSafe;
+  if(master<=.002) discard;
+
+  vec2 w=texture(washTex,uv).rg;
+  float density=w.r;
+  float wet=w.g;
+  if(density<=.004) discard;
+
+  vec4 nPaper=texture(grain,uv*5.5);
+  vec4 nBristle=texture(grain,uv*11.0+vec2(0.,uv.x*.35));
+  vec4 nSpark=texture(grain,uv*14.0+vec2(-time*.06,time*.05));
+
+  // Hand-velocity radial ripple across the wet calligraphic Enso ring
+  float hDist=length(worldPos-handRipple.xyz);
+  float hWave=(.5+.5*sin(hDist*20.-time*10.))*exp(-hDist*2.6)*handRipple.w;
+
+  // Authentic hanji ink bleed + dry-brush bristle tooth without circular splat dots
+  float tooth=mix(.78,1.16,nBristle.g)*mix(.86,1.12,nPaper.r);
+  float inkA=clamp((1.-exp(-density*2.35*tooth))*master,0.,1.);
+  if(inkA<=.004) discard;
+
+  // Deep obsidian Sumi-e center transitioning into cool celadon-charcoal wash edge
+  float coreMask=smoothstep(.22,.78,density);
+  vec3 lightWash=mix(vec3(.13,.19,.23),vec3(.09,.15,.20),passthrough);
+  vec3 deepInk=vec3(.018,.024,.032);
+  vec3 inkCol=mix(lightWash,deepInk,coreMask);
+
+  // Subtle wet-edge qi shimmer & gold-dust flecks along the Enso contour during charge / hand ripple
+  float edgeBand=smoothstep(.04,.34,density)*(1.-smoothstep(.45,.86,density));
+  float qiRim=edgeBand*(.16+.55*washCharge+hWave*.85)*(0.65+0.35*wet)*master;
+  float goldFlecks=pow(nSpark.b,3.4)*edgeBand*(.25+washCharge*.95+hWave*.9)*master;
+
+  vec3 cyan=vec3(.14,.96,.90);
+  vec3 deepTeal=vec3(.01,.58,.64);
+  vec3 gold=vec3(1.,.80,.34);
+  vec3 rimCol=mix(deepTeal,cyan,clamp(.45+passthrough*.55,0.,1.))*qiRim*mix(.55,.95,passthrough)
+    +gold*goldFlecks*1.45;
+
+  float glowLum=clamp(max(rimCol.r,max(rimCol.g,rimCol.b)),0.,1.);
+  float alphaShare=mix(.45,.16,passthrough);
+  vec3 outRgb=inkCol*inkA + rimCol;
+  float outA=clamp(inkA + glowLum*alphaShare*(1.-inkA),0.,1.);
+  color=vec4(outRgb,outA);
+}`;
+
+// Dedicated 3D Curved Calligraphic Ribbon & Crescent Sword-Arc Slash Shader (ZERO straight needles!)
+const ribbonVert=`#version 300 es
+layout(location=0) in vec3 aPos;
+layout(location=1) in vec2 aUv;
+layout(location=2) in vec4 aMeta; // x: mode, y: alpha, z: seed, w: energy
+uniform mat4 view,projection;
+out vec2 vUv;
+out vec4 vMeta;
+out vec3 vWorldPos;
+out float vEyeSafe;
+void main(){
+  vWorldPos=aPos;
+  vUv=aUv;
+  vMeta=aMeta;
+  vec4 vp=view*vec4(aPos,1.);
+  vEyeSafe=clamp((-vp.z-.10)/.15,0.,1.);
+  gl_Position=projection*vp;
+}`;
+
+const ribbonFrag=`#version 300 es
+precision mediump float;
+in vec2 vUv;
+in vec4 vMeta;
+in vec3 vWorldPos;
+in float vEyeSafe;
+uniform sampler2D grain;
+uniform highp float time;
+uniform float passthrough;
+uniform highp vec4 handRipple;
+out vec4 color;
+
+void main(){
+  float alpha=vMeta.y*vEyeSafe;
+  if(alpha<=.002) discard;
+
+  float mode=vMeta.x;
+  float seed=vMeta.z;
+  float energy=vMeta.w;
+  float u=vUv.x;        // 0..1 along curve (0 = tail, 1 = cutting head)
+  float av=abs(vUv.y);  // 0 = center spine, 1 = outer edge
+
+  // Flowing multi-scale ink/energy advection along the curved ribbon
+  vec2 flowUv=vec2(u*2.4-time*(1.45+.55*energy)+seed*3.7, vUv.y*.38+.5+seed*1.3);
+  vec4 n1=texture(grain,flowUv);
+  vec4 n2=texture(grain,vec2(u*4.8-time*2.2+seed*5.1, vUv.y*.75+.5));
+  vec4 nSpark=texture(grain,vec2(u*7.5-time*.8+seed*2.3, vUv.y*1.4+.5));
+
+  // Hand-velocity ripple boost
+  float hDist=length(vWorldPos-handRipple.xyz);
+  float hWave=(.5+.5*sin(hDist*22.-time*12.))*exp(-hDist*2.8)*handRipple.w;
+
+  // Organic calligraphic brush ends: frayed dry-brush tail (u->0) & sharp blade tip (u->1)
+  float endFade=smoothstep(0.,.14,u)*(1.-smoothstep(.88,1.,u));
+  float fray=smoothstep(.08,.75,u+(n1.g-.45)*.38);
+  float edgeNoise=(n1.r-.5)*.28+(n2.g-.5)*.22;
+  float crossProfile=1.-smoothstep(.32+edgeNoise,.98,av);
+  if(crossProfile*endFade<=.003) discard;
+
+  vec3 obsidian=vec3(.015,.020,.028);
+  vec3 cyan=vec3(.14,.96,.90);
+  vec3 deepTeal=vec3(.01,.58,.64);
+  vec3 hotWhite=vec3(.97,1.,1.);
+  vec3 gold=vec3(1.,.82,.38);
+  vec3 crimson=vec3(.95,.18,.08);
+  vec3 amber=vec3(1.,.64,.16);
+
+  // Mode 0: Sumi-e Black Ink Brush Ribbon framed by Electric Cyan Cutting Rim (signature BnS!)
+  if(mode<.5){
+    float inkBody=smoothstep(.76,.24,av+edgeNoise*.65)*endFade*fray*(.82+.18*n1.g);
+    float cyanRim=exp(-pow((av-.58)*5.2,2.))*endFade*(.65+.35*n2.r)*(1.+energy*.55+hWave*.9);
+    float goldDust=pow(nSpark.b,3.2)*endFade*(1.-smoothstep(.3,.95,av))*(.5+energy);
+    float inkA=clamp(inkBody*alpha,0.,1.);
+    vec3 rimTone=mix(mix(deepTeal,cyan,.62),mix(cyan,hotWhite,.35),passthrough);
+    vec3 glow=rimTone*cyanRim*alpha*mix(.95,1.45,passthrough) + gold*goldDust*alpha*1.3;
+    float glowLum=clamp(max(glow.r,max(glow.g,glow.b)),0.,1.);
+    float alphaShare=mix(.46,.14,passthrough);
+    color=vec4(obsidian*inkA + glow, clamp(inkA+glowLum*alphaShare*(1.-inkA),0.,1.));
+    return;
+  }
+
+  // Mode 1: Electric Celadon/Cyan Sword-Qi Crescent & Aura Ribbon
+  if(mode<1.5){
+    float spine=exp(-pow(av*3.4,2.))*endFade*(.75+.25*n2.r);
+    float aura=pow(max(0.,1.-av),1.55)*endFade*(.62+.38*n1.r);
+    // Subtle dark ink inner shadow on one edge (vUv.y < 0) so sword-arcs read like BnS ink-blades even on bright paper!
+    float inkEdge=smoothstep(-.05,-.75,vUv.y)*smoothstep(-1.,-.62,vUv.y)*endFade*(.45+.35*n1.g)*mix(.62,.25,passthrough);
+    float goldDust=pow(nSpark.b,3.3)*endFade*aura*(.7+energy*.8+hWave);
+    vec3 qiCol=mix(mix(deepTeal,cyan,.58),cyan,passthrough)*aura*(1.05+.55*energy+hWave*.8)
+      + mix(cyan,hotWhite,.72)*spine*(1.15+.65*energy+hWave*.9)
+      + gold*goldDust*1.6;
+    float inkA=clamp(inkEdge*alpha,0.,1.);
+    float glowLum=clamp(max(qiCol.r,max(qiCol.g,qiCol.b))*alpha,0.,1.);
+    float alphaShare=mix(.50,.12,passthrough);
+    vec3 outRgb=obsidian*inkA + qiCol*alpha*mix(1.05,1.55,passthrough);
+    color=vec4(outRgb, clamp(inkA+glowLum*alphaShare*(1.-inkA),0.,1.));
+    return;
+  }
+
+  // Mode 2: Antique Gold-Dust (금분) Silk Qi Filament
+  if(mode<2.5){
+    float spine=exp(-pow(av*3.2,2.))*endFade;
+    float silk=pow(max(0.,1.-av),1.7)*endFade*(.68+.32*n1.g);
+    float sparkle=pow(nSpark.b,2.8)*endFade*silk*(1.2+energy*.9+hWave);
+    vec3 col=mix(vec3(.78,.54,.14),gold,clamp(.45+passthrough*.55,0.,1.))*silk*(.95+.4*energy)
+      + mix(gold,hotWhite,.62)*(spine*.85+sparkle*1.4);
+    float lum=clamp(max(col.r,max(col.g,col.b))*alpha,0.,1.);
+    float alphaShare=mix(.54,.16,passthrough);
+    color=vec4(col*alpha*mix(1.0,1.45,passthrough), lum*alphaShare);
+    return;
+  }
+
+  // Mode 3: Dokkaebi-bul Crimson/Amber Curved Spirit-Flame Slash
+  float spine=exp(-pow(av*3.0,2.))*endFade;
+  float flame=pow(max(0.,1.-av),1.5)*endFade*(.62+.38*n1.r);
+  float inkEdge=smoothstep(.15,.72,av)*endFade*(.55+.3*n1.g)*mix(.65,.35,passthrough);
+  vec3 col=crimson*flame*1.3 + amber*spine*1.5 + hotWhite*pow(spine,2.2)*1.2;
+  float inkA=clamp(inkEdge*alpha,0.,1.);
+  float lum=clamp(max(col.r,max(col.g,col.b))*alpha,0.,1.);
+  float alphaShare=mix(.52,.18,passthrough);
+  color=vec4(obsidian*inkA + col*alpha*mix(1.05,1.45,passthrough), clamp(inkA+lum*alphaShare*(1.-inkA),0.,1.));
 }`;
 
 const paperVert=`#version 300 es
@@ -409,6 +613,8 @@ export class Painter {
     this.gl=gl;
     this.cloud=program(gl,quadVert,inkFrag);
     this.sealProg=program(gl,sealVert,sealFrag);
+    this.washProg=program(gl,washVert,washFrag);
+    this.ribbonProg=program(gl,ribbonVert,ribbonFrag);
     this.paper=program(gl,paperVert,paperFrag);
     this.hud=program(gl,hudVert,hudFrag);
 
@@ -417,8 +623,16 @@ export class Painter {
       this.uniforms[name]=gl.getUniformLocation(this.cloud,name);
 
     this.sealU={};
-    for (const name of ['view','projection','sealCenter','sealRight','sealUp','sealNormal','sealRadius','time','sealParams','passthrough'])
+    for (const name of ['view','projection','sealCenter','sealRight','sealUp','sealNormal','sealRadius','time','sealParams','passthrough','handRipple'])
       this.sealU[name]=gl.getUniformLocation(this.sealProg,name);
+
+    this.washU={};
+    for (const name of ['view','projection','washOrigin','washRight','washDown','washNormal','washHalfSpan','time','passthrough','washAlpha','washCharge','handRipple'])
+      this.washU[name]=gl.getUniformLocation(this.washProg,name);
+
+    this.ribbonU={};
+    for (const name of ['view','projection','time','passthrough','handRipple'])
+      this.ribbonU[name]=gl.getUniformLocation(this.ribbonProg,name);
 
     this.hudView=gl.getUniformLocation(this.hud,'view');
     this.hudProjection=gl.getUniformLocation(this.hud,'projection');
@@ -427,6 +641,11 @@ export class Painter {
     gl.useProgram(this.sealProg);
     gl.uniform1i(gl.getUniformLocation(this.sealProg,'grain'),0);
     gl.uniform1i(gl.getUniformLocation(this.sealProg,'glyphSdf'),2);
+    gl.useProgram(this.washProg);
+    gl.uniform1i(gl.getUniformLocation(this.washProg,'grain'),0);
+    gl.uniform1i(gl.getUniformLocation(this.washProg,'washTex'),3);
+    gl.useProgram(this.ribbonProg);
+    gl.uniform1i(gl.getUniformLocation(this.ribbonProg,'grain'),0);
     gl.useProgram(this.paper);gl.uniform1i(gl.getUniformLocation(this.paper,'grain'),0);
     gl.useProgram(this.hud);gl.uniform1i(gl.getUniformLocation(this.hud,'label'),1);
 
@@ -458,8 +677,18 @@ export class Painter {
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
 
+    // TEXTURE3: 472x472 RG8 WorldWash live ink paper texture (1 draw call Enso!)
+    this.washTexture=gl.createTexture();this.washTexSize=0;this.washRevision=-1;
+    gl.activeTexture(gl.TEXTURE3);gl.bindTexture(gl.TEXTURE_2D,this.washTexture);
+    gl.pixelStorei(gl.UNPACK_ALIGNMENT,1);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RG8,1,1,0,gl.RG,gl.UNSIGNED_BYTE,new Uint8Array([0,0]));
+    for(const k of [gl.TEXTURE_WRAP_S,gl.TEXTURE_WRAP_T])gl.texParameteri(gl.TEXTURE_2D,k,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+
     gl.activeTexture(gl.TEXTURE0);
     this.buffers=new Map();
+    this.ribbonBuffers=new Map();
     gl.disable(gl.DEPTH_TEST);gl.disable(gl.CULL_FACE);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
   }
   setGlyphSdf(sdfData){
@@ -482,18 +711,65 @@ export class Painter {
         g.enableVertexAttribArray(index);g.vertexAttribPointer(index,count,g.FLOAT,false,STRIDE*4,offset*4);g.vertexAttribDivisor(index,1);
       }
     }
+    g.bindVertexArray(null);
     return vao;
   }
-  upload(batch,revision) {
+  // Static/Dynamic VBO separation: scenery uploaded once with STATIC_DRAW; dynamic batches streamed via bufferSubData
+  upload(batch,revision,isStatic=false) {
     const g=this.gl;let b=this.buffers.get(batch);
     if(!b){
-      const buffer=g.createBuffer();b={buffer,vao:this.makeVao(buffer),revision:undefined};this.buffers.set(batch,b);
-      g.bufferData(g.ARRAY_BUFFER,batch.data.byteLength,g.DYNAMIC_DRAW);
+      const buffer=g.createBuffer();
+      const vao=this.makeVao(buffer);
+      b={buffer,vao,revision:undefined,isStatic,frozen:false};
+      this.buffers.set(batch,b);
+      g.bindBuffer(g.ARRAY_BUFFER,buffer);
+      g.bufferData(g.ARRAY_BUFFER,batch.data.byteLength,isStatic?g.STATIC_DRAW:g.STREAM_DRAW);
     }
-    if(b.revision===revision) return;
+    if(b.frozen||b.revision===revision) return;
     g.bindBuffer(g.ARRAY_BUFFER,b.buffer);
     if(batch.count) g.bufferSubData(g.ARRAY_BUFFER,0,batch.data,0,batch.count*STRIDE);
     b.revision=revision;
+    if(b.isStatic&&batch.count) b.frozen=true;
+  }
+  uploadWash(wash){
+    if(!wash||!wash.texData||wash.texRevision===this.washRevision)return;
+    const g=this.gl,sz=wash.texSize;
+    g.activeTexture(g.TEXTURE3);
+    g.bindTexture(g.TEXTURE_2D,this.washTexture);
+    g.pixelStorei(g.UNPACK_ALIGNMENT,1);
+    if(this.washTexSize!==sz){
+      g.texImage2D(g.TEXTURE_2D,0,g.RG8,sz,sz,0,g.RG,g.UNSIGNED_BYTE,wash.texData);
+      this.washTexSize=sz;
+    }else{
+      g.texSubImage2D(g.TEXTURE_2D,0,0,0,sz,sz,g.RG,g.UNSIGNED_BYTE,wash.texData);
+    }
+    g.activeTexture(g.TEXTURE0);
+    this.washRevision=wash.texRevision;
+  }
+  uploadRibbons(batch){
+    if(!batch||!batch.indexCount)return;
+    const g=this.gl;
+    let r=this.ribbonBuffers.get(batch);
+    if(!r){
+      const vao=g.createVertexArray(),vbo=g.createBuffer(),ibo=g.createBuffer();
+      g.bindVertexArray(vao);
+      g.bindBuffer(g.ARRAY_BUFFER,vbo);
+      g.bufferData(g.ARRAY_BUFFER,batch.verts.byteLength,g.STREAM_DRAW);
+      g.enableVertexAttribArray(0);g.vertexAttribPointer(0,3,g.FLOAT,false,RIBBON_STRIDE*4,0);
+      g.enableVertexAttribArray(1);g.vertexAttribPointer(1,2,g.FLOAT,false,RIBBON_STRIDE*4,12);
+      g.enableVertexAttribArray(2);g.vertexAttribPointer(2,4,g.FLOAT,false,RIBBON_STRIDE*4,20);
+      g.bindBuffer(g.ELEMENT_ARRAY_BUFFER,ibo);
+      g.bufferData(g.ELEMENT_ARRAY_BUFFER,batch.indices.byteLength,g.STREAM_DRAW);
+      g.bindVertexArray(null);
+      r={vao,vbo,ibo};
+      this.ribbonBuffers.set(batch,r);
+    }
+    g.bindVertexArray(r.vao);
+    g.bindBuffer(g.ARRAY_BUFFER,r.vbo);
+    g.bufferSubData(g.ARRAY_BUFFER,0,batch.verts,0,batch.vertCount*RIBBON_STRIDE);
+    g.bindBuffer(g.ELEMENT_ARRAY_BUFFER,r.ibo);
+    g.bufferSubData(g.ELEMENT_ARRAY_BUFFER,0,batch.indices,0,batch.indexCount);
+    g.bindVertexArray(null);
   }
   label(top,bottom) {
     const key=top+'|'+bottom;if(key===this.lastLabel)return;this.lastLabel=key;
@@ -504,7 +780,26 @@ export class Painter {
     const g=this.gl;g.activeTexture(g.TEXTURE1);g.bindTexture(g.TEXTURE_2D,this.labelTexture);
     g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,c);g.activeTexture(g.TEXTURE0);
   }
-  drawSealQuad(view,projection,sealVisual,time,passthrough){
+  drawWashQuad(view,projection,wash,alpha,charge,time,passthrough,ripple){
+    if(!wash||!wash.origin||alpha<=.002||this.washTexSize===0)return;
+    const g=this.gl;
+    g.useProgram(this.washProg);
+    g.bindVertexArray(this.flat);
+    g.uniformMatrix4fv(this.washU.view,false,view);
+    g.uniformMatrix4fv(this.washU.projection,false,projection);
+    g.uniform3fv(this.washU.washOrigin,wash.origin);
+    g.uniform3fv(this.washU.washRight,wash.right);
+    g.uniform3fv(this.washU.washDown,wash.down);
+    g.uniform3fv(this.washU.washNormal,wash.normal);
+    g.uniform1f(this.washU.washHalfSpan,wash.halfSpan);
+    g.uniform1f(this.washU.time,time);
+    g.uniform1f(this.washU.passthrough,passthrough?1:0);
+    g.uniform1f(this.washU.washAlpha,alpha);
+    g.uniform1f(this.washU.washCharge,charge);
+    g.uniform4f(this.washU.handRipple,ripple[0],ripple[1],ripple[2],ripple[3]);
+    g.drawArrays(g.TRIANGLE_STRIP,0,4);
+  }
+  drawSealQuad(view,projection,sealVisual,time,passthrough,ripple){
     if(!this.glyphReady||!sealVisual||sealVisual.alpha<=.002)return;
     const g=this.gl, s=sealVisual.seal;
     g.useProgram(this.sealProg);
@@ -519,38 +814,77 @@ export class Painter {
     g.uniform1f(this.sealU.time,time);
     g.uniform1f(this.sealU.passthrough,passthrough?1:0);
     g.uniform4f(this.sealU.sealParams,sealVisual.writeProgress,sealVisual.charge,sealVisual.dissolve,sealVisual.alpha);
+    g.uniform4f(this.sealU.handRipple,ripple[0],ripple[1],ripple[2],ripple[3]);
     g.drawArrays(g.TRIANGLE_STRIP,0,4);
   }
-  eye(view,projection,groups,time,passthrough,hudView,sealVisual=null) {
+  drawRibbons(view,projection,batch,time,passthrough,ripple){
+    if(!batch||!batch.indexCount)return;
+    const rec=this.ribbonBuffers.get(batch);
+    if(!rec)return;
     const g=this.gl;
-    if(!passthrough){g.disable(g.BLEND);g.useProgram(this.paper);g.bindVertexArray(this.flat);g.drawArrays(g.TRIANGLE_STRIP,0,4);}
-    g.enable(g.BLEND);g.useProgram(this.cloud);
+    g.useProgram(this.ribbonProg);
+    g.bindVertexArray(rec.vao);
+    g.uniformMatrix4fv(this.ribbonU.view,false,view);
+    g.uniformMatrix4fv(this.ribbonU.projection,false,projection);
+    g.uniform1f(this.ribbonU.time,time);
+    g.uniform1f(this.ribbonU.passthrough,passthrough?1:0);
+    g.uniform4f(this.ribbonU.handRipple,ripple[0],ripple[1],ripple[2],ripple[3]);
+    g.drawElements(g.TRIANGLES,batch.indexCount,g.UNSIGNED_SHORT,0);
+  }
+  bindCloud(view,projection,time,passthrough){
+    const g=this.gl;
+    g.useProgram(this.cloud);
     g.uniformMatrix4fv(this.uniforms.view,false,view);
     g.uniformMatrix4fv(this.uniforms.projection,false,projection);
     g.uniform1f(this.uniforms.time,time);
     g.uniform1f(this.uniforms.passthrough,passthrough?1:0);
-    let sealDrawn=false;
+  }
+  eye(view,projection,groups,time,passthrough,hudView,sealVisual=null,extras=null) {
+    const g=this.gl;
+    const ripple=extras?.handRipple??[0,0,-10,0];
+    const backRibbons=extras?.backRibbons??null;
+    const frontRibbons=extras?.frontRibbons??null;
+    if(!passthrough){g.disable(g.BLEND);g.useProgram(this.paper);g.bindVertexArray(this.flat);g.drawArrays(g.TRIANGLE_STRIP,0,4);}
+    g.enable(g.BLEND);
+    this.bindCloud(view,projection,time,passthrough);
+    let sealDrawn=false, backRibbonsDrawn=false, frontRibbonsDrawn=false;
     for(const item of groups){
+      if(item.sheet){
+        // 1-Draw-Call WorldWash GPU quad replaces ~4,465 splats!
+        if(item.alpha>0 && item.sheet.origin){
+          this.drawWashQuad(view,projection,item.sheet,item.alpha,sealVisual?.charge??0,time,passthrough,ripple);
+        }
+        // Back 3D curved ribbons (orbital calligraphic arcs, palm helixes, crow flight trails) behind crisp 鳥
+        if(backRibbons && !backRibbonsDrawn){
+          this.drawRibbons(view,projection,backRibbons,time,passthrough,ripple);
+          backRibbonsDrawn=true;
+        }
+        // Layer 1 crisp 3D SVG-SDF 鳥 seal right above WorldWash Enso ring & back ribbons
+        if(sealVisual && !sealDrawn){
+          this.drawSealQuad(view,projection,sealVisual,time,passthrough,ripple);
+          sealDrawn=true;
+        }
+        this.bindCloud(view,projection,time,passthrough);
+        continue;
+      }
       if(!(passthrough&&item.scenery || !item.batch.count || item.alpha<=0)){
-        if(item.sheet)g.uniform3fv(this.uniforms.sheetDown,item.sheet.down);
-        g.bindVertexArray(this.buffers.get(item.batch).vao);
-        g.uniform1f(this.uniforms.opacity,item.alpha);
-        g.drawArraysInstanced(g.TRIANGLE_STRIP,0,4,item.batch.count);
+        const rec=this.buffers.get(item.batch);
+        if(rec){
+          g.bindVertexArray(rec.vao);
+          g.uniform1f(this.uniforms.opacity,item.alpha);
+          g.drawArraysInstanced(g.TRIANGLE_STRIP,0,4,item.batch.count);
+        }
       }
-      // Draw Layer 1 crisp 3D SVG-SDF 鳥 seal right above the WorldWash Enso ring
-      if(item.sheet && sealVisual && !sealDrawn){
-        this.drawSealQuad(view,projection,sealVisual,time,passthrough);
-        sealDrawn=true;
-        g.useProgram(this.cloud);
-        g.uniformMatrix4fv(this.uniforms.view,false,view);
-        g.uniformMatrix4fv(this.uniforms.projection,false,projection);
-        g.uniform1f(this.uniforms.time,time);
-        g.uniform1f(this.uniforms.passthrough,passthrough?1:0);
+      // Front 3D curved crescent sword-arc slashes & shockwave rings right after 9 crows (item.frontAnchor)
+      if(item.frontAnchor && frontRibbons && !frontRibbonsDrawn){
+        this.drawRibbons(view,projection,frontRibbons,time,passthrough,ripple);
+        frontRibbonsDrawn=true;
+        this.bindCloud(view,projection,time,passthrough);
       }
     }
-    if(sealVisual && !sealDrawn){
-      this.drawSealQuad(view,projection,sealVisual,time,passthrough);
-    }
+    if(sealVisual && !sealDrawn) this.drawSealQuad(view,projection,sealVisual,time,passthrough,ripple);
+    if(backRibbons && !backRibbonsDrawn) this.drawRibbons(view,projection,backRibbons,time,passthrough,ripple);
+    if(frontRibbons && !frontRibbonsDrawn) this.drawRibbons(view,projection,frontRibbons,time,passthrough,ripple);
     if(hudView&&this.lastLabel){
       g.useProgram(this.hud);g.bindVertexArray(this.flat);g.uniformMatrix4fv(this.hudView,false,hudView);
       g.uniformMatrix4fv(this.hudProjection,false,projection);g.drawArrays(g.TRIANGLE_STRIP,0,4);

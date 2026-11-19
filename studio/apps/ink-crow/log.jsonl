@@ -52,3 +52,4 @@
 {"ts":"2026-11-18T15:37:15.033Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"비주얼·에셋 4종 전면 개편: 1) 새 조(鳥) 초서/행서 11획 레퍼런스 적용 및 수묵 엔진(InkBrush/InkPaper) 획순 실시간 필"}
 {"ts":"2026-11-18T16:05:23.985Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"피드백 4건 반영: 1) 중앙 팝업 가이드(readyGuide, VR 중앙 HUD 배너, guide 모달/entryStatus) 제거 2) 뼈대"}
 {"ts":"2026-11-19T13:03:41.304Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"1차 코어 블소(A안) 수묵·광채 VFX 폴리싱 완료: Drop-in SVG→512² SDF 鳥 2-레이어 인장(assets/glyph-bird"}
+{"ts":"2026-11-19T13:48:32.320Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"2차 상용 VFX 고도화(P0~P3) + 단일 직선 금지 룰 반영 완료: 3D 곡선 리본/초승달 검기 엔진(ribbon.js+ribbonProg"}

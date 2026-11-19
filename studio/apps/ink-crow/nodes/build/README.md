@@ -46,3 +46,8 @@ node --test test/ink-crow.test.mjs
 **Antigravity** · 2026-11-19 13:03
 
 1차 코어 블소(A안) 수묵·광채 VFX 폴리싱 완료: Drop-in SVG→512² SDF 鳥 2-레이어 인장(assets/glyph-bird.svg, glyph-sdf.js), 512² 4채널 Ink/Flow/Bristle/Glint 아틀라스, 단일패스 _AlphaShare 듀얼 블렌드, Tone 12 4각 성광·금분, AddEyeSafe 근안 페이드, Burst→Gather 2단 모핑, 전면 fx 레이어 크로스 참격 구현. 12/12 테스트 및 WebGL2 헤드리스 렌더링 0에러 검증 완료. 다음: 사용자 2766×4096 鳥 SVG 교체 테스트 및 Quest 3S 실기 검수(또는 2차 고도화 진행).
+
+---
+**Antigravity** · 2026-11-19 13:48
+
+2차 상용 VFX 고도화(P0~P3) + 단일 직선 금지 룰 반영 완료: 3D 곡선 리본/초승달 검기 엔진(ribbon.js+ribbonProg) 도입 및 원·날개·충격파·타격의 직선 바늘 100% 제거, WorldWash 472x472 RG8 1-Draw-Call GPU 쿼드(washProg)로 패스스루 충전 스플랫 1,113개(-87%) 달성, handRipple 방사형 파동, Static/Dynamic VBO 분리 적용. 12/12 단위 테스트 및 WebGL2 5장면 0-에러 시각 검수 통과.
