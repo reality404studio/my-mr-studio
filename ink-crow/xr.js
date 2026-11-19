@@ -1,5 +1,5 @@
-import {classifyHand,unit} from './gesture.js?v=72b35c2';
-import {identity,multiply} from './render.js?v=72b35c2';
+import {classifyHand,unit} from './gesture.js?v=4654aca';
+import {identity,multiply} from './render.js?v=4654aca';
 
 const JOINTS=['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'];
 for(const f of ['index','middle','ring','pinky'])
@@ -186,7 +186,7 @@ export class Immersion {
       gl.viewport(v.x,v.y,v.width,v.height);
       multiply(this.viewMatrix,view.transform.inverse.matrix,this.stage.matrix);
       this.painter.eye(this.viewMatrix,view.projectionMatrix,this.game.groups,this.game.time,passthrough,null,this.game.sealVisual,{
-        backRibbons:this.game.backRibbons,frontRibbons:this.game.frontRibbons,handRipple:this.game.handRipple
+        backRibbons:this.game.backRibbons,frontRibbons:this.game.frontRibbons,handRipple:this.game.handRipple,circleVisual:this.game.circleVisual
       });
       viewsDrawn++;
     }

@@ -1,4 +1,4 @@
-import {TAU, cross, len, mul, sub, unit} from './gesture.js?v=72b35c2';
+import {TAU, cross, len, mul, sub, unit} from './gesture.js?v=4654aca';
 
 export const RIBBON_STRIDE=9; // px,py,pz, u,v, mode,alpha,seed,energy
 

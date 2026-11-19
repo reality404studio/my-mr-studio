@@ -1,12 +1,16 @@
-import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=72b35c2';
-import {WorldWash} from './world-wash.js?v=72b35c2';
-import {InkSpray} from './ink-spray.js?v=72b35c2';
-import {SplatBatch,springStep,spiral} from './ink.js?v=72b35c2';
-import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=72b35c2';
-import {InkSound} from './sound.js?v=72b35c2';
-import {RibbonBatch} from './ribbon.js?v=72b35c2';
+import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=4654aca';
+import {WorldWash} from './world-wash.js?v=4654aca';
+import {InkSpray} from './ink-spray.js?v=4654aca';
+import {SplatBatch,springStep,spiral} from './ink.js?v=4654aca';
+import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=4654aca';
+import {InkSound} from './sound.js?v=4654aca';
+import {RibbonBatch} from './ribbon.js?v=4654aca';
+import {FeatherSwarm} from './curl-feathers.js?v=4654aca';
+import {createDefaultTipLookup} from './glyph-sdf.js?v=4654aca';
 
 export const CHARGE_SECONDS=1.35;
+export const WRITE_SECONDS=0.65;
+export const IMPLOSION_SECONDS=0.14;
 const ORIGIN=[0,0,0], FORWARD=[0,0,-1];
 
 const lines={
@@ -26,7 +30,9 @@ export class Duel {
     this.traces=new SplatBatch(2400);this.bird=crowForm();this.sound=new InkSound();
     this.backRibbons=new RibbonBatch(9000,27000);
     this.frontRibbons=new RibbonBatch(6000,18000);
-    this.hasSdfGlyph=false;this.sealVisual=null;
+    this.feathers=new FeatherSwarm();
+    this.tipLookup=createDefaultTipLookup();
+    this.hasSdfGlyph=false;this.sealVisual=null;this.circleVisual=null;
     this.handRipple=[0,0,-10,0];this.prevHandPos=null;
     const rng=random(306),glyph=glyphSamples(this.bird.length,rng);
     this.bird.forEach((b,i)=>{
@@ -49,6 +55,9 @@ export class Duel {
     for(let i=0;i<this.bird.length;i++)this.bird[i].g=samples[i];
     this.hasSdfGlyph=true;
   }
+  setGlyphSdfMeta(sdf){
+    if(sdf&&typeof sdf.tipAt==='function')this.tipLookup=sdf.tipAt.bind(sdf);
+  }
   reset(){
     this.spray.clear();this.time=0;this.enemyHP=3;this.selfHP=3;this.hitFlash=0;this.hurtFlash=0;
     this.enemy=[.83,-.16,-3.42];this.head=[0,0,0];this.shot=null;this.nextShot=Infinity;
@@ -56,10 +65,14 @@ export class Duel {
     this.handRipple=[0,0,-10,0];this.resetCast();
   }
   resetCast(keepInk=false){
-    this.phase='ready';this.phaseTime=0;this.charge=0;this.seal=null;this.sealVisual=null;this.owner=null;
+    this.phase='ready';this.phaseTime=0;this.charge=0;this.seal=null;this.sealVisual=null;this.circleVisual=null;this.owner=null;
     this.brush.end();if(!keepInk)this.brush.reset();
+    this.feathers.reset();
     this.abandoned=keepInk?this.time:null;this.spray.stopMotion();this.wasDrawing=false;this.missing=0;this.previousTip=null;this.trail=[];this.struck=false;
     this.needLift=false;this.livePalm=null;this.lastSpringRoot=null;this.traceAlpha=1;this.checkAt=0;
+    this.liveBrushTip=null;this.liveBrushStrokeId=-1;
+    this.unlockedTier=0;this.tier1Time=-1;this.tier2Time=-1;
+    this.implosion=0;this.exploded=false;
   }
   enter(p){this.phase=p;this.phaseTime=0;}
   info(){
@@ -79,7 +92,31 @@ export class Duel {
       if(this.phase==='recover'&&this.phaseTime>1.05)this.resetCast();
       this.enemyTurn(dt);
     }
-    // Track hand position & smoothed velocity for GPU radial qi ripple across seal/wash/ribbons
+    const sealed=this.phase==='seal'||this.phase==='charge';
+    const releasing=this.phase==='release';
+    // Update live 11-stroke brush-tip tracker during 0.65s calligraphy write
+    if(sealed && this.seal){
+      const wp=clamp((this.time-this.sealBorn)/WRITE_SECONDS,0,1);
+      if(wp<.995){
+        this.liveBrushTip=this.tipLookup(wp);
+        this.liveBrushStrokeId=this.liveBrushTip.strokeId;
+      }else{
+        this.liveBrushTip=null;
+        this.liveBrushStrokeId=-1;
+      }
+      // Stage 5: Escalation tiers (25% Bagua outer circle, 55% Front talisman ring, 65% Curl feather swarm)
+      if(this.charge>=.25 && this.unlockedTier<1){this.unlockedTier=1;this.tier1Time=this.time;}
+      if(this.charge>=.55 && this.unlockedTier<2){this.unlockedTier=2;this.tier2Time=this.time;}
+      if(this.charge>=.65 && this.unlockedTier<3){this.unlockedTier=3;}
+      if(this.charge<.15 && this.unlockedTier>0){this.unlockedTier=0;this.tier1Time=-1;this.tier2Time=-1;}
+    }else{
+      this.liveBrushTip=null;this.liveBrushStrokeId=-1;
+    }
+    // Step Zero-GC 3D Curl Noise + Hand Collider Feather Swarm
+    if(this.seal && (sealed || releasing)){
+      this.feathers.step(dt,this.seal,sealed?this.charge:1,this.implosion,this.exploded,hands,this.time);
+    }
+    // Track hand position & smoothed velocity for GPU radial qi ripple across all 4 magic circle layers
     const activeHand=this.livePalm ?? hands[0]?.palm ?? hands[0]?.tip ?? null;
     if(activeHand){
       const spd=this.prevHandPos&&dt>.001?dist(activeHand,this.prevHandPos)/dt:0;
@@ -142,9 +179,27 @@ export class Duel {
   }
   lock(seal){
     this.seal=seal;this.sealBorn=this.time;const ps=this.brush.points;
-    // Snap user loop into a clean calligraphic Enso ring; Layer 1 SVG-SDF shader renders 鳥 crisply on top.
+    // Snap user loop into a clean calligraphic Enso ring; Layer 2 SVG-SDF shader writes 鳥 stroke-by-stroke over 0.65s.
     this.brush.close(ps[0],this.time,seal,!this.hasSdfGlyph);this.spray.stopMotion();
+    this.feathers.reset();this.unlockedTier=0;this.tier1Time=-1;this.tier2Time=-1;
+    this.implosion=0;this.exploded=false;
     this.owner=null;this.enter('seal');
+  }
+  triggerBurstImpulse(){
+    if(this.exploded)return;
+    this.exploded=true;this.implosion=0;
+    const s=this.seal, toEnemy=unit(sub(this.enemy,s.c));
+    for(let i=0;i<this.bird.length;i++){
+      const b=this.bird[i], g=b.g;
+      const outLen=Math.hypot(g.x,g.y)||.001;
+      const rx=g.x/outLen, ry=g.y/outLen;
+      const swirlX=-ry*s.sign, swirlY=rx*s.sign;
+      const kick=.95+1.45*b.f, fwd=.82+1.05*b.f;
+      for(let k=0;k<3;k++){
+        b.vel[k]=(s.u[k]*(rx*.75+swirlX*.45)+s.v[k]*(ry*.75+swirlY*.45))*kick + toEnemy[k]*fwd;
+      }
+    }
+    this.feathers.blastOutward(s);
   }
   chargeInput(dt,hands){
     const h=hands.find(h=>palmAtSeal(h,this.seal));
@@ -154,18 +209,8 @@ export class Duel {
       if(this.phase!=='charge')this.enter('charge');
       if(this.charge>=1){
         this.hasCast=true;this.formation();
-        // Stage 1 of Burst -> Gather Morph: explosive outward & forward burst from the 鳥 calligraphy strokes!
-        const s=this.seal, toEnemy=unit(sub(this.enemy,s.c));
-        for(let i=0;i<this.bird.length;i++){
-          const b=this.bird[i], g=b.g;
-          const outLen=Math.hypot(g.x,g.y)||.001;
-          const rx=g.x/outLen, ry=g.y/outLen;
-          const swirlX=-ry*s.sign, swirlY=rx*s.sign;
-          const kick=.85+1.35*b.f, fwd=.75+.95*b.f;
-          for(let k=0;k<3;k++){
-            b.vel[k]=(s.u[k]*(rx*.75+swirlX*.45)+s.v[k]*(ry*.75+swirlY*.45))*kick + toEnemy[k]*fwd;
-          }
-        }
+        this.unlockedTier=3;
+        this.implosion=0.01;this.exploded=false;
         this.enter('release');this.crowRoot=this.seal.c.slice();this.lastSpringRoot=this.crowRoot.slice();
         for(let f=0;f<9;f++)this.flockPrev[f]=this.seal.c.slice();
         if(this.nextShot===Infinity)this.nextShot=this.time+6.3;
@@ -178,13 +223,13 @@ export class Duel {
   formation(){
     const s=this.seal,t=this.time,charge=this.charge,cloud=this.flow;
     const settled=smooth((t-this.sealBorn)/1.05);
-    const writeProgress=clamp(.18+(t-this.sealBorn)*.82+charge*.55,0,1);
+    const writeProgress=clamp((t-this.sealBorn)/WRITE_SECONDS,0,1);
     if(!this.hasSdfGlyph)this.brush.writeGlyph(writeProgress,t);
-    // Align Layer 2 splat coordinates exactly with the Layer 1 3D SDF quad (span = r * 0.93 -> diameter = r * 1.86)
+    // Align Layer 2 splat coordinates exactly with the Layer 2 3D SDF quad (span = r * 0.93 -> diameter = r * 1.86)
     const glyphSpan=this.hasSdfGlyph?s.r*1.86:s.r*1.22;
     for(let i=0;i<this.bird.length;i++){
       const b=this.bird[i],g=b.g;
-      const strokeReady=clamp((writeProgress-(g.order??0)*.72)*2.1,0,1);
+      const strokeReady=clamp((writeProgress-(g.order??0)*.78)*2.4,0,1);
       let q=clamp((charge*.85+.25*strokeReady-.13*b.f)/(1-.13*b.f));
       const a=b.a+t*(.27+b.f*.22)*(1-smooth(charge)), radius=s.r*mix(.96+.14*b.f,b.orbit*.86,settled)*(.96+.04*Math.sin(t*2+b.a));
       const gx=g.x*glyphSpan,gy=g.y*glyphSpan;
@@ -195,8 +240,7 @@ export class Duel {
       for(let k=0;k<3;k++){p[k]=s.c[k]+s.u[k]*x+s.v[k]*y+s.n[k]*z;b.vel[k]=0;}
       const ax=mix(-Math.sin(a),g.dx,smooth(q)),ay=mix(Math.cos(a),g.dy,smooth(q));
       if(this.hasSdfGlyph){
-        // Layer 1 SVG-SDF quad owns the crisp jet-black 鳥 strokes & blazing cyan rim.
-        // Keep Layer 2 ultra-clean: gentle inward-spiraling ink wisps while gathering + sparse jewel-like star glints.
+        // Layer 2 SVG-SDF quad owns the crisp jet-black 鳥 strokes & blazing cyan rim.
         const isStar=i%72===0;
         const isWisp=(i%8===0) && q<.96;
         if(!isStar && !isWisp)continue;
@@ -212,7 +256,7 @@ export class Duel {
       }else{
         const decorative=i%7===0;
         const mag=(.019+.015*b.f)*s.r;
-        const tone=decorative&&q<.88?(i%14===0?9:7):(g.dry&&i%3===0?1:0);
+        const tone=decorative&&q<.88?(i%14===0?12:7):(g.dry&&i%3===0?1:0);
         cloud.put(...p,s.u[0]*ax+s.v[0]*ay,s.u[1]*ax+s.v[1]*ay,s.u[2]*ax+s.v[2]*ay,
           mag*(1.45+.58*q),mag*(.40+.35*q),(.34+2.25*q)*(decorative?.62:1),
           .32+b.f*.54,tone,b.seed);
@@ -276,9 +320,28 @@ export class Duel {
   }
   release(dt){
     const t=this.phaseTime;
-    const pose=this.flight(t),{root,scale}=pose;
-    const flockPoses=this.flockFlight(t,pose);
-    const grow=smooth(t/.52);
+    // Stage 6a: 0.14s Implosion Anticipation Beat — vacuum pull inward before explosive crow burst!
+    if(t<IMPLOSION_SECONDS){
+      this.implosion=smooth(t/IMPLOSION_SECONDS);
+      this.exploded=false;
+      const s=this.seal, c=s.c, pull=1-Math.exp(-dt*14);
+      const sight=unit(sub(c,this.head));
+      for(const b of this.bird){
+        for(let k=0;k<3;k++)b.pos[k]=mix(b.pos[k],c[k],pull*.42);
+        b.depth=dot(b.pos,sight);
+      }
+      this.depthOrder.sort(this.sortDepth);
+      const p0=this.flight(0);
+      this.crowRoot=c.slice();this.lastSpringRoot=c.slice();this.crowScale=p0.scale*.85;this.wingGrow=0;
+      for(let id=0;id<9;id++)this.flockPrev[id]=c.slice();
+      return;
+    }
+    if(!this.exploded)this.triggerBurstImpulse();
+    // Scale remaining flight clock smoothly so impact & total cast duration (3.12s) match gameplay & tests 1:1
+    const ft=(t-IMPLOSION_SECONDS)*(3.12/(3.12-IMPLOSION_SECONDS));
+    const pose=this.flight(ft),{root,scale}=pose;
+    const flockPoses=this.flockFlight(ft,pose);
+    const grow=smooth(ft/.52);
     const sight=unit(sub(root,this.head));
     const carries=flockPoses.map((fp,id)=>sub(fp.root,this.flockPrev[id]));
     const trig=flockPoses.map(fp=>({
@@ -288,7 +351,7 @@ export class Duel {
       wCos:Math.cos(fp.flap),wSin:Math.sin(fp.flap),
       root:fp.root,scale:fp.scale
     }));
-    const burstGather=smooth((t-.06)/.26);
+    const burstGather=smooth((ft-.06)/.26);
     const springK=mix(52,330,burstGather), springDamp=mix(6.5,13.5,burstGather);
     for(const b of this.bird){
       const id=b.flockId??0, tr=trig[id], carry=carries[id];
@@ -307,7 +370,6 @@ export class Duel {
       const ary=ay*tr.co-az*tr.si, arz=ay*tr.si+az*tr.co;
       const apx=ax*tr.cp-ary*tr.sp, apy=ax*tr.sp+ary*tr.cp;
       b.depth=dot(b.pos,sight);
-      // During early burst, align stretched ink splats along flight velocity before snapping to feather axes
       const fax=apx*tr.cy-arz*tr.sy, fay=apy, faz=apx*tr.sy+arz*tr.cy;
       const spd=Math.hypot(b.vel[0],b.vel[1],b.vel[2]);
       if(burstGather<.98 && spd>.25){
@@ -363,21 +425,64 @@ export class Duel {
     this.backRibbons.clear();this.frontRibbons.clear();
     const s=this.seal,t=this.phaseTime,releasing=this.phase==='release';
     const sealed=this.phase==='seal'||this.phase==='charge',finish=this.phase==='recover'||this.phase==='win'||this.phase==='lose';
-    const alpha=finish?0:releasing?1-smooth((t-.52)/1.15):1;
+    const postBlast=releasing?Math.max(0,t-IMPLOSION_SECONDS):0;
+    const alpha=finish?0:releasing?1-smooth((postBlast-.42)/1.05):1;
     this.groups[3].alpha=this.abandoned===null?alpha:1-smooth((this.time-this.abandoned-.85)/1.45);
     this.sealVisual=null;
+    this.circleVisual=null;
     if(s && (sealed||releasing)){
-      const writeProgress=sealed?clamp(.18+(this.time-this.sealBorn)*.85+this.charge*.55,0,1):1;
-      const dissolve=releasing?clamp(t/.58,0,1):0;
-      const sealAlpha=releasing?1-smooth((t-.32)/.42):1;
+      const writeProgress=sealed?clamp((this.time-this.sealBorn)/WRITE_SECONDS,0,1):1;
+      const imp=releasing?this.implosion:0;
+      // Vacuum contraction during 0.14s implosion -> snap expansion on burst!
+      const contractScale=releasing
+        ?(t<IMPLOSION_SECONDS?mix(1.0,.72,imp):1.0+smooth(postBlast/.32)*.26)
+        :1.0;
+      const dissolve=releasing?clamp(postBlast/.52,0,1):0;
+      const sealAlpha=releasing?1-smooth((postBlast-.24)/.38):1;
       if(sealAlpha>.002){
-        this.sealVisual={seal:s,writeProgress,charge:sealed?this.charge:1,dissolve,alpha:sealAlpha};
+        this.sealVisual={seal:s,writeProgress,charge:sealed?this.charge:1,dissolve,alpha:sealAlpha,scale:contractScale};
       }
-      this.sealDetails(s,alpha);
+      // Build 4-Layer Z-Stacked Taoist Magic Circle state (18cm total depth: -9cm, -3cm, 0cm, +7cm)
+      const c=sealed?this.charge:1;
+      const popSpring=(since)=>since<0?0:clamp(1-Math.exp(-since*11)*Math.cos(since*15),0,1.14);
+      const t1Age=this.tier1Time>=0?this.time-this.tier1Time:-1;
+      const t2Age=this.tier2Time>=0?this.time-this.tier2Time:-1;
+      const backUnlocked=t1Age>=0 || releasing;
+      const frontUnlocked=t2Age>=0 || releasing;
+      const backPop=backUnlocked?(releasing?1:mix(.38,1,popSpring(t1Age))):0.88;
+      const frontPop=frontUnlocked?(releasing?1:mix(.34,1,popSpring(t2Age))):0;
+      // Subtle translucent preview halo on seal lock -> bold pop-in at 25% charge!
+      const backAlpha=alpha*(backUnlocked?mix(.68,.96,c):(.20*smooth((this.time-this.sealBorn)/.35)));
+      const frontAlpha=alpha*(frontUnlocked?mix(.58,.96,clamp((c-.50)/.50)):0);
+      const spinBoost=1+c*1.45+(releasing&&t<IMPLOSION_SECONDS?3.2:0);
+      this.circleVisual={
+        seal:s,
+        washZOff:-0.03,
+        washScale:contractScale,
+        back:{
+          zOff:-0.09,
+          radiusMul:1.54,
+          rot:-this.time*(.24+.28*c)*s.sign,
+          scale:backPop*contractScale,
+          alpha:backAlpha,
+          charge:c
+        },
+        front:{
+          zOff:0.07,
+          radiusMul:1.08,
+          rot:this.time*(.58+.68*c)*spinBoost*s.sign,
+          scale:frontPop*contractScale,
+          alpha:frontAlpha,
+          charge:c
+        }
+      };
+      this.sealDetails(s,alpha,contractScale,postBlast);
+      // Paint Zero-GC 3D Curl Noise + Hand Collider Feather Swarm (Stage 5 & 6)
+      this.feathers.paint(this.decor,this.fx,releasing?1-smooth((postBlast-.75)/.55):1);
       if(sealed)this.formation();
       else {
         const k=this.crowScale??.2,fade=(1-smooth((t-2.86)/.26));
-        const burstStretch=1+(1-smooth(t/.28))*.85;
+        const burstStretch=t<IMPLOSION_SECONDS?1:1+(1-smooth(postBlast/.28))*.85;
         for(const i of this.depthOrder){
           const b=this.bird[i];
           const isStar=b.tone>=11.5;
@@ -392,54 +497,72 @@ export class Duel {
     if(s&&this.livePalm&&sealed)this.palmStream(s);
     for(const h of this.handData)this.paintHand(h);
   }
-  sealDetails(s,alpha){
+  sealDetails(s,alpha,contractScale=1,postBlast=0){
     if(alpha<=0)return;
-    const b=this.decor,rb=this.backRibbons,rf=this.frontRibbons,r=s.r,t=this.time,c=this.charge,rng=random(863);
+    const b=this.decor,rb=this.backRibbons,rf=this.frontRibbons,r=s.r*contractScale,t=this.time,c=this.charge,rng=random(863);
+    const tierBoost=this.unlockedTier>=2?1.45:this.unlockedTier>=1?1.18:1.0;
     // 1. Silky continuous outer summoning mist ring (keeps 鳥 interior completely crisp!)
-    for(let i=0;i<28;i++){
-      const a=TAU*i/28+t*.20, rr=r*(1.12+.34*((i*7)%13)/13);
-      const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-.022+.014*Math.sin(t*1.8+i));
+    for(let i=0;i<24;i++){
+      const a=TAU*i/24+t*.22*tierBoost, rr=r*(1.12+.34*((i*7)%13)/13);
+      const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-.042+.014*Math.sin(t*1.8+i));
       const d=add(mul(s.u,-Math.sin(a)),mul(s.v,Math.cos(a)));
-      b.put(...p,...d,r*.36,r*.14,alpha*(.26+.24*c),.84,11,rng());
+      b.put(...p,...d,r*.34,r*.13,alpha*(.24+.22*c),.84,11,rng());
     }
     // 2. Flowing 3D Curved Calligraphic Orbital Ribbons (ZERO straight spiky needles!)
-    // Outer sweeping Sumi-e black ink + electric cyan rim brush arcs (mode 0)
     for(let k=0;k<3;k++){
-      const startA=k*(TAU/3)+t*(.68+.32*c)+Math.sin(t*.9+k)*.18;
-      rb.addOrbitalArc(s,r*(1.09+.055*k),startA,1.85+.45*c,r*(.044+.022*c),r*.026,.008+.005*k,
+      const startA=k*(TAU/3)+t*(.68+.36*c)*tierBoost+Math.sin(t*.9+k)*.18;
+      rb.addOrbitalArc(s,r*(1.09+.055*k),startA,1.85+.45*c,r*(.044+.022*c),r*.026,-.022+.006*k,
         0,alpha*(.78+.22*c),.13+k*.31,c,36);
     }
-    // Counter-rotating Electric Celadon/Cyan Sword-Qi curved ribbons hugging the Enso ring (mode 1)
     for(let k=0;k<3;k++){
-      const startA=k*(TAU/3)+1.1-t*(.95+.48*c);
-      rb.addOrbitalArc(s,r*(1.02+.07*k),startA,1.65+.55*c,r*(.030+.020*c),r*.022,.015+.004*k,
+      const startA=k*(TAU/3)+1.1-t*(.95+.52*c)*tierBoost;
+      rb.addOrbitalArc(s,r*(1.02+.07*k),startA,1.65+.55*c,r*(.030+.020*c),r*.022,-.014+.005*k,
         1,alpha*(.68+.32*c),.41+k*.27,c,34);
     }
-    // Delicate antique gold-dust silk curves gliding on the outermost aura (mode 2)
     for(let k=0;k<2;k++){
-      const startA=k*Math.PI+t*(.52+.24*c);
-      rb.addOrbitalArc(s,r*(1.20+.04*k),startA,2.15,r*(.018+.012*c),r*.018,.012,
+      const startA=k*Math.PI+t*(.52+.26*c)*tierBoost;
+      rb.addOrbitalArc(s,r*(1.20+.04*k),startA,2.15,r*(.018+.012*c),r*.018,-.018,
         2,alpha*(.58+.42*c),.73+k*.19,c,34);
     }
     // 3. Orbiting round wet ink droplets & jewel-like 4-point cyan/gold star-flares riding the curves
-    for(let i=0;i<26;i++){
-      const a=TAU*rng()+t*(.28+(i%3)*.12),rr=r*(1.06+rng()*.34),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.012);
+    for(let i=0;i<22;i++){
+      const a=TAU*rng()+t*(.28+(i%3)*.12)*tierBoost,rr=r*(1.06+rng()*.34),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-.010);
       const dropR=r*(.009+.008*rng());
       b.put(...p,...s.u,dropR*1.10,dropR,alpha*1.35,.88,i%7===0?7:0,rng());
     }
     const stars=8+Math.floor(c*8);
     for(let i=0;i<stars;i++){
-      const a=TAU*i/stars+t*(.82+.35*c), rr=r*(1.06+.14*Math.sin(i*2.1+t*2.4));
+      const a=TAU*i/stars+t*(.82+.38*c)*tierBoost, rr=r*(1.06+.14*Math.sin(i*2.1+t*2.4));
       const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.018);
       const starR=r*(.044+.034*c);
       b.put(...p,...s.u,starR,starR,alpha*(.82+1.05*c),i%2===0?.92:.08,12,(i+.3)/stars);
     }
-    // 4. Legacy fallback brush-tip glint only if SDF glyph hasn't loaded yet
-    const tip=this.brush.activeTip;
-    if(tip && !this.hasSdfGlyph){
-      const tp=onSeal(s,tip.wx,tip.wy,.009);
-      b.put(...tp,...s.u,r*.065,r*.065,2.2*alpha,.08,12,.37);
-      b.put(...tp,...s.v,r*.035,r*.035,2.2*alpha,.85,0,.71);
+    // 4. Stage 3: Live 11-Stroke Calligraphy Brush-Tip Emitter (wet ink splatter + cyan/gold tip spark!)
+    if(this.liveBrushTip && (this.phase==='seal'||this.phase==='charge')){
+      const tip=this.liveBrushTip;
+      const glyphSpan=this.hasSdfGlyph?s.r*1.86:s.r*1.22;
+      const tp=onSeal(s,tip.x*glyphSpan,tip.y*glyphSpan,.012);
+      const dir=add(mul(s.u,tip.dx),mul(s.v,tip.dy));
+      // Blazing cyan-white + gold 4-point brush-tip flare
+      this.fx.put(...tp,...s.u,s.r*.11,s.r*.11,2.4*alpha,.08,12,.37);
+      this.fx.put(...tp,...s.v,s.r*.075,s.r*.075,1.9*alpha,.92,12,.71);
+      // Wet obsidian ink core right under the moving bristle tip + 5 directional ink splatter drops
+      b.put(...tp,...dir,s.r*.038,s.r*.024,2.4*alpha,.55,0,.19);
+      for(let k=0;k<5;k++){
+        const spread=(k-2)*.38, back=.025+k*.018;
+        const ox=-tip.dx*back-tip.dy*spread*.04, oy=-tip.dy*back+tip.dx*spread*.04;
+        const sp=onSeal(s,tip.x*glyphSpan+ox*s.r,tip.y*glyphSpan+oy*s.r,.010);
+        const dr=s.r*(.009+.008*((k*3)%5)/5);
+        b.put(...sp,...dir,dr*1.15,dr,2.1*alpha,.85,k===2?7:0,(k+.2)/5);
+      }
+    }
+    // 5. Implosion vacuum glint ring right at the center of 鳥 during the 0.14s hush
+    if(this.phase==='release' && this.implosion>0.02){
+      const imp=this.implosion;
+      const coreP=onSeal(s,0,0,.025);
+      const sr=s.r*(.18+.22*imp);
+      this.fx.put(...coreP,...s.u,sr,sr,2.6*imp,.08,12,.21);
+      this.fx.put(...coreP,...s.v,sr*.72,sr*.72,2.1*imp,.92,12,.63);
     }
     if(this.phase==='release' && !this.hasSdfGlyph){
       for(let i=0;i<this.bird.length;i+=4){
@@ -447,20 +570,20 @@ export class Duel {
         b.put(...p,...d,r*.052,r*.016,2.1*alpha,.45,0,b0.seed);
       }
     }
-    // 5. Release Shockwave: continuous curved 3D calligraphic shockwave arcs + round ink drops & stars
-    if(this.phase==='release'&&this.phaseTime<.85){
-      const q=this.phaseTime/.85, fade=(1-q)*(1-q*.35);
-      const shockR=r*(.92+q*.92);
+    // 6. Post-Implosion Explosive Release Shockwave (fires cleanly at t >= 0.14s!)
+    if(this.phase==='release'&&this.exploded&&postBlast<.80){
+      const q=postBlast/.80, fade=(1-q)*(1-q*.35);
+      const shockR=s.r*(.86+q*1.05);
       for(let k=0;k<3;k++){
-        const sa=k*(TAU/3)+q*1.4;
-        rf.addShockwaveArc(s.c,s.u,s.v,s.n,shockR*(.96+.04*k),r*(.055+.035*(1-q)),sa,2.45,
-          k===0?0:k===1?1:2,fade*(k===1?1.15:.95),.19+k*.29,1,36);
+        const sa=k*(TAU/3)+q*1.5;
+        rf.addShockwaveArc(s.c,s.u,s.v,s.n,shockR*(.96+.04*k),s.r*(.060+.038*(1-q)),sa,2.45,
+          k===0?0:k===1?1:2,fade*(k===1?1.2:.98),.19+k*.29,1,36);
       }
       for(let i=0;i<36;i++){
         const a=i*TAU/36+q*.5,rr=shockR*(.92+.16*rng()),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-q*.05);
         const isStar=i%3===0;
-        const rad=r*(isStar?.060:.014+.010*rng());
-        this.fx.put(...p,...s.u,rad*(isStar?1:1.12),rad,fade*(isStar?2.0:2.2),isStar?(i%6===0?.92:.08):.88,isStar?12:i%5===0?7:0,i/36);
+        const rad=s.r*(isStar?.062:.014+.010*rng());
+        this.fx.put(...p,...s.u,rad*(isStar?1:1.12),rad,fade*(isStar?2.1:2.2),isStar?(i%6===0?.92:.08):.88,isStar?12:i%5===0?7:0,i/36);
       }
     }
   }
@@ -499,10 +622,10 @@ export class Duel {
   paintCombat(){
     const b=this.traces,fx=this.fx,rb=this.backRibbons,rf=this.frontRibbons,rng=random(194),shot=this.shot,t=this.time,eye=this.head;
     adversary(this.enemyCloud,this.enemy,t,this.enemyHP,shot?clamp(shot.age/1.15):0,this.hitFlash);
-    // 1. Ambient Eastern battle-arena mist
-    for(let i=0;i<30;i++){
-      const u=i/29, mx=mix(-1.35,1.65,u)+.18*Math.sin(t*.45+i), my=-.62+.22*Math.sin(i*1.7+t*.3), mz=-1.45-u*2.2;
-      b.put(mx,my,mz, 1,.06*Math.sin(t+i),0, .24+rng()*.22,.085+rng()*.065, .44,.85, 11, rng());
+    // 1. Ambient Eastern battle-arena mist (tuned for Quest 3S <= 4.5 m^2 overdraw budget)
+    for(let i=0;i<14;i++){
+      const u=i/13, mx=mix(-1.25,1.55,u)+.16*Math.sin(t*.45+i), my=-.58+.18*Math.sin(i*1.7+t*.3), mz=-1.45-u*2.1;
+      b.put(mx,my,mz, 1,.06*Math.sin(t+i),0, .17+rng()*.12,.062+rng()*.038, .48,.85, 11, rng());
     }
     // 2. Dokkaebi-bul counterattack projectile: curved crimson/amber spirit-flame ribbon + ink flames & gold stars
     if(shot?.p){

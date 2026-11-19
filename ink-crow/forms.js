@@ -1,5 +1,5 @@
-import {SplatBatch} from './ink.js?v=72b35c2';
-import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=72b35c2';
+import {SplatBatch} from './ink.js?v=4654aca';
+import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=4654aca';
 
 // A tapered stroke consists of oriented pigment deposits along a spatial curve.
 export function stroke(batch,a,b,width,tone,mass,water,seed,taper=.55) {
@@ -285,11 +285,11 @@ export function adversary(batch,p,t,health,threat,hit) {
   if(health===0&&hit<=0)return;
   const rng=random(333),x=p[0],y=p[1]+.05*Math.sin(t*2.1),z=p[2];
   const pulse=1+.12*Math.sin(t*3.8)+threat*.22+hit*.35;
-  // 1. Eerie floating mist aura around the Dokkaebi-bul (요기 서린 안개 장막)
-  for(let i=0;i<44;i++){
-    const a=rng()*TAU+t*.35, rr=(.16+rng()*.38)*pulse;
-    const mx=x+Math.cos(a)*rr, my=y-.12+(rng()-.45)*.34+.04*Math.sin(a*2+t), mz=z+Math.sin(a)*rr*.55;
-    batch.put(mx,my,mz, Math.cos(a),.18*Math.sin(t+i),0, .14+rng()*.16,.065+rng()*.075, .70+threat*.38,.82, 11, rng());
+  // 1. Eerie floating mist aura around the Dokkaebi-bul (tuned for Quest 3S <= 4.5 m^2 overdraw budget)
+  for(let i=0;i<20;i++){
+    const a=rng()*TAU+t*.35, rr=(.15+rng()*.34)*pulse;
+    const mx=x+Math.cos(a)*rr, my=y-.12+(rng()-.45)*.30+.04*Math.sin(a*2+t), mz=z+Math.sin(a)*rr*.55;
+    batch.put(mx,my,mz, Math.cos(a),.18*Math.sin(t+i),0, .11+rng()*.09,.052+rng()*.042, .75+threat*.38,.82, 11, rng());
   }
   // 2. Amorphous shifting dark-ink flame body (부정형 흑염/먹물 소용돌이 본체)
   for(let i=0;i<320;i++){
