@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import chokidar from 'chokidar';
 import { createStudio } from './store.mjs';
+import { createVfxStore, generateRecipeViaLlm } from './vfx-store.mjs';
 
 const MIME = {
   '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.gif': 'image/gif',
@@ -23,6 +24,7 @@ const MIME = {
 
 export function studioApi(root) {
   const studio = createStudio(root);
+  const vfxStore = createVfxStore(root);
   const clients = new Set();
 
   let pending = new Set();
@@ -72,6 +74,24 @@ export function studioApi(root) {
       if (top === 'projects' && m === 'GET') return send(200, studio.projects());
       if (top === 'projects' && m === 'POST') return send(201, studio.createApp(actor, await readJson(req)));
       if (top === 'templates' && m === 'GET') return send(200, studio.templates());
+
+      if (top === 'vfx') {
+        const [, , sub, itemId] = parts;
+        if (sub === 'dataset' && !itemId && m === 'GET') return send(200, vfxStore.list());
+        if (sub === 'dataset' && !itemId && m === 'POST') return send(201, vfxStore.save(await readJson(req)));
+        if (sub === 'dataset' && itemId && m === 'GET') return send(200, vfxStore.get(itemId));
+        if (sub === 'dataset' && itemId && m === 'DELETE') return send(200, vfxStore.remove(itemId));
+        if (sub === 'export.jsonl' && m === 'GET') {
+          res.statusCode = 200;
+          res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+          res.setHeader('Content-Disposition', 'attachment; filename="vfx-dataset.jsonl"');
+          return res.end(vfxStore.exportJsonl());
+        }
+        if (sub === 'generate' && m === 'POST') {
+          const recipe = await generateRecipeViaLlm(await readJson(req));
+          return send(200, { recipe });
+        }
+      }
 
       if (top === 'p' && parts[2]) {
         const store = studio.project(parts[2]);

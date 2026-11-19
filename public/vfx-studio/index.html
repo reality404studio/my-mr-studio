@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="자연어로 Quest 3S 72fps 호환 멀티-레이어 3D 스플랫 VFX를 생성하고 슬라이더로 조율해 Unity 이식용 데이터를 수집하는 브라우저 스튜디오">
+  <meta name="theme-color" content="#0d0f12">
+  <title>Splat VFX Studio · Quest 3S 시뮬레이션 &amp; 데이터 수집</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./studio.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <a class="brand__back" href="/" title="MR 스튜디오 보드로 돌아가기">← 보드</a>
+        <div class="brand__title">
+          <h1>Splat VFX Studio</h1>
+          <span class="brand__sub">Quest 3S · Unity SplatFeel 호환</span>
+        </div>
+      </div>
+
+      <form id="promptForm" class="prompt-bar" autocomplete="off">
+        <label class="sr-only" for="promptInput">자연어 VFX 프롬프트</label>
+        <input
+          id="promptInput"
+          class="prompt-bar__input"
+          type="text"
+          placeholder="예: 푸른 번개가 분기하며 찢어지는 검기 참격과 튀는 스파크, 차가운 서리 안개…"
+        >
+        <button id="generateBtn" class="btn btn--primary" type="submit">컴파일</button>
+        <button id="llmGenerateBtn" class="btn btn--ghost" type="button" title="LLM API 설정 시 모델로 직접 생성">LLM 생성</button>
+      </form>
+
+      <div class="topbar__actions">
+        <label class="sr-only" for="presetSelect">레퍼런스 프리셋</label>
+        <select id="presetSelect" class="select" title="레퍼런스 프리셋 불러오기"></select>
+        <button id="xrButton" class="btn btn--xr" type="button">
+          <span class="xr-dot" aria-hidden="true"></span>
+          <span id="xrButtonText">Quest XR</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <section class="stage" aria-label="3D VFX 시뮬레이션 뷰포트">
+        <canvas id="viewport" tabindex="0" aria-label="3D 스플랫 VFX 캔버스"></canvas>
+
+        <div class="stage__top-controls">
+          <div class="seg-group" role="group" aria-label="카메라 및 손 상호작용 모드">
+            <button id="modeOrbitBtn" class="seg is-active" type="button">회전 (Orbit)</button>
+            <button id="modeHandBtn" class="seg" type="button" title="드래그로 가상 손 콜라이더를 휘둘러 파티클 물성을 테스트합니다">손 휘젓기</button>
+          </div>
+
+          <div class="seg-group" role="group" aria-label="재생 제어">
+            <button id="burstBtn" class="seg" type="button" title="폭발/버스트 재발사 (Space)">버스트 ↻</button>
+            <button id="pauseBtn" class="seg" type="button">일시정지</button>
+            <button id="speedBtn" class="seg" type="button" title="재생 속도 전환">1.0×</button>
+          </div>
+        </div>
+
+        <p id="stageHint" class="stage__hint">드래그: 시점 회전 · 휠: 줌 · Shift+드래그: 손 콜라이더로 파티클 밀기 · Space: 버스트</p>
+
+        <div id="xrBanner" class="banner" role="alert" hidden></div>
+
+        <aside class="telemetry" aria-label="Quest 3S 성능 예산">
+          <div class="telemetry__badge" id="questBadge">OK 72fps</div>
+          <dl class="telemetry__list">
+            <div><dt>FPS</dt><dd id="statFps">60</dd></div>
+            <div><dt>Splats</dt><dd id="statSplats">0 / 4800</dd></div>
+            <div><dt>Overdraw</dt><dd id="statOverdraw">0.0 m²</dd></div>
+            <div><dt>Sim</dt><dd id="statSimMs">0.0 ms</dd></div>
+          </dl>
+        </aside>
+
+        <div id="layerChips" class="layer-chips" aria-label="VFX 레이어 토글"></div>
+      </section>
+
+      <aside class="inspector" aria-label="VFX 슬라이더 및 데이터셋 패널">
+        <nav class="tabs" role="tablist">
+          <button class="tab is-active" type="button" role="tab" data-tab="sliders" aria-selected="true">슬라이더</button>
+          <button class="tab" type="button" role="tab" data-tab="dataset" aria-selected="false">
+            데이터셋 <span id="datasetCount" class="tab__count">0</span>
+          </button>
+          <button class="tab" type="button" role="tab" data-tab="llm" aria-selected="false">LLM · JSON</button>
+        </nav>
+
+        <!-- TAB 1: SLIDERS -->
+        <div id="tab-sliders" class="panel is-active" role="tabpanel">
+          <div class="recipe-meta">
+            <div class="recipe-meta__head">
+              <h2 id="recipeTitle">도깨비불 흑염 소용돌이</h2>
+              <button id="resetEditsBtn" class="link-btn" type="button" hidden>수정 되돌리기</button>
+            </div>
+            <p id="recipeSummary" class="recipe-meta__summary"></p>
+            <div class="recipe-meta__bar">
+              <span id="recipeSourceTag" class="meta-chip">프리셋</span>
+              <span id="editCountTag" class="meta-chip">수정 0건</span>
+              <button id="quickSaveBtn" class="btn btn--small btn--primary" type="button">데이터셋 저장 →</button>
+            </div>
+          </div>
+
+          <section class="section">
+            <div class="section__head">
+              <h3>맞춤 VFX 슬라이더</h3>
+              <span class="section__note">프롬프트별 자동 생성</span>
+            </div>
+            <div id="dynamicSliders" class="slider-list"></div>
+          </section>
+
+          <details class="section" open>
+            <summary class="section__summary">
+              <span>물성 SplatFeel (10축 · Unity 1:1)</span>
+              <span class="section__note">meta-mr-picker 호환</span>
+            </summary>
+            <div id="feelPresets" class="pill-row"></div>
+            <div id="feelSliders" class="slider-list"></div>
+          </details>
+
+          <details class="section">
+            <summary class="section__summary">
+              <span>레이어별 색온도 · 발광</span>
+              <span class="section__note">코어 ↔ 외곽</span>
+            </summary>
+            <div id="layerEditors" class="layer-editors"></div>
+          </details>
+        </div>
+
+        <!-- TAB 2: DATASET -->
+        <div id="tab-dataset" class="panel" role="tabpanel" hidden>
+          <section class="section">
+            <div class="section__head">
+              <h3>현재 튜닝 결과 저장</h3>
+              <span id="storageBadge" class="section__note">studio/vfx-data/</span>
+            </div>
+            <div class="field">
+              <label for="saveName">샘플 이름</label>
+              <input id="saveName" class="input" type="text" placeholder="예: 청룡 뇌전 참격 v2">
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label>품질 평가</label>
+                <div id="ratingStars" class="stars" role="radiogroup" aria-label="별점 평가">
+                  <button type="button" data-star="1" aria-label="1점">★</button>
+                  <button type="button" data-star="2" aria-label="2점">★</button>
+                  <button type="button" data-star="3" aria-label="3점">★</button>
+                  <button type="button" data-star="4" aria-label="4점" class="is-on">★</button>
+                  <button type="button" data-star="5" aria-label="5점">★</button>
+                </div>
+              </div>
+              <div class="field">
+                <label for="saveTags">태그 (쉼표 구분)</label>
+                <input id="saveTags" class="input" type="text" placeholder="fire, vortex, quest-ok">
+              </div>
+            </div>
+            <div class="field">
+              <label for="saveNotes">메모 (Unity 이식 시 참고점)</label>
+              <textarea id="saveNotes" class="textarea" rows="2" placeholder="예: 손으로 휘저을 때 불티 탄성 0.55가 가장 자연스러움"></textarea>
+            </div>
+            <div class="btn-row">
+              <button id="saveDatasetBtn" class="btn btn--primary" type="button">레포에 저장</button>
+              <button id="copyUnityBtn" class="btn btn--ghost" type="button">Unity SplatTuning 복사</button>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section__head">
+              <h3>수집된 데이터셋</h3>
+              <button id="exportJsonlBtn" class="link-btn" type="button">JSONL 다운로드 ↓</button>
+            </div>
+            <div id="datasetList" class="dataset-list"></div>
+          </section>
+        </div>
+
+        <!-- TAB 3: LLM & JSON -->
+        <div id="tab-llm" class="panel" role="tabpanel" hidden>
+          <section class="section">
+            <div class="section__head">
+              <h3>1. LLM API 직접 연결 (선택)</h3>
+              <span class="section__note">키는 세션 메모리에만 유지</span>
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label for="llmProvider">프로바이더</label>
+                <select id="llmProvider" class="select select--full">
+                  <option value="openai">OpenAI 호환</option>
+                  <option value="gemini">Google Gemini</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="llmModel">모델</label>
+                <input id="llmModel" class="input" type="text" value="gpt-4o-mini" placeholder="gpt-4o-mini / gemini-2.5-flash">
+              </div>
+            </div>
+            <div class="field">
+              <label for="llmEndpoint">커스텀 엔드포인트 (선택 · 로컬 Ollama/프록시 등)</label>
+              <input id="llmEndpoint" class="input" type="text" placeholder="비워두면 기본 공식 API 사용">
+            </div>
+            <div class="field">
+              <label for="llmApiKey">API Key</label>
+              <input id="llmApiKey" class="input" type="password" placeholder="sk-... 또는 AIza...">
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section__head">
+              <h3>2. 외부 AI 챗 ↔ JSON 붙여넣기</h3>
+              <button id="copySysPromptBtn" class="link-btn" type="button">시스템 프롬프트 복사</button>
+            </div>
+            <p class="help-text">API 키 없이 Claude·ChatGPT·Gemini에 시스템 프롬프트와 원하는 VFX 설명을 보내고, 받은 JSON을 아래에 붙여넣어 바로 시뮬레이션할 수 있습니다.</p>
+            <textarea id="jsonEditor" class="textarea textarea--code" rows="12" spellcheck="false" aria-label="VFX Recipe JSON 편집기"></textarea>
+            <div class="btn-row">
+              <button id="applyJsonBtn" class="btn btn--primary" type="button">JSON 적용</button>
+              <button id="syncJsonBtn" class="btn btn--ghost" type="button">현재 레시피 불러오기</button>
+              <button id="showUnityJsonBtn" class="btn btn--ghost" type="button">Unity 포맷 보기</button>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  </div>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

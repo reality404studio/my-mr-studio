@@ -34,7 +34,12 @@ export default function Home() {
           <h1>{studio.name}</h1>
           {studio.subtitle && <p>{studio.subtitle}</p>}
         </div>
-        <span className={`live is-${live}`}><span className="dot" aria-hidden="true" />{live === 'live' ? '실시간 연결됨' : live === 'down' ? '연결 끊김' : '연결 중'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <a className="ghost" href="/vfx-studio/" style={{ textDecoration: 'none', padding: '6px 12px', borderRadius: 999, border: '1px solid var(--line)' }}>
+            Splat VFX Studio ↗
+          </a>
+          <span className={`live is-${live}`}><span className="dot" aria-hidden="true" />{live === 'live' ? '실시간 연결됨' : live === 'down' ? '연결 끊김' : '연결 중'}</span>
+        </div>
       </header>
 
       {data?.shared && <SharedBand shared={data.shared} />}
