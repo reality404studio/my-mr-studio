@@ -1,0 +1,68 @@
+name: Deploy ink-crow to GitHub Pages
+
+on:
+  push:
+    branches:
+      - prototype/ink-crow-webxr
+      - main
+    paths:
+      - 'public/ink-crow/**'
+      - 'public/ink-study/**'
+      - 'scripts/build-ink-crow-pages.mjs'
+      - '.github/workflows/deploy-ink-crow-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-ink-crow-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run ink-crow tests
+        run: |
+          if [ -f test/ink-crow.test.mjs ]; then
+            node --test test/ink-crow.test.mjs
+          fi
+
+      - name: Build GitHub Pages bundle
+        run: node scripts/build-ink-crow-pages.mjs dist/gh-pages --version "${GITHUB_SHA::7}"
+
+      - name: Publish to gh-pages branch
+        run: |
+          git fetch origin gh-pages:refs/remotes/origin/gh-pages || true
+          WORKTREE=$(mktemp -d)
+          if git rev-parse --verify refs/remotes/origin/gh-pages >/dev/null 2>&1; then
+            git worktree add -B gh-pages "$WORKTREE" refs/remotes/origin/gh-pages
+          else
+            git worktree add --orphan -b gh-pages "$WORKTREE"
+          fi
+
+          find "$WORKTREE" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a dist/gh-pages/. "$WORKTREE/"
+
+          git -C "$WORKTREE" add -A
+          if git -C "$WORKTREE" diff --cached --quiet; then
+            echo "No changes to publish to gh-pages."
+          else
+            SHORT_SHA="${GITHUB_SHA::7}"
+            git -C "$WORKTREE" \
+              -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Deploy ink-crow (${SHORT_SHA})"
+            git -C "$WORKTREE" push origin gh-pages
+          fi
+
+          git worktree remove --force "$WORKTREE"
