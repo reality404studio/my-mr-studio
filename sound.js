@@ -1,7 +1,7 @@
 // Procedural Web Audio soundscape for 묵전 (Ink-Wash & Eastern Action SFX).
 // Synthesizes brush-on-Hanji friction, calligraphy stroke swishes, bronze seal chime,
 // qi charging resonance, flock wing-flaps & crow calls, and Dokkaebi-bul impacts.
-import {clamp, dist} from './gesture.js?v=d556bb3';
+import {clamp, dist} from './gesture.js?v=72b35c2';
 
 export class InkSound {
   constructor(){

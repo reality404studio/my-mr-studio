@@ -1,4 +1,4 @@
-import {TAU,smooth,onSeal,lerp3,mul} from './gesture.js?v=d556bb3';
+import {TAU,smooth,onSeal,lerp3,mul} from './gesture.js?v=72b35c2';
 
 // Desktop rehearsal feeds the same gesture recognizer and combat clock as XR.
 export class Rehearsal {

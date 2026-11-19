@@ -1,10 +1,10 @@
-import {Duel} from './duel.js?v=d556bb3';
-import {Painter,perspective,identity} from './render.js?v=d556bb3';
-import {clamp,mul,dist,lerp3,random} from './gesture.js?v=d556bb3';
-import {PaperPreview} from './paper-preview.js?v=d556bb3';
-import {Rehearsal} from './rehearsal.js?v=d556bb3';
-import {Immersion,supportedModes} from './xr.js?v=d556bb3';
-import {loadGlyphSdf} from './glyph-sdf.js?v=d556bb3';
+import {Duel} from './duel.js?v=72b35c2';
+import {Painter,perspective,identity} from './render.js?v=72b35c2';
+import {clamp,mul,dist,lerp3,random} from './gesture.js?v=72b35c2';
+import {PaperPreview} from './paper-preview.js?v=72b35c2';
+import {Rehearsal} from './rehearsal.js?v=72b35c2';
+import {Immersion,supportedModes} from './xr.js?v=72b35c2';
+import {loadGlyphSdf} from './glyph-sdf.js?v=72b35c2';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
@@ -13,9 +13,15 @@ let paintedCover='',modesChecked=false,loadedGlyphSdf=null;
 let pointer=null,down=false,afterLift=false,lean=0,lastHint='',manualClock=0;
 function prepare(){
   game.paint();
+  if(painter?.gl){
+    painter.uploadWash(game.brush);
+    painter.uploadRibbons(game.backRibbons);
+    painter.uploadRibbons(game.frontRibbons);
+  }
   for(const g of game.groups){
+    if(g.sheet&&painter?.gl)continue;
     const revision=g.scenery?0:g.batch===game.brush.marks?game.brush.revision:game.frame;
-    painter.upload(g.batch,revision);
+    painter.upload(g.batch,revision,Boolean(g.scenery));
   }
 }
 function showHud(){
@@ -99,7 +105,9 @@ function desktop(ms){
   if(mode==='cover'&&paintedCover===key)return;
   if(mode==='cover')paintedCover=key;
   const gl=painter.gl;if(gl){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);}
-  view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null,game.sealVisual);
+  view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null,game.sealVisual,{
+    backRibbons:game.backRibbons,frontRibbons:game.frontRibbons,handRipple:game.handRipple
+  });
 }
 async function refreshModes(){
   modes=painter?.gl?await supportedModes():[];modesChecked=true;
@@ -129,13 +137,17 @@ function resumePage(){
   }
 }
 function boot(){
-  try{painter=new Painter(canvas);}catch(e){
+  try{
+    painter=new Painter(canvas);
+    game.brush.skipSplatBake=true;
+  }catch(e){
     if(!e.message.includes('WebGL 2'))throw e;
     painter=new PaperPreview(canvas);
+    game.brush.skipSplatBake=false;
   }
   xr=new Immersion(painter,game,prepare,()=>Boolean($('metrics')?.checked),resumePage,showProgress);
   beginMode('cover');anim=requestAnimationFrame(desktop);refreshModes();
-  loadGlyphSdf('./assets/glyph-bird.svg?v=d556bb3').then(sdf=>{
+  loadGlyphSdf('./assets/glyph-bird.svg?v=72b35c2').then(sdf=>{
     loadedGlyphSdf=sdf;
     painter?.setGlyphSdf?.(sdf);
     const samples=sdf.sample(game.bird.length,random(7703));
@@ -179,6 +191,7 @@ canvas.addEventListener('webglcontextlost',e=>{
 canvas.addEventListener('webglcontextrestored',()=>{
   try{
     painter=new Painter(canvas);xr.painter=painter;
+    game.brush.skipSplatBake=true;
     if(loadedGlyphSdf)painter.setGlyphSdf(loadedGlyphSdf);
     viewportKey='';paintedCover='';prepare();
     if(!xr.session){cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);}

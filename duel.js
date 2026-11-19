@@ -1,9 +1,10 @@
-import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=d556bb3';
-import {WorldWash} from './world-wash.js?v=d556bb3';
-import {InkSpray} from './ink-spray.js?v=d556bb3';
-import {SplatBatch,springStep,spiral} from './ink.js?v=d556bb3';
-import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=d556bb3';
-import {InkSound} from './sound.js?v=d556bb3';
+import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=72b35c2';
+import {WorldWash} from './world-wash.js?v=72b35c2';
+import {InkSpray} from './ink-spray.js?v=72b35c2';
+import {SplatBatch,springStep,spiral} from './ink.js?v=72b35c2';
+import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=72b35c2';
+import {InkSound} from './sound.js?v=72b35c2';
+import {RibbonBatch} from './ribbon.js?v=72b35c2';
 
 export const CHARGE_SECONDS=1.35;
 const ORIGIN=[0,0,0], FORWARD=[0,0,-1];
@@ -23,7 +24,10 @@ export class Duel {
     this.brush=new WorldWash();this.spray=new InkSpray();this.land=landscape();this.enemyCloud=new SplatBatch(1850);
     this.flow=new SplatBatch(4100);this.decor=new SplatBatch(2800);this.fx=new SplatBatch(1400);this.handsCloud=new SplatBatch(1200);
     this.traces=new SplatBatch(2400);this.bird=crowForm();this.sound=new InkSound();
+    this.backRibbons=new RibbonBatch(9000,27000);
+    this.frontRibbons=new RibbonBatch(6000,18000);
     this.hasSdfGlyph=false;this.sealVisual=null;
+    this.handRipple=[0,0,-10,0];this.prevHandPos=null;
     const rng=random(306),glyph=glyphSamples(this.bird.length,rng);
     this.bird.forEach((b,i)=>{
       const a=rng()*TAU;
@@ -32,7 +36,7 @@ export class Duel {
     });
     this.groups=[
       {batch:this.land,alpha:1,scenery:true},{batch:this.enemyCloud,alpha:1},{batch:this.traces,alpha:1},
-      {batch:this.brush.marks,alpha:1,sheet:this.brush},{batch:this.decor,alpha:1},{batch:this.flow,alpha:1},{batch:this.fx,alpha:1},{batch:this.handsCloud,alpha:1},{batch:this.spray.marks,alpha:1}
+      {batch:this.brush.marks,alpha:1,sheet:this.brush},{batch:this.decor,alpha:1},{batch:this.flow,alpha:1,frontAnchor:true},{batch:this.fx,alpha:1},{batch:this.handsCloud,alpha:1},{batch:this.spray.marks,alpha:1}
     ];
     this.depthOrder=Uint16Array.from(this.bird,(_,i)=>i);
     this.sortDepth=(i,j)=>this.bird[j].depth-this.bird[i].depth;
@@ -48,7 +52,8 @@ export class Duel {
   reset(){
     this.spray.clear();this.time=0;this.enemyHP=3;this.selfHP=3;this.hitFlash=0;this.hurtFlash=0;
     this.enemy=[.83,-.16,-3.42];this.head=[0,0,0];this.shot=null;this.nextShot=Infinity;
-    this.hasCast=false;this.handData=[];this.impacts=[];this.demo=false;this.resetCast();
+    this.hasCast=false;this.handData=[];this.impacts=[];this.demo=false;this.prevHandPos=null;
+    this.handRipple=[0,0,-10,0];this.resetCast();
   }
   resetCast(keepInk=false){
     this.phase='ready';this.phaseTime=0;this.charge=0;this.seal=null;this.sealVisual=null;this.owner=null;
@@ -73,6 +78,18 @@ export class Duel {
       if(this.phase==='release')this.release(dt);
       if(this.phase==='recover'&&this.phaseTime>1.05)this.resetCast();
       this.enemyTurn(dt);
+    }
+    // Track hand position & smoothed velocity for GPU radial qi ripple across seal/wash/ribbons
+    const activeHand=this.livePalm ?? hands[0]?.palm ?? hands[0]?.tip ?? null;
+    if(activeHand){
+      const spd=this.prevHandPos&&dt>.001?dist(activeHand,this.prevHandPos)/dt:0;
+      this.prevHandPos=activeHand.slice();
+      const target=clamp(spd*.55+this.charge*.55,0,1.4);
+      this.handRipple[0]=activeHand[0];this.handRipple[1]=activeHand[1];this.handRipple[2]=activeHand[2];
+      this.handRipple[3]=mix(this.handRipple[3],Math.max(this.handRipple[3]*Math.exp(-dt*3.2),target),Math.min(1,dt*10));
+    }else{
+      this.prevHandPos=null;
+      this.handRipple[3]*=Math.exp(-dt*3.5);
     }
     this.brush.tick(dt);this.spray.step(dt);
     if(this.abandoned!==null && this.time-this.abandoned>2.3){this.brush.reset();this.abandoned=null;}
@@ -304,14 +321,14 @@ export class Duel {
     this.lastSpringRoot=root.slice();this.crowRoot=root;this.crowScale=scale;this.wingGrow=grow;
     for(let id=0;id<9;id++)this.flockPrev[id]=flockPoses[id].root.slice();
     const old=this.trail[this.trail.length-1];
-    if(!old||this.time-old.time>.038){
+    if(!old||this.time-old.time>.025){
       this.trail.push({
         p:root.slice(),
         flock:flockPoses.map(fp=>fp.root.slice()),
         time:this.time
       });
     }
-    if(this.trail.length>32)this.trail.shift();
+    if(this.trail.length>26)this.trail.shift();
     if(!this.struck&&t>2.4&&dist(root,this.enemy)<.24){
       this.struck=true;this.enemyHP--;this.hitSerial++;this.hitFlash=.62;
       this.impacts.push({p:this.enemy.slice(),time:this.time,side:1});this.shot=null;
@@ -343,6 +360,7 @@ export class Duel {
   }
   paint(){
     this.flow.clear();this.decor.clear();this.fx.clear();this.traces.clear();this.enemyCloud.clear();this.handsCloud.clear();
+    this.backRibbons.clear();this.frontRibbons.clear();
     const s=this.seal,t=this.phaseTime,releasing=this.phase==='release';
     const sealed=this.phase==='seal'||this.phase==='charge',finish=this.phase==='recover'||this.phase==='win'||this.phase==='lose';
     const alpha=finish?0:releasing?1-smooth((t-.52)/1.15):1;
@@ -376,47 +394,51 @@ export class Duel {
   }
   sealDetails(s,alpha){
     if(alpha<=0)return;
-    const b=this.decor,r=s.r,t=this.time,c=this.charge, rng=random(863);
+    const b=this.decor,rb=this.backRibbons,rf=this.frontRibbons,r=s.r,t=this.time,c=this.charge,rng=random(863);
     // 1. Silky continuous outer summoning mist ring (keeps 鳥 interior completely crisp!)
-    for(let i=0;i<30;i++){
-      const a=TAU*i/30+t*.22, rr=r*(1.10+.36*((i*7)%13)/13);
+    for(let i=0;i<28;i++){
+      const a=TAU*i/28+t*.20, rr=r*(1.12+.34*((i*7)%13)/13);
       const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-.022+.014*Math.sin(t*1.8+i));
       const d=add(mul(s.u,-Math.sin(a)),mul(s.v,Math.cos(a)));
-      b.put(...p,...d,r*.36,r*.14,alpha*(.28+.24*c),.84,11,rng());
+      b.put(...p,...d,r*.36,r*.14,alpha*(.26+.24*c),.84,11,rng());
     }
-    // 2. Crisp outer calligraphic talisman rings (no inner ring overlapping 鳥!)
-    for(let band=0;band<2;band++)for(let i=0;i<104;i++){
-      const a=TAU*i/104 + band*.35 + (band===1?t*.16:-t*.08);
-      if(band===0&&Math.sin(a*3-.5)<-.45||band===1&&i%10>3)continue;
-      const rr=r*(band===0?1.13:1.25),co=Math.cos(a),si=Math.sin(a),p=onSeal(s,co*rr,si*rr,.002*band);
-      const d=add(mul(s.u,-si),mul(s.v,co)), w=r*(band===0?.0085:.011);
-      // Outer broken ring uses deep obsidian ink (0) + antique gold-dust talisman ticks (7)
-      const tone=band===0?0:(i%20<4?7:4);
-      b.put(...p,...d,r*.042,w,(band===0?.95:1.15)*alpha*(.65+.35*c),.42,tone,rng());
+    // 2. Flowing 3D Curved Calligraphic Orbital Ribbons (ZERO straight spiky needles!)
+    // Outer sweeping Sumi-e black ink + electric cyan rim brush arcs (mode 0)
+    for(let k=0;k<3;k++){
+      const startA=k*(TAU/3)+t*(.68+.32*c)+Math.sin(t*.9+k)*.18;
+      rb.addOrbitalArc(s,r*(1.09+.055*k),startA,1.85+.45*c,r*(.044+.022*c),r*.026,.008+.005*k,
+        0,alpha*(.78+.22*c),.13+k*.31,c,36);
     }
-    // 3. Orbiting wet ink droplets, Option A razor cyan light blades (9), and gold/cyan star flares (12)
-    for(let i=0;i<32;i++){
-      const a=TAU*rng()+t*(.28+(i%3)*.12),rr=r*(1.06+rng()*.38),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.012);
-      const dropR=r*(.010+.008*rng());
-      b.put(...p,...s.u,dropR*1.12,dropR,alpha*1.35,.88,i%7===0?7:0,rng());
+    // Counter-rotating Electric Celadon/Cyan Sword-Qi curved ribbons hugging the Enso ring (mode 1)
+    for(let k=0;k<3;k++){
+      const startA=k*(TAU/3)+1.1-t*(.95+.48*c);
+      rb.addOrbitalArc(s,r*(1.02+.07*k),startA,1.65+.55*c,r*(.030+.020*c),r*.022,.015+.004*k,
+        1,alpha*(.68+.32*c),.41+k*.27,c,34);
     }
-    const blades=16+Math.floor(c*24);
-    for(let i=0;i<blades;i++){
-      const a=TAU*i/blades+t*(1.75+.6*c), rr=r*(1.03+.20*Math.sin(i*2.3+t*3));
-      const co=Math.cos(a),si=Math.sin(a),p=onSeal(s,co*rr,si*rr,.016);
-      const d=add(mul(s.u,-si+.22*co),mul(s.v,co+.22*si));
-      b.put(...p,...d,r*(.13+.10*c),r*.0085,alpha*(1.05+1.35*c),.22,9,i/blades);
-      if(i%3===0){
-        const starR=r*(.048+.038*c);
-        b.put(...p,...s.u,starR,starR,alpha*(.90+1.15*c),i%6===0?.92:.08,12,(i+.5)/blades);
-      }
+    // Delicate antique gold-dust silk curves gliding on the outermost aura (mode 2)
+    for(let k=0;k<2;k++){
+      const startA=k*Math.PI+t*(.52+.24*c);
+      rb.addOrbitalArc(s,r*(1.20+.04*k),startA,2.15,r*(.018+.012*c),r*.018,.012,
+        2,alpha*(.58+.42*c),.73+k*.19,c,34);
     }
-    // 4. Legacy brush-tip flash only if SDF glyph hasn't loaded yet
+    // 3. Orbiting round wet ink droplets & jewel-like 4-point cyan/gold star-flares riding the curves
+    for(let i=0;i<26;i++){
+      const a=TAU*rng()+t*(.28+(i%3)*.12),rr=r*(1.06+rng()*.34),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.012);
+      const dropR=r*(.009+.008*rng());
+      b.put(...p,...s.u,dropR*1.10,dropR,alpha*1.35,.88,i%7===0?7:0,rng());
+    }
+    const stars=8+Math.floor(c*8);
+    for(let i=0;i<stars;i++){
+      const a=TAU*i/stars+t*(.82+.35*c), rr=r*(1.06+.14*Math.sin(i*2.1+t*2.4));
+      const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.018);
+      const starR=r*(.044+.034*c);
+      b.put(...p,...s.u,starR,starR,alpha*(.82+1.05*c),i%2===0?.92:.08,12,(i+.3)/stars);
+    }
+    // 4. Legacy fallback brush-tip glint only if SDF glyph hasn't loaded yet
     const tip=this.brush.activeTip;
     if(tip && !this.hasSdfGlyph){
       const tp=onSeal(s,tip.wx,tip.wy,.009);
-      const td=add(mul(s.u,tip.dx),mul(s.v,tip.dy));
-      b.put(...tp,...td,r*.12,r*.012,2.4*alpha,.25,9,.37);
+      b.put(...tp,...s.u,r*.065,r*.065,2.2*alpha,.08,12,.37);
       b.put(...tp,...s.v,r*.035,r*.035,2.2*alpha,.85,0,.71);
     }
     if(this.phase==='release' && !this.hasSdfGlyph){
@@ -425,97 +447,136 @@ export class Duel {
         b.put(...p,...d,r*.052,r*.016,2.1*alpha,.45,0,b0.seed);
       }
     }
-    // 5. Explosive summoning shockwave ring on release: cyan light blades + gold star-flares + ink splatter ring
-    if(this.phase==='release'&&this.phaseTime<.82){
-      const q=this.phaseTime/.82, fade=(1-q)*(1-q*.35);
-      for(let i=0;i<132;i++){
-        const a=i*TAU/132,rr=r*(.92+q*.82),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-q*.06);
-        const d=add(mul(s.u,-Math.sin(a)),mul(s.v,Math.cos(a)));
-        const isStar=i%11===0, isBlade=i%3===0;
-        this.fx.put(...p,...d,
-          r*(isStar?.068:isBlade?.11:.026),
-          r*(isStar?.068:isBlade?.009:.013),
-          fade*(isStar?2.1:2.3),
-          isStar?(i%22===0?.92:.08):.62,
-          isStar?12:isBlade?9:i%5===0?7:0,
-          i/132);
+    // 5. Release Shockwave: continuous curved 3D calligraphic shockwave arcs + round ink drops & stars
+    if(this.phase==='release'&&this.phaseTime<.85){
+      const q=this.phaseTime/.85, fade=(1-q)*(1-q*.35);
+      const shockR=r*(.92+q*.92);
+      for(let k=0;k<3;k++){
+        const sa=k*(TAU/3)+q*1.4;
+        rf.addShockwaveArc(s.c,s.u,s.v,s.n,shockR*(.96+.04*k),r*(.055+.035*(1-q)),sa,2.45,
+          k===0?0:k===1?1:2,fade*(k===1?1.15:.95),.19+k*.29,1,36);
+      }
+      for(let i=0;i<36;i++){
+        const a=i*TAU/36+q*.5,rr=shockR*(.92+.16*rng()),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-q*.05);
+        const isStar=i%3===0;
+        const rad=r*(isStar?.060:.014+.010*rng());
+        this.fx.put(...p,...s.u,rad*(isStar?1:1.12),rad,fade*(isStar?2.0:2.2),isStar?(i%6===0?.92:.08):.88,isStar?12:i%5===0?7:0,i/36);
       }
     }
   }
   palmStream(s){
-    // Flow coherent helical qi ribbons from palm into orbiting points on the outer Enso rim (never cutting across 鳥!)
-    const a=this.livePalm,c=this.charge,t=this.time,b=this.decor,r=s.r;
-    const strands=4, perStrand=28;
-    for(let strand=0;strand<strands;strand++){
-      const ringA=strand*TAU/strands+t*(.72+.35*c);
-      const target=onSeal(s,Math.cos(ringA)*r*1.04,Math.sin(ringA)*r*1.04,-.015);
-      // Outward control point arcs gracefully around the Enso rim instead of crossing the center glyph
-      const midA=ringA-.55;
-      const ctrl=add(lerp3(a,target,.52),add(mul(s.u,Math.cos(midA)*r*.42),mul(s.v,Math.sin(midA)*r*.42)));
-      for(let j=0;j<perStrand;j++){
-        const i=strand*perStrand+j;
-        const u=(j/perStrand+t*(.72+.28*c))%1;
-        const inv=1-u;
-        // Quadratic Bezier point + tight helical twist
-        const bx=inv*inv*a[0]+2*inv*u*ctrl[0]+u*u*target[0];
-        const by=inv*inv*a[1]+2*inv*u*ctrl[1]+u*u*target[1];
-        const bz=inv*inv*a[2]+2*inv*u*ctrl[2]+u*u*target[2];
-        const tx=2*inv*(ctrl[0]-a[0])+2*u*(target[0]-ctrl[0]);
-        const ty=2*inv*(ctrl[1]-a[1])+2*u*(target[1]-ctrl[1]);
-        const tz=2*inv*(ctrl[2]-a[2])+2*u*(target[2]-ctrl[2]);
-        const phi=u*TAU*1.8+strand*TAU/strands-t*3.8;
-        const rr=(.008+.016*Math.sin(Math.PI*u))*(1-.4*u);
-        const px=bx+s.u[0]*Math.cos(phi)*rr+s.v[0]*Math.sin(phi)*rr;
-        const py=by+s.u[1]*Math.cos(phi)*rr+s.v[1]*Math.sin(phi)*rr;
-        const pz=bz+s.u[2]*Math.cos(phi)*rr+s.v[2]*Math.sin(phi)*rr;
-        const dir=unit([tx,ty,tz]);
-        const isBlade=strand===0||strand===1, isMist=strand===3, isStar=j%10===0, isDrop=j%7===0;
-        const lenS=isStar?.018+.010*c:isBlade?.024+.014*c:isMist?.034:isDrop?.007:.013+.005*c;
-        const widS=isStar?.018+.010*c:isBlade?.0036:isMist?.016:isDrop?.0065:.004;
-        const tone=isStar?12:isBlade?9:isMist?11:strand===2?7:0;
-        const envelope=Math.sin(Math.PI*u);
-        b.put(px,py,pz,...dir,lenS,widS,(.55+.75*c)*envelope,isStar?(strand%2===0?.92:.08):isDrop?.88:.56,tone,i/(strands*perStrand));
+    // 4 continuous silky 3D Bezier-helix qi ribbons flowing from palm to orbiting points on the outer Enso rim
+    const a=this.livePalm,c=this.charge,t=this.time,b=this.decor,rb=this.backRibbons,r=s.r,eye=this.head;
+    const modes=[1,0,1,2];
+    for(let strand=0;strand<4;strand++){
+      const ringA=strand*TAU/4+t*(.74+.36*c);
+      const target=onSeal(s,Math.cos(ringA)*r*1.04,Math.sin(ringA)*r*1.04,-.012);
+      const midA=ringA-.58;
+      const ctrl=add(lerp3(a,target,.52),add(mul(s.u,Math.cos(midA)*r*.44),mul(s.v,Math.sin(midA)*r*.44)));
+      rb.addBezierHelix(
+        a,ctrl,target,s.u,s.v,eye,
+        (.011+.009*c)*(strand===1?1.35:1),
+        .010+.014*c,1.6,-t*4.2+strand*1.57,
+        modes[strand],.62+.38*c,.17+strand*.23,c,28
+      );
+      // A few floating star-glints and wet ink droplets riding along the Bezier curve
+      for(let k=0;k<3;k++){
+        const u=((k/3)+t*(.75+.25*c))%1,inv=1-u;
+        const px=inv*inv*a[0]+2*inv*u*ctrl[0]+u*u*target[0];
+        const py=inv*inv*a[1]+2*inv*u*ctrl[1]+u*u*target[1];
+        const pz=inv*inv*a[2]+2*inv*u*ctrl[2]+u*u*target[2];
+        const env=Math.sin(Math.PI*u);
+        const isStar=k===0;
+        const sz=isStar?.018+.010*c:.007+.004*c;
+        b.put(px,py,pz,...s.u,sz*(isStar?1:1.12),sz,(.75+.75*c)*env,isStar?(strand%2===0?.08:.92):.88,isStar?12:strand===2?7:0,(strand*3+k)/12);
       }
     }
-    for(let i=0;i<24;i++){
-      const phi=TAU*i/24-t*2.8,rr=.032+.006*Math.sin(t*6+i);
-      const p=add(a,add(mul(s.u,Math.cos(phi)*rr),mul(s.v,Math.sin(phi)*rr)));
-      const d=add(mul(s.u,-Math.sin(phi)),mul(s.v,Math.cos(phi)));
-      const isStar=i%6===0;
-      b.put(...p,...d,isStar?.018:i%3===0?.020:.007,isStar?.018:i%3===0?.0038:.006,1.05,isStar?.88:.72,isStar?12:i%3===0?9:i%2===0?7:0,i/24);
-    }
+    // Soft curved qi halo encircling the palm center
+    const palmSeal={c:a,u:s.u,v:s.v,n:s.n};
+    rb.addOrbitalArc(palmSeal,.036,t*2.6,3.8,.010+.006*c,.004,0,1,.65+.35*c,.33,c,22);
+    rb.addOrbitalArc(palmSeal,.042,-t*2.1+2.2,3.4,.008+.005*c,.003,0,2,.55+.35*c,.71,c,22);
   }
   paintCombat(){
-    const b=this.traces,fx=this.fx,rng=random(194),shot=this.shot,t=this.time;
+    const b=this.traces,fx=this.fx,rb=this.backRibbons,rf=this.frontRibbons,rng=random(194),shot=this.shot,t=this.time,eye=this.head;
     adversary(this.enemyCloud,this.enemy,t,this.enemyHP,shot?clamp(shot.age/1.15):0,this.hitFlash);
-    // 1. Ambient Eastern battle-arena mist & subtle floating cyan/gold light motes
-    for(let i=0;i<32;i++){
-      const u=i/31, mx=mix(-1.35,1.65,u)+.18*Math.sin(t*.45+i), my=-.62+.22*Math.sin(i*1.7+t*.3), mz=-1.45-u*2.2;
+    // 1. Ambient Eastern battle-arena mist
+    for(let i=0;i<30;i++){
+      const u=i/29, mx=mix(-1.35,1.65,u)+.18*Math.sin(t*.45+i), my=-.62+.22*Math.sin(i*1.7+t*.3), mz=-1.45-u*2.2;
       b.put(mx,my,mz, 1,.06*Math.sin(t+i),0, .24+rng()*.22,.085+rng()*.065, .44,.85, 11, rng());
     }
-    // 2. Dokkaebi-bul counterattack projectile: dark ink flames, crimson/gold spirit fire & gold star-sparks
+    // 2. Dokkaebi-bul counterattack projectile: curved crimson/amber spirit-flame ribbon + ink flames & gold stars
     if(shot?.p){
       const dir=unit(sub(shot.from,shot.to));
-      for(let i=0;i<110;i++){
-        const u=rng(),p=add(shot.p,mul(dir,u*.34)),a=rng()*TAU,k=(.015+.14*u)*Math.sqrt(rng());
+      const pts=[];
+      for(let k=0;k<=14;k++){
+        const u=k/14,p=add(shot.p,mul(dir,(1-u)*.38));
+        pts.push([p[0]+Math.sin(u*8-t*10)*.022*(1-u),p[1]+Math.cos(u*7-t*9)*.022*(1-u),p[2]]);
+      }
+      rf.addBillboardTrail(pts,eye,.036,.008,3,1.15,.44,1);
+      for(let i=0;i<84;i++){
+        const u=rng(),p=add(shot.p,mul(dir,u*.34)),a=rng()*TAU,k=(.015+.13*u)*Math.sqrt(rng());
         const px=p[0]+Math.cos(a)*k, py=p[1]+Math.sin(a)*k+.04*Math.sin(u*8-t*9), pz=p[2];
-        if(i%5===0){
-          const isStar=i%10===0;
-          fx.put(px,py,pz, dir[0]+.3*(rng()-.5),dir[1]+.3*(rng()-.5),dir[2],
-            isStar?.038:.058, isStar?.038:.008, (1-u)*2.4, isStar?.95:.30, isStar?12:10, rng());
+        if(i%6===0){
+          fx.put(px,py,pz, 1,0,0, .036,.036, (1-u)*2.2, .95, 12, rng());
         }else if(i%4===1){
           const dr=.008+.011*rng();
-          b.put(px,py,pz, 1,0,0, dr*1.12,dr, (1-u)*2.6,.90, 0, rng());
+          b.put(px,py,pz, 1,0,0, dr*1.12,dr, (1-u)*2.5,.90, 0, rng());
         }else{
-          b.put(px,py,pz, dir[0],dir[1]+.4*Math.sin(a),dir[2], .038,.016, (1-u)*2.5,.62, i%3===0?10:i%2===0?2:0, rng());
+          b.put(px,py,pz, dir[0],dir[1]+.4*Math.sin(a),dir[2], .034,.018, (1-u)*2.4,.62, i%3===0?10:i%2===0?2:0, rng());
         }
       }
     }
-    // 3. Flock flight wake: ink-feather splatters, wet ink droplets, living mist, and Option A cyan light slashes + gold glints
+    // 3. 9-Crow Flock Flight Wake: continuous 3D curved Sumi-e + Electric Cyan ribbons + fluttering ink feathers!
     if(this.phase==='release'){
+      const fadeEnd=1-smooth((this.phaseTime-2.75)/.35);
+      if(this.trail.length>=3 && fadeEnd>.01){
+        for(let f=0;f<9;f++){
+          const raw=[];
+          for(let k=0;k<this.trail.length;k++){
+            const fp=this.trail[k].flock?.[f];
+            if(fp)raw.push(fp);
+          }
+          if(raw.length>=3){
+            const nPts=raw.length, isLead=f===0;
+            const pts=[];
+            // Organic sinuous S-curve calligraphic wave along each crow's wake (zero straight wires!)
+            for(let k=0;k<nPts;k++){
+              const u=k/(nPts-1), env=Math.sin(Math.PI*u);
+              const wave=u*Math.PI*2.4-t*5.4+f*1.37;
+              const amp=(isLead?.058:.042)*env;
+              const p=raw[k];
+              pts.push([
+                p[0]+Math.cos(wave)*amp*.65,
+                p[1]+Math.sin(wave)*amp,
+                p[2]+Math.sin(wave*.7+f)*amp*.35
+              ]);
+            }
+            const mode=isLead?0:(f%3===0?2:0);
+            const wHead=isLead?.050:.032-.0014*f;
+            const wTail=isLead?.010:.006;
+            rb.addBillboardTrail(pts,eye,wHead,wTail,mode,(.86-.038*f)*fadeEnd,.11+f*.11,1.05);
+            if(isLead){
+              // Braided golden-celadon spirit silk counter-wave around the lead crow
+              const silkPts=[];
+              for(let k=0;k<nPts;k++){
+                const u=k/(nPts-1), env=Math.sin(Math.PI*u);
+                const wave=u*Math.PI*2.8-t*6.2+2.4;
+                const p=raw[k];
+                silkPts.push([
+                  p[0]-Math.cos(wave)*.052*env,
+                  p[1]-Math.sin(wave)*.064*env,
+                  p[2]+Math.cos(wave*.8)*.024*env
+                ]);
+              }
+              rb.addBillboardTrail(silkPts,eye,.028,.005,1,.82*fadeEnd,.83,1.15);
+            }
+          }
+        }
+      }
+      // Organic fluttering ink feathers, round droplets, and occasional star-glints (ZERO straight needles!)
       for(const v of this.trail){
-        const age=t-v.time;if(age>.78)continue;
-        const fade=1-age/.78, pts=v.flock??[v.p];
+        const age=t-v.time;if(age>.74)continue;
+        const fade=1-age/.74, pts=v.flock??[v.p];
         for(let f=0;f<pts.length;f++){
           const fp=pts[f];
           const flutter=t*5.5+f*1.9+age*8;
@@ -523,66 +584,80 @@ export class Duel {
           const fy0=fp[1]-.12*age*age+(rng()-.5)*.06+Math.sin(flutter)*.02*age;
           const fz0=fp[2]+(rng()-.5)*.07;
           const ax=Math.cos(flutter*.7), ay=-.35+.45*Math.sin(flutter), az=Math.sin(flutter*.7)*.6;
-          const fLen=.032+.022*rng(), fWid=.007+.006*rng();
-          b.put(fx0,fy0,fz0, ax,ay,az, fLen,fWid*.55, 2.2*fade,.32, 0, rng());
-          b.put(fx0-.004*ay,fy0+.004*ax,fz0, ax+.18*ay,ay-.18*ax,az, fLen*.88,fWid*1.35, 1.45*fade,.78, f%3===0?4:1, rng());
+          const fLen=.030+.020*rng(), fWid=.008+.006*rng();
+          b.put(fx0,fy0,fz0, ax,ay,az, fLen,fWid*.62, 2.1*fade,.36, 0, rng());
+          b.put(fx0-.004*ay,fy0+.004*ax,fz0, ax+.18*ay,ay-.18*ax,az, fLen*.85,fWid*1.32, 1.38*fade,.78, f%3===0?4:1, rng());
           if((f+Math.floor(age*30))%2===0){
             const dx=fp[0]+(rng()-.5)*.12, dy=fp[1]-.16*age*age+(rng()-.5)*.08, dz=fp[2]+(rng()-.5)*.08;
             const dr=.006+.009*rng();
-            b.put(dx,dy,dz, 1,0,0, dr*1.12,dr, 2.1*fade,.92, rng()<.78?0:1, rng());
-          }
-          if(f<4){
-            fx.put(fp[0]+(rng()-.5)*.06,fp[1]+(rng()-.5)*.05,fp[2], -.45,-.15,-1, .095+.055*rng(),.0065, 1.85*fade,.20, 9, rng());
+            b.put(dx,dy,dz, 1,0,0, dr*1.10,dr, 2.0*fade,.92, rng()<.78?0:1, rng());
           }
           if(f===0&&age<.48){
-            b.put(fp[0],fp[1],fp[2], 1,0,0, .14+.12*age,.06+.05*age, .58*fade,.85, 11, rng());
+            b.put(fp[0],fp[1],fp[2], 1,0,0, .14+.12*age,.06+.05*age, .55*fade,.85, 11, rng());
             if(Math.floor(age*25)%2===0){
-              fx.put(fp[0]+(rng()-.5)*.12,fp[1]+(rng()-.5)*.10,fp[2], 1,0,0, .036,.036, 1.9*fade, rng()>.45?.90:.08, 12, rng());
+              fx.put(fp[0]+(rng()-.5)*.12,fp[1]+(rng()-.5)*.10,fp[2], 1,0,0, .034,.034, 1.85*fade, rng()>.45?.90:.08, 12, rng());
             }
           }
         }
       }
     }
-    // 4. Skill impact burst rendered in front layer (fx) so BnS cross-slashes & star flares blaze over the target!
+    // 4. Skill Impact Burst: Blade & Soul 3D Crescent Sword-Arc Slashes + Curved Shockwave Rings + 4-Point Star Flash!
     for(const imp of this.impacts){
       const age=t-imp.time,fade=1-smooth((age-.42)/1.03);
-      if(age<.72){
-        const sFade=1-age/.72;
-        // Core blazing 4-point star-flare flash & X-cross hero slash
-        if(age<.38){
-          const flash=1-age/.38;
-          fx.put(imp.p[0],imp.p[1],imp.p[2]+.14, 1,0,0, .34+.22*age,.34+.22*age, flash*3.0, imp.side<0?.95:.08, 12, .17);
-          fx.put(imp.p[0],imp.p[1],imp.p[2]+.12, .82,.56,0, .42+.28*age,.022, flash*2.8, .15, imp.side<0?10:9, .31);
-          fx.put(imp.p[0],imp.p[1],imp.p[2]+.12, .74,-.66,0, .38+.24*age,.020, flash*2.6, .15, imp.side<0?10:9, .67);
+      const isEnemy=imp.side<0;
+      const toEye=unit(sub(eye,imp.p));
+      const baseR=unit(cross([0,1,0],toEye));
+      const baseU=cross(toEye,baseR);
+      if(age<.78){
+        const q=age/.78, sFade=(1-q)*(1-q*.25);
+        // 3 crossing tilted 3D Blade & Soul Crescent Sword-Arc Slashes (ZERO straight X-sticks!)
+        const slashSpecs=[
+          {tilt:.42, yaw:.28, r:.34+.34*q, start:-1.25+q*2.35, span:2.35, w:.115*(1-.45*q), mode:isEnemy?3:1, seed:.19},
+          {tilt:-.68, yaw:-.35, r:.30+.30*q, start:1.15-q*2.55, span:2.20, w:.095*(1-.42*q), mode:isEnemy?3:0, seed:.53},
+          {tilt:.12, yaw:.52, r:.26+.38*q, start:2.85+q*2.15, span:1.95, w:.068*(1-.48*q), mode:isEnemy?3:2, seed:.81}
+        ];
+        for(const sl of slashSpecs){
+          const ct=Math.cos(sl.tilt),st=Math.sin(sl.tilt);
+          const cy=Math.cos(sl.yaw),sy=Math.sin(sl.yaw);
+          const r0=add(mul(baseR,ct),mul(baseU,st));
+          const u0=add(mul(baseR,-st),mul(baseU,ct));
+          const sr=unit(add(mul(r0,cy),mul(toEye,sy)));
+          const sn=unit(add(mul(toEye,cy),mul(r0,-sy)));
+          const su=unit(cross(sn,sr));
+          rf.addCrescentSlash(imp.p,sr,su,sn,sl.r,sl.start,sl.span,sl.w,.065,sl.mode,sFade*1.28,sl.seed,1.3,32);
         }
-        for(let i=0;i<40;i++){
-          const a=i*TAU/40, h=(rng()-.5)*.85, ax=Math.cos(a), ay=h, az=Math.sin(a)*.7;
-          const distR=(.05+.52*age)*(.5+.7*rng());
-          const isStar=i%4===0;
-          fx.put(imp.p[0]+ax*distR,imp.p[1]+ay*distR,imp.p[2]+.10+az*distR, ax,ay,az,
-            isStar?.068+.045*rng():.14+.18*rng(),
-            isStar?.068+.045*rng():.008+.006*rng(),
-            sFade*2.9,
-            isStar?(imp.side<0?.95:(i%8===0?.92:.08)):.18,
-            isStar?12:(imp.side<0?10:9), rng());
+        // Expanding curved 3D shockwave ring arcs
+        const ringR=.16+.58*q;
+        rf.addShockwaveArc(imp.p,baseR,baseU,toEye,ringR,.052*(1-.45*q),q*2.2,3.4,isEnemy?3:1,sFade*1.05,.27,1.2,36);
+        rf.addShockwaveArc(imp.p,baseR,baseU,toEye,ringR*.90,.042*(1-.45*q),q*2.2+3.14,3.1,0,sFade*.95,.61,1.0,36);
+        // Core blazing 4-point star-flare flash & scattering star-sparks
+        if(age<.40){
+          const flash=1-age/.40;
+          fx.put(imp.p[0],imp.p[1],imp.p[2]+.14, 1,0,0, .30+.22*age,.30+.22*age, flash*2.9, isEnemy?.95:.08, 12, .17);
+        }
+        for(let i=0;i<18;i++){
+          const a=i*TAU/18+q*.8, h=(rng()-.5)*.85, ax=Math.cos(a), ay=h, az=Math.sin(a)*.7;
+          const distR=(.08+.56*q)*(.55+.65*rng());
+          const sr=.045+.040*rng();
+          fx.put(imp.p[0]+ax*distR,imp.p[1]+ay*distR,imp.p[2]+.10+az*distR, 1,0,0,
+            sr,sr, sFade*2.4, isEnemy?.95:(i%3===0?.92:.08), 12, rng());
         }
       }
-      for(let i=0;i<22;i++){
-        const a=i*TAU/22+age*.8, rr=(.08+.48*age)*(.6+.5*rng());
+      for(let i=0;i<20;i++){
+        const a=i*TAU/20+age*.8, rr=(.08+.48*age)*(.6+.5*rng());
         b.put(imp.p[0]+Math.cos(a)*rr,imp.p[1]+Math.sin(a)*rr*.7,imp.p[2], -Math.sin(a),Math.cos(a),0,
-          .18+.12*age,.08+.05*age, fade*.82,.85, 11, rng());
+          .18+.12*age,.08+.05*age, fade*.78,.85, 11, rng());
       }
-      for(let i=0;i<180;i++){
-        const a=rng()*TAU,h=rng()*2-1,rr=Math.sqrt(1-h*h),speed=(.14+.96*rng())*Math.min(age,.92);
+      for(let i=0;i<145;i++){
+        const a=rng()*TAU,h=rng()*2-1,rr=Math.sqrt(1-h*h),speed=(.14+.94*rng())*Math.min(age,.92);
         const ax=Math.cos(a)*rr,az=Math.sin(a)*rr;
         const px=imp.p[0]+ax*speed, py=imp.p[1]+h*speed-age*age*.28, pz=imp.p[2]+az*speed;
         if(i%3===0){
-          const dr=(.008+.016*rng())*(1+age*.22);
-          b.put(px,py,pz, 1,0,0, dr*1.14,dr, fade*2.4,.92, i%9===0?7:0, rng());
+          const dr=(.008+.015*rng())*(1+age*.22);
+          b.put(px,py,pz, 1,0,0, dr*1.12,dr, fade*2.3,.92, i%9===0?7:0, rng());
         }else{
-          const fLen=(.022+.056*rng())*(1+age*.25), fWid=.005+rng()*.011;
-          const isLight=i%7===0;
-          (isLight?fx:b).put(px,py,pz, ax+.25*h,h-.3*age,az, fLen,fWid, fade*2.3,i%2===0?.38:.76, isLight?(imp.side<0?10:9):i%4===0?1:0, rng());
+          const fLen=(.020+.046*rng())*(1+age*.22), fWid=.007+rng()*.011;
+          b.put(px,py,pz, ax+.25*h,h-.3*age,az, fLen,fWid, fade*2.2,i%2===0?.40:.78, i%4===0?1:0, rng());
         }
       }
     }
@@ -664,10 +739,10 @@ export class Duel {
     if(p){
       if(h.open){
         b.put(...p,1,0,0,.028,.028,1.15,.82,11,.35);
-        b.put(...p,1,0,0,.014,.014,1.35,.55,9,.52);
+        b.put(...p,1,0,0,.014,.014,1.35,.75,9,.52);
       }else if(h.draw){
         b.put(...p,1,0,0,.011,.009,2.1,.78,0,.48);
-        b.put(...p,1,0,0,.015,.006,1.4,.28,9,.72);
+        b.put(...p,1,0,0,.012,.012,1.25,.75,9,.72);
       }else if(!j){
         b.put(...p,1,0,0,.014,.011,1.4,.68,3,.5);
       }

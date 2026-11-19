@@ -1,7 +1,7 @@
-import {InkBrush, InkPaper, PAPER_STEP} from './ink-study/ink-engine.js?v=d556bb3';
-import {SplatBatch} from './ink.js?v=d556bb3';
-import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=d556bb3';
-import {glyphStrokes} from './forms.js?v=d556bb3';
+import {InkBrush, InkPaper, PAPER_STEP} from './ink-study/ink-engine.js?v=72b35c2';
+import {SplatBatch} from './ink.js?v=72b35c2';
+import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=72b35c2';
+import {glyphStrokes} from './forms.js?v=72b35c2';
 
 const CELLS=472, CELL=.0056, HALF=CELLS*CELL*.5, SPACING=.012;
 export class WorldWash {
@@ -10,6 +10,9 @@ export class WorldWash {
     this.brush=new InkBrush(this.paper,{water:.65,pigment:.80});
     this.glyphBrush=new InkBrush(this.paper,{water:.52,pigment:.94});
     this.marks=new SplatBatch(6100);this.revision=0;
+    this.texSize=CELLS;this.halfSpan=HALF;
+    this.texData=new Uint8Array(CELLS*CELLS*2);
+    this.texRevision=0;this.skipSplatBake=false;
     this.depth=new Float32Array(CELLS*CELLS);
     this.nearest=new Float32Array(CELLS*CELLS);
     this.reset();
@@ -18,6 +21,7 @@ export class WorldWash {
     this.brush.lift();this.brush.reload();
     this.glyphBrush.lift();this.glyphBrush.reload();
     this.paper.clear();this.marks.clear();
+    this.texData.fill(0);this.texRevision++;
     this.depth.fill(0);this.nearest.fill(Infinity);this.points=[];this.travel=0;
     this.origin=null;this.local=null;this.clock=0;this.revision++;
     this.normal=[0,0,1];this.right=[1,0,0];this.down=[0,-1,0];
@@ -76,7 +80,7 @@ export class WorldWash {
       // with a clean, expressive calligraphic enso circle of radius seal.r.
       // The crisp 鳥 glyph is rendered via the 3D SVG-SDF quad shader on top.
       this.brush.lift();this.glyphBrush.lift();
-      this.paper.clear();this.depth.fill(0);this.nearest.fill(Infinity);
+      this.paper.clear();this.texData.fill(0);this.depth.fill(0);this.nearest.fill(Infinity);
       this.origin=seal.c.slice();this.normal=seal.n.slice();
       this.right=seal.u.slice();this.down=mul(seal.v,-1);
       const r=clamp(seal.r,.10,HALF-.16), sign=seal.sign||1;
@@ -186,7 +190,31 @@ export class WorldWash {
     if(!p.count && p.bounds[2]<p.bounds[0])return;
     p.step(steps*PAPER_STEP);this.bake();
   }
+  packTexture(){
+    const e=this.extent,s=this.paper,out=this.texData;
+    const x0=Math.max(0,e[0]),y0=Math.max(0,e[1]);
+    const x1=Math.min(CELLS-1,e[2]),y1=Math.min(CELLS-1,e[3]);
+    if(x1>=x0&&y1>=y0){
+      const mob=s.mobile,fix=s.fixed;
+      for(let y=y0;y<=y1;y++){
+        const row=y*CELLS;
+        for(let x=x0;x<=x1;x++){
+          const i=row+x,m=mob[i],ink=m+fix[i],o=i*2;
+          if(ink<.003){out[o]=0;out[o+1]=0;continue;}
+          out[o]=Math.min(255,Math.round(ink*255));
+          out[o+1]=Math.min(255,Math.round((m/ink)*255));
+        }
+      }
+    }
+    this.texRevision++;
+  }
   bake(){
+    this.packTexture();
+    if(this.skipSplatBake){
+      this.marks.clear();
+      this.revision++;
+      return;
+    }
     const e=this.extent,s=this.paper,m=this.marks;
     const [x0,y0,x1,y1]=e;
     const u=this.right,v=this.down,n=this.normal,o=this.origin;

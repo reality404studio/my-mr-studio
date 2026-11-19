@@ -1,5 +1,5 @@
-import {SplatBatch} from './ink.js?v=d556bb3';
-import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=d556bb3';
+import {SplatBatch} from './ink.js?v=72b35c2';
+import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=72b35c2';
 
 // A tapered stroke consists of oriented pigment deposits along a spatial curve.
 export function stroke(batch,a,b,width,tone,mass,water,seed,taper=.55) {
@@ -237,9 +237,9 @@ export function crowForm() {
         const wx=.09-.24*t*t-.06*t, wy=.022+.055*Math.sin(t*Math.PI)-.035*t, wz=s*reach;
         const ax=[-.38-.35*t, .12-.28*t, s*.85];
         splat([wx,wy,wz],ax,.046*(1-.25*t),.022*(1-.48*t), 0, 3.6, s, .24+.18*t);
-        if(i%4===1){
-          // Electric celadon/cyan spirit energy rim along leading wing bone
-          splat([wx+.010,wy+.008,wz],ax,.052*(1-.20*t),.0065, 9, 1.35, s, .20);
+        if(i%6===2){
+          // Soft organic celadon/cyan spirit glint along leading wing curve (no straight needles; curved 3D trails handle motion!)
+          splat([wx+.010,wy+.008,wz],ax,.020,.020, 12, 1.15, s, .08);
         }
       }
       // Layered ink-wash feather strokes trailing backward (농담 그라데이션 깃털 번짐)
@@ -316,7 +316,7 @@ export function adversary(batch,p,t,health,threat,hit) {
         y-.08+q*.48+.03*Math.cos(q*5+t*3),
         z+Math.sin(a)*rr*.7
       ];
-      stroke(batch,prev,next,.022*(1-.62*q), s%3===0?10:s%2===0?0:1, 2.2,.48, rng(),.45);
+      stroke(batch,prev,next,.032*(1-.45*q), s%3===0?2:s%2===0?0:1, 1.85,.72, rng(),.52);
       prev=next;
     }
   }
@@ -329,17 +329,17 @@ export function adversary(batch,p,t,health,threat,hit) {
     const tone=i%3===0?10:i%4===1?7:2;
     batch.put(px,py,pz, .2*Math.cos(a),1,0, .032+rng()*.042,.015+rng()*.022, 2.2+threat*.9,.45, tone, rng());
   }
-  // 5. Fiery gold/crimson star-flares & spirit embers around the Dokkaebi-bul
+  // 5. Fiery gold/crimson star-flares & organic flame embers around the Dokkaebi-bul (no rigid needles)
   const sparkCount=18+Math.floor(threat*20+hit*18);
   for(let i=0;i<sparkCount;i++){
     const a=i*TAU/sparkCount+t*2.9, rr=(.12+rng()*.26)*pulse;
     const px=x+Math.cos(a)*rr, py=y+.02+(rng()-.5)*.28, pz=z+.08+Math.sin(a)*rr*.6;
-    const isStar=i%3===0;
-    const sx=-Math.sin(a)+.35*(rng()-.5), sy=.65+(rng()-.5)*.8, sz=Math.cos(a)*.4;
+    const isStar=i%2===0;
+    const sx=-Math.sin(a)*.4, sy=1., sz=Math.cos(a)*.25;
     batch.put(px,py,pz, sx,sy,sz,
-      isStar?.042+rng()*.035:.055+rng()*.065,
-      isStar?.042+rng()*.035:.008+rng()*.008,
-      1.55+threat*1.2, isStar?.92:.35, isStar?12:10, rng());
+      isStar?.040+rng()*.030:.026+rng()*.018,
+      isStar?.040+rng()*.030:.018+rng()*.014,
+      1.55+threat*1.15, isStar?.92:.58, isStar?12:10, rng());
   }
   // 6. Floating & dripping round ink droplets (주변에 흩뿌려져 떠다니는 먹물 방울)
   for(let i=0;i<60;i++){
@@ -359,12 +359,14 @@ export function adversary(batch,p,t,health,threat,hit) {
       batch.put(wx,wy-.005,wz-.01, 0,1,0, .045,.028, 1.8,.62, 0, .19+i*.21);
     }
   }
-  // 8. Threat charging ring of crimson/gold spirit fire
+  // 8. Threat charging halo of crimson/gold flame wisps & stars (no flat needle dashes)
   if(threat>0){
-    for(let i=0;i<84;i++){
-      const a=TAU*i/84+t*3.6, rr=.36*(1-.18*threat);
+    for(let i=0;i<48;i++){
+      const a=TAU*i/48+t*3.6, rr=.34*(1-.18*threat);
+      const isStar=i%4===0;
       batch.put(x+Math.cos(a)*rr,y+.02+Math.sin(a)*rr,z+.11, -Math.sin(a),Math.cos(a),0,
-        .034+.022*threat,.010, threat*2.1, i%4===0?.95:.45, i%4===0?12:i%2===0?10:2, i/84);
+        isStar?.032+.018*threat:.024+.014*threat, isStar?.032+.018*threat:.018+.008*threat,
+        threat*2.1, isStar?.95:.55, isStar?12:i%2===0?10:2, i/48);
     }
   }
 }
