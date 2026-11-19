@@ -51,3 +51,8 @@ node --test test/ink-crow.test.mjs
 **Antigravity** · 2026-11-19 13:48
 
 2차 상용 VFX 고도화(P0~P3) + 단일 직선 금지 룰 반영 완료: 3D 곡선 리본/초승달 검기 엔진(ribbon.js+ribbonProg) 도입 및 원·날개·충격파·타격의 직선 바늘 100% 제거, WorldWash 472x472 RG8 1-Draw-Call GPU 쿼드(washProg)로 패스스루 충전 스플랫 1,113개(-87%) 달성, handRipple 방사형 파동, Static/Dynamic VBO 분리 적용. 12/12 단위 테스트 및 WebGL2 5장면 0-에러 시각 검수 통과.
+
+---
+**Antigravity** · 2026-11-19 14:46
+
+3차 시네마틱 6단계 소환 연출 완료: 블소 도교풍 4단 입체 Z-스택 마법진(circleProg 2 Draw Call: -9cm 팔괘·구름 / -3cm 원상 / 0cm 鳥 / +7cm 중앙 비운 부적 링), 실제 11획 필순 붓글씨 전개+붓끝 이미터(glyph-sdf.js), vfx-studio 3D Curl Noise+손 콜라이더 깃털 군집(curl-feathers.js) 및 SplatGlint 이식, 0.14초 흡입 정적->대북 폭발 오디오(sound.js) 통합. 13/13 테스트 및 WebGL2 7장면 0-에러 검수 통과(패스스루 충전 스플랫 882개).

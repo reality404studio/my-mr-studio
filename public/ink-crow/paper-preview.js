@@ -1,8 +1,8 @@
 // Canvas fallback for the flat rehearsal on browsers without WebGL 2.
 // The metre-space particle buffers, glyph, wing rig and combat logic are shared.
-import {STRIDE} from './ink.js?v=bns-phase2';
-import {WashPreview} from './wash-preview.js?v=bns-phase2';
-import {random} from './gesture.js?v=bns-phase2';
+import {STRIDE} from './ink.js?v=bns-phase3';
+import {WashPreview} from './wash-preview.js?v=bns-phase3';
+import {random} from './gesture.js?v=bns-phase3';
 const tones=[[8,11,14],[26,45,52],[198,38,19],[245,251,251],[50,91,101],[122,162,167],[214,73,42],[242,196,90],[10,13,16],[42,238,228],[238,84,36],[172,216,218],[255,228,132]];
 const masses=[.42,1,2,3.65];
 function atlas(){

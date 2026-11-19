@@ -53,3 +53,4 @@
 {"ts":"2026-11-18T16:05:23.985Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"피드백 4건 반영: 1) 중앙 팝업 가이드(readyGuide, VR 중앙 HUD 배너, guide 모달/entryStatus) 제거 2) 뼈대"}
 {"ts":"2026-11-19T13:03:41.304Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"1차 코어 블소(A안) 수묵·광채 VFX 폴리싱 완료: Drop-in SVG→512² SDF 鳥 2-레이어 인장(assets/glyph-bird"}
 {"ts":"2026-11-19T13:48:32.320Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"2차 상용 VFX 고도화(P0~P3) + 단일 직선 금지 룰 반영 완료: 3D 곡선 리본/초승달 검기 엔진(ribbon.js+ribbonProg"}
+{"ts":"2026-11-19T14:46:36.442Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"3차 시네마틱 6단계 소환 연출 완료: 블소 도교풍 4단 입체 Z-스택 마법진(circleProg 2 Draw Call: -9cm 팔괘·구름 /"}

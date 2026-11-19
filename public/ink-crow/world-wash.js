@@ -1,7 +1,7 @@
-import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js?v=bns-phase2';
-import {SplatBatch} from './ink.js?v=bns-phase2';
-import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=bns-phase2';
-import {glyphStrokes} from './forms.js?v=bns-phase2';
+import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js?v=bns-phase3';
+import {SplatBatch} from './ink.js?v=bns-phase3';
+import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=bns-phase3';
+import {glyphStrokes} from './forms.js?v=bns-phase3';
 
 const CELLS=472, CELL=.0056, HALF=CELLS*CELL*.5, SPACING=.012;
 export class WorldWash {

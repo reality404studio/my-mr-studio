@@ -1,7 +1,7 @@
 // Procedural Web Audio soundscape for 묵전 (Ink-Wash & Eastern Action SFX).
 // Synthesizes brush-on-Hanji friction, calligraphy stroke swishes, bronze seal chime,
 // qi charging resonance, flock wing-flaps & crow calls, and Dokkaebi-bul impacts.
-import {clamp, dist} from './gesture.js?v=bns-phase2';
+import {clamp, dist} from './gesture.js?v=bns-phase3';
 
 export class InkSound {
   constructor(){
@@ -9,6 +9,7 @@ export class InkSound {
     this.noiseBuffer=null;
     this.lastPhase='ready';
     this.lastStrokeId=-1;
+    this.lastTier=0;
     this.lastHitSerial=0;
     this.lastSelfHP=3;
     this.shotLaunched=false;
@@ -86,48 +87,56 @@ export class InkSound {
       this.brushNode.filter.frequency.setTargetAtTime(clamp(480+speed*520,420,1650),now,.03);
     }
 
-    // 2. Qi charging harmonic swell
+    // 2. Qi charging harmonic swell (ducks instantly to silence during 0.14s implosion!)
     if(this.chargeNode){
       const charging=(p==='charge'||p==='seal')&&game.charge>0.01;
       const c=game.charge;
-      this.chargeNode.gain.gain.setTargetAtTime(charging?.04+.14*c:0,now,.04);
-      this.chargeNode.osc1.frequency.setTargetAtTime(174.6+87.3*c,now,.05);
-      this.chargeNode.osc2.frequency.setTargetAtTime(261.6+130.8*c,now,.05);
-      this.chargeNode.filter.frequency.setTargetAtTime(520+1100*c,now,.05);
+      this.chargeNode.gain.gain.setTargetAtTime(charging?.04+.15*c:0,now,charging?.04:.012);
+      this.chargeNode.osc1.frequency.setTargetAtTime(174.6+98*c,now,.05);
+      this.chargeNode.osc2.frequency.setTargetAtTime(261.6+147*c,now,.05);
+      this.chargeNode.filter.frequency.setTargetAtTime(520+1250*c,now,.05);
     }
 
     // 3. Phase transitions
     if(p!==this.lastPhase){
-      if(p==='seal'){this.playSealLock();this.lastStrokeId=-1;}
-      if(p==='release'){this.playFlockRelease();this.flapClock=0;}
+      if(p==='seal'){this.playSealLock();this.lastStrokeId=-1;this.lastTier=0;}
+      if(p==='release'){this.playImplosionAndRelease();this.flapClock=0;}
       if(p==='win')this.playVictory();
       if(p==='lose')this.playDefeat();
       this.lastPhase=p;
     }
 
-    // 4. Stroke-by-stroke 鳥 calligraphy swishes
-    const tip=game.brush?.activeTip;
-    if((p==='seal'||p==='charge')&&tip&&tip.strokeId!==this.lastStrokeId){
-      this.lastStrokeId=tip.strokeId;
-      this.playBrushStroke(tip.strokeId);
+    // 4. Stroke-by-stroke 11-stroke 鳥 calligraphy swishes (works with SVG-SDF & fallback!)
+    const strokeId=(game.liveBrushStrokeId>=0)?game.liveBrushStrokeId:(game.brush?.activeTip?.strokeId??-1);
+    if((p==='seal'||p==='charge')&&strokeId>=0&&strokeId!==this.lastStrokeId){
+      this.lastStrokeId=strokeId;
+      this.playBrushStroke(strokeId);
     }
 
-    // 5. Flock wing flaps during release flight
-    if(p==='release'&&game.phaseTime>.28&&game.phaseTime<2.75){
+    // 5. Stage 5 Tier Unlock Resonance Chimes (25% Bagua outer, 55% Front talisman, 65% Curl feathers)
+    if((p==='seal'||p==='charge')&&typeof game.unlockedTier==='number'){
+      if(game.unlockedTier>this.lastTier){
+        this.playTierUnlock(game.unlockedTier);
+      }
+      this.lastTier=game.unlockedTier;
+    }
+
+    // 6. Flock wing flaps during release flight
+    if(p==='release'&&game.phaseTime>.34&&game.phaseTime<2.75){
       this.flapClock+=dt;
       if(this.flapClock>=.145){
         this.flapClock=0;
-        this.playWingFlap(1-clamp((game.phaseTime-.28)/2.6,0,.7));
+        this.playWingFlap(1-clamp((game.phaseTime-.34)/2.5,0,.7));
       }
     }
 
-    // 6. Dokkaebi-bul hit impact
+    // 7. Dokkaebi-bul hit impact
     if(game.hitSerial!==this.lastHitSerial){
       if(game.hitSerial>this.lastHitSerial)this.playHitImpact();
       this.lastHitSerial=game.hitSerial;
     }
 
-    // 7. Dokkaebi-bul counterattack launch & player hurt
+    // 8. Dokkaebi-bul counterattack launch & player hurt
     const shotReady=Boolean(game.shot?.to);
     if(shotReady&&!this.shotLaunched)this.playEnemyShot();
     this.shotLaunched=shotReady;
@@ -150,6 +159,41 @@ export class InkSound {
     src.connect(f);f.connect(g);g.connect(this.master);
     src.start(now,Math.random()*.8,.12);
   }
+  playTierUnlock(tier=1){
+    const ctx=this.ctx, now=ctx.currentTime;
+    if(tier===1){
+      // 25%: Resonant Eastern bronze bell single strike (Layer 0 Bagua outer circle pop-in)
+      for(const [freq,amp] of [[329.6,.11],[493.9,.065],[659.3,.04]]){
+        const osc=ctx.createOscillator(), g=ctx.createGain();
+        osc.type='triangle';osc.frequency.setValueAtTime(freq,now);
+        g.gain.setValueAtTime(.001,now);
+        g.gain.linearRampToValueAtTime(amp,now+.012);
+        g.gain.exponentialRampToValueAtTime(.0008,now+.65);
+        osc.connect(g);g.connect(this.master);osc.start(now);osc.stop(now+.68);
+      }
+    }else if(tier===2){
+      // 55%: Harmonic jade-bronze double chime (Layer 3 front talisman ring unlock + spin boost)
+      for(const [freq,delay,amp] of [[440,0,.10],[659.3,.03,.085],[880,.06,.07]]){
+        const osc=ctx.createOscillator(), g=ctx.createGain();
+        osc.type='sine';osc.frequency.setValueAtTime(freq,now+delay);
+        g.gain.setValueAtTime(.001,now+delay);
+        g.gain.linearRampToValueAtTime(amp,now+delay+.012);
+        g.gain.exponentialRampToValueAtTime(.0008,now+delay+.72);
+        osc.connect(g);g.connect(this.master);osc.start(now+delay);osc.stop(now+delay+.75);
+      }
+    }else if(tier>=3){
+      // 65%: Swirling feather vortex wind whoosh
+      const src=ctx.createBufferSource();src.buffer=this.noiseBuffer;
+      const f=ctx.createBiquadFilter();f.type='bandpass';f.Q.value=2.2;
+      f.frequency.setValueAtTime(280,now);
+      f.frequency.exponentialRampToValueAtTime(1180,now+.35);
+      const g=ctx.createGain();
+      g.gain.setValueAtTime(.001,now);
+      g.gain.linearRampToValueAtTime(.11,now+.08);
+      g.gain.exponentialRampToValueAtTime(.001,now+.42);
+      src.connect(f);f.connect(g);g.connect(this.master);src.start(now,0,.45);
+    }
+  }
   playSealLock(){
     const ctx=this.ctx, now=ctx.currentTime;
     // Resonant Eastern bronze bell chime + wet brush press
@@ -168,23 +212,45 @@ export class InkSound {
     });
     this.playBrushStroke(0);
   }
-  playFlockRelease(){
+  playImplosionAndRelease(){
     const ctx=this.ctx, now=ctx.currentTime;
-    // 1. Razor-sharp Blade & Soul style light slash ring
+    // 0.00..0.11s: Reverse-suction vacuum pull into a crisp 0.03s silence beat!
+    const vac=ctx.createBufferSource();vac.buffer=this.noiseBuffer;
+    const vf=ctx.createBiquadFilter();vf.type='bandpass';vf.Q.value=3.0;
+    vf.frequency.setValueAtTime(1650,now);
+    vf.frequency.exponentialRampToValueAtTime(190,now+.11);
+    const vg=ctx.createGain();
+    vg.gain.setValueAtTime(.001,now);
+    vg.gain.linearRampToValueAtTime(.16,now+.085);
+    vg.gain.exponentialRampToValueAtTime(.0008,now+.115);
+    vac.connect(vf);vf.connect(vg);vg.connect(this.master);
+    vac.start(now,0,.12);
+
+    // 0.14s: EXPLOSIVE TAIKO WAR-DRUM + Blade & Soul jade slash ring + staggered crow calls!
+    const boom=now+.14;
+    const drum=ctx.createOscillator(), dg=ctx.createGain();
+    drum.type='sine';
+    drum.frequency.setValueAtTime(125,boom);
+    drum.frequency.exponentialRampToValueAtTime(36,boom+.34);
+    dg.gain.setValueAtTime(.001,boom);
+    dg.gain.linearRampToValueAtTime(.34,boom+.01);
+    dg.gain.exponentialRampToValueAtTime(.001,boom+.38);
+    drum.connect(dg);dg.connect(this.master);
+    drum.start(boom);drum.stop(boom+.40);
+
     for(const [freq,delay,dur] of [[587.3,0,.45],[880,.02,.52],[1318.5,.04,.60],[1760,.06,.48]]){
       const osc=ctx.createOscillator(), g=ctx.createGain();
       osc.type='sine';
-      osc.frequency.setValueAtTime(freq*.92,now+delay);
-      osc.frequency.exponentialRampToValueAtTime(freq*1.04,now+delay+.06);
-      g.gain.setValueAtTime(.001,now+delay);
-      g.gain.linearRampToValueAtTime(.085,now+delay+.015);
-      g.gain.exponentialRampToValueAtTime(.0008,now+delay+dur);
+      osc.frequency.setValueAtTime(freq*.92,boom+delay);
+      osc.frequency.exponentialRampToValueAtTime(freq*1.04,boom+delay+.06);
+      g.gain.setValueAtTime(.001,boom+delay);
+      g.gain.linearRampToValueAtTime(.09,boom+delay+.015);
+      g.gain.exponentialRampToValueAtTime(.0008,boom+delay+dur);
       osc.connect(g);g.connect(this.master);
-      osc.start(now+delay);osc.stop(now+delay+dur+.02);
+      osc.start(boom+delay);osc.stop(boom+delay+dur+.02);
     }
-    // 2. Staggered flock crow calls (까마귀/새떼 울음소리)
     for(let i=0;i<4;i++){
-      this.playCrowCall(now+.04+i*.13, 1-.12*i);
+      this.playCrowCall(boom+.04+i*.13, 1-.12*i);
     }
   }
   playCrowCall(startTime,scale=1){

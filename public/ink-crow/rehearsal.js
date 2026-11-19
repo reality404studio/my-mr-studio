@@ -1,4 +1,4 @@
-import {TAU,smooth,onSeal,lerp3,mul} from './gesture.js?v=bns-phase2';
+import {TAU,smooth,onSeal,lerp3,mul} from './gesture.js?v=bns-phase3';
 
 // Desktop rehearsal feeds the same gesture recognizer and combat clock as XR.
 export class Rehearsal {

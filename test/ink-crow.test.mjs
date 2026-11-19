@@ -167,4 +167,43 @@ test('no middle guide popup in ready phase, natural hand mask volume, and summon
   }
 });
 
+test('phase 3 6-stage summoning: 0.65s brush tip, 4-layer Z-stack tiers, curl feather swarm, and 0.14s implosion',()=>{
+  const g=new Duel();
+  draw(g,circle(),'right');
+  assert.equal(g.phase,'seal');
+  // Stage 3: 0.65s brush-order writing tracks a live brush tip & strokeId
+  tickN(g,12,[]);g.paint();
+  assert.ok(g.liveBrushTip && g.liveBrushStrokeId>=0);
+  assert.ok(g.circleVisual && g.circleVisual.back.zOff===-0.09 && g.circleVisual.washZOff===-0.03 && g.circleVisual.front.zOff===0.07);
+  assert.equal(g.unlockedTier,0);
+  // Stage 4-5: charge past 25% -> Tier 1 Bagua outer circle pops in
+  const h=palm(g);
+  while(g.charge<0.32)g.tick(dt,[h]);
+  g.paint();
+  assert.equal(g.unlockedTier,1);
+  assert.ok(g.circleVisual.back.alpha>0.5);
+  assert.equal(g.circleVisual.front.alpha,0);
+  // Charge past 55% -> Tier 2 Front hollow talisman ring pops in
+  while(g.charge<0.60)g.tick(dt,[h]);
+  g.paint();
+  assert.equal(g.unlockedTier,2);
+  assert.ok(g.circleVisual.front.alpha>0.3);
+  // Charge past 65% -> Tier 3 Curl-Noise FeatherSwarm spawns & swirls inward
+  while(g.charge<0.88)g.tick(dt,[h]);
+  g.paint();
+  assert.equal(g.unlockedTier,3);
+  assert.ok(g.feathers.activeCount>=10);
+  // Stage 6a: reach 100% -> 0.14s implosion anticipation contracts all 4 layers before explosion
+  while(g.phase!=='release')g.tick(dt,[h]);
+  tickN(g,4,[]);g.paint();
+  assert.equal(g.exploded,false);
+  assert.ok(g.implosion>0.2 && g.sealVisual.scale<0.95);
+  // Stage 6b: after 0.14s -> explosive crow burst fires and stays within pools
+  tickN(g,12,[]);g.paint();
+  assert.equal(g.exploded,true);
+  assert.ok(g.frontRibbons.indexCount>0);
+  for(const item of g.groups)assert.ok(item.batch.count<item.batch.limit);
+});
+
+
 

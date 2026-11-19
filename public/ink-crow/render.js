@@ -1,6 +1,6 @@
-import {STRIDE} from './ink.js?v=bns-phase2';
-import {random} from './gesture.js?v=bns-phase2';
-import {RIBBON_STRIDE} from './ribbon.js?v=bns-phase2';
+import {STRIDE} from './ink.js?v=bns-phase3';
+import {random} from './gesture.js?v=bns-phase3';
+import {RIBBON_STRIDE} from './ribbon.js?v=bns-phase3';
 
 const quadVert=`#version 300 es
 layout(location=0) in vec2 corner;
@@ -166,20 +166,23 @@ void main(){
   float density=ink.x*(core*.78+wash*(.22-stain*.45)+rim*stain*.55)*drySplit*(1.-smoothstep(.64,1.,edge));
   float a=(1.-exp(-density))*op;
   vec3 pigment=palette(ink.z)*(1.+.16*(tex.r-.5));
-  // Subtle metallic gold shimmer for Tone 7 (금분)
+  // Subtle metallic gold shimmer for Tone 7 (금분) & SplatGlint microfacet sparkle on dark Sumi-e feathers (Tone 0/1)
   if(ink.z>6.5 && ink.z<7.5){
     float glint=pow(tex.b,2.4)*(.6+.4*sin(time*7.5+ink.w*31.4));
     pigment+=vec3(.35,.28,.12)*glint;
+  } else if(ink.z<1.5){
+    float facet=pow(max(0.,sin(ink.w*41.+time*3.8+tex.r*6.28)),16.)*exp(-edge*4.2);
+    pigment+=mix(vec3(.20,.92,.88),vec3(1.,.86,.48),step(.55,fract(ink.w*13.7)))*facet*.48;
   }
   color=vec4(pigment*a,a);
 }`;
 
-// Dedicated Layer 1 3D SVG-SDF 鳥 Seal Shader (single quad, razor-sharp jet-black calligraphy + BnS cyan/gold rim + hand ripple)
+// Dedicated Layer 2 (0cm) 3D SVG-SDF 鳥 Seal Shader (razor-sharp jet-black calligraphy + true 11-stroke brush reveal + hand ripple)
 const sealVert=`#version 300 es
 layout(location=0) in vec2 corner;
 uniform mat4 view,projection;
 uniform vec3 sealCenter,sealRight,sealUp,sealNormal;
-uniform float sealRadius,time;
+uniform float sealRadius,sealScale,time;
 uniform vec4 sealParams; // x: writeProgress, y: charge, z: dissolve, w: alpha
 out vec2 uv;
 out vec3 worldPos;
@@ -187,7 +190,7 @@ flat out float eyeSafe;
 void main(){
   float charge=sealParams.y;
   float tremor=(sin(time*44.)*.0018+cos(time*61.)*.0012)*charge*charge*sealRadius;
-  float span=sealRadius*.93*(1.+.045*sealParams.z);
+  float span=sealRadius*.93*sealScale*(1.+.045*sealParams.z);
   vec3 world=sealCenter
     +sealRight*(corner.x*span+tremor)
     +sealUp*(corner.y*span-tremor*.7)
@@ -220,7 +223,7 @@ void main(){
   vec4 g=texture(glyphSdf,uv);
   float sdf=g.r;         // 0.5 = exact calligraphy contour, >0.5 inside, <0.5 outside
   float inkMask=g.g;     // crisp rasterized brush mask & dry-brush splatters
-  float strokeOrd=g.b;   // 0..1 top-to-bottom calligraphic ignition order
+  float strokeOrd=g.b;   // 0..1 true 11-stroke calligraphic brush order
   float radial=g.a;      // 0..1 radial distance from seal center
 
   vec4 nBase=texture(grain,uv*2.4);
@@ -235,10 +238,10 @@ void main(){
   float hDist=length(worldPos-handRipple.xyz);
   float hWave=(.5+.5*sin(hDist*22.-time*11.))*exp(-hDist*3.2)*handRipple.w;
 
-  // 1. Calligraphic reveal sweep
-  float revealEdge=writeP*1.22-(nBase.r-.5)*.14;
-  float reveal=smoothstep(strokeOrd-.10,strokeOrd+.03,revealEdge);
-  float writeFront=exp(-pow((strokeOrd-revealEdge)*14.,2.))*smoothstep(.02,.18,writeP)*(1.-smoothstep(.88,1.,writeP));
+  // 1. True 11-stroke calligraphic brush reveal with vivid wet-ink + cyan/gold leading tip edge
+  float revealEdge=writeP*1.12-(nBase.r-.5)*.065;
+  float reveal=smoothstep(strokeOrd-.055,strokeOrd+.018,revealEdge);
+  float writeFront=exp(-pow((strokeOrd-revealEdge)*22.,2.))*smoothstep(.005,.08,writeP)*(1.-smoothstep(.94,1.,writeP));
 
   // 2. Noise-eroded ink dissolve into 9 crows during release
   float erodeField=nBase.r*.62+(1.-radial)*.38;
@@ -263,7 +266,7 @@ void main(){
   float wavePos=fract(time*.58+charge*.35);
   float waveBand=exp(-pow((radial-wavePos)*5.5,2.))*(.20+.95*charge)+hWave*1.15;
   float innerSheen=body*waveBand*pow(clamp(charge+hWave*.5,0.,1.),1.4)*nBase.g*.14;
-  float goldSpark=pow(nSpark.b,3.1)*(.65+.35*sin(time*11.+nBase.b*30.))*(hotRim*(1.65+hWave*1.2)+burnEdge*2.2+writeFront*1.6+body*(.22*charge+hWave*.35));
+  float goldSpark=pow(nSpark.b,3.1)*(.65+.35*sin(time*11.+nBase.b*30.))*(hotRim*(1.65+hWave*1.2)+burnEdge*2.2+writeFront*2.6+body*(.22*charge+hWave*.35));
 
   vec3 inkCol=vec3(.014,.018,.024)+vec3(.018,.026,.032)*(nBase.g*.45);
   vec3 cyan=vec3(.14,.96,.90);
@@ -273,13 +276,13 @@ void main(){
 
   vec3 haloTone=mix(mix(deepTeal,cyan,clamp(.42+charge*.58,0.,1.)),cyan,passthrough);
   vec3 rimGlow=
-    haloTone*outerHalo*(.68+1.35*charge+waveBand*.90)*vis +
-    mix(cyan,hotWhite,.62)*hotRim*(.55+1.35*charge+waveBand*.85)*vis*outsideOnly;
+    haloTone*outerHalo*(.68+1.35*charge+waveBand*.90+writeFront*1.2)*vis +
+    mix(cyan,hotWhite,.62)*hotRim*(.55+1.35*charge+waveBand*.85+writeFront*1.6)*vis*outsideOnly;
 
   vec3 accentGlow=
-    cyan*innerSheen*vis +
-    hotWhite*(writeFront*.95+burnEdge*1.5)*body*vis +
-    gold*(goldSpark*2.2+burnEdge*.85*body)*vis;
+    cyan*(innerSheen+writeFront*.85*body)*vis +
+    hotWhite*(writeFront*1.35+burnEdge*1.5)*body*vis +
+    gold*(goldSpark*2.2+(writeFront*.65+burnEdge*.85)*body)*vis;
 
   vec3 totalGlow=rimGlow+accentGlow;
   float glowBoost=mix(1.18,1.72,passthrough);
@@ -291,19 +294,172 @@ void main(){
   color=vec4(outRgb,outA);
 }`;
 
-// Dedicated 1-Draw-Call WorldWash Enso Quad Shader (replaces ~4,465 splats with crisp fluid ink texture!)
+// Dedicated Layer 0 (-9cm) & Layer 3 (+7cm) Procedural Eastern Taoist Magic Circle Shader
+// (Bagua trigrams + Cloud-scroll scallops + Talisman curved arcs — 100% curved polar geometry, ZERO straight needles!)
+const circleVert=`#version 300 es
+layout(location=0) in vec2 corner;
+uniform mat4 view,projection;
+uniform vec3 circleCenter,circleRight,circleUp,circleNormal;
+uniform float circleRadius,circleZOff;
+uniform highp vec4 circleParams; // x: rotAngle, y: scale, z: alpha, w: charge
+out vec2 pUv;
+out vec3 worldPos;
+flat out float eyeSafe;
+void main(){
+  float span=circleRadius*circleParams.y;
+  float c=cos(circleParams.x), s=sin(circleParams.x);
+  vec2 rc=vec2(corner.x*c-corner.y*s, corner.x*s+corner.y*c);
+  vec3 world=circleCenter
+    +circleRight*(rc.x*span)
+    +circleUp*(rc.y*span)
+    +circleNormal*circleZOff;
+  worldPos=world;
+  vec4 vp=view*vec4(world,1.);
+  vec4 vc=view*vec4(circleCenter,1.);
+  eyeSafe=clamp((-vc.z-.10)/.16,0.,1.);
+  gl_Position=projection*vp;
+  pUv=corner;
+}`;
+
+const circleFrag=`#version 300 es
+precision mediump float;
+in vec2 pUv;
+in vec3 worldPos;
+flat in float eyeSafe;
+uniform sampler2D grain;
+uniform highp float time;
+uniform float passthrough;
+uniform float circleLayer;       // 0.0 = Layer 0 (-9cm Bagua/Cloud outer), 1.0 = Layer 3 (+7cm hollow Talisman inner)
+uniform highp vec4 circleParams; // x: rotAngle, y: scale, z: alpha, w: charge
+uniform highp vec4 handRipple;
+out vec4 color;
+
+void main(){
+  float alpha=circleParams.z*eyeSafe;
+  if(alpha<=.002) discard;
+
+  float r=length(pUv);
+  if(r>1.0) discard;
+  if(circleLayer>.5 && r<.68) discard; // Layer 3 stays strictly hollow so 鳥 is never obscured!
+  if(circleLayer<.5 && r<.46) discard; // Layer 0 frames outside the Enso & 鳥 cleanly
+
+  float charge=circleParams.w;
+  float ang=atan(pUv.y,pUv.x); // -PI..PI
+  float normAng=fract((ang+3.14159265)/6.2831853);
+
+  vec4 nBrush=texture(grain,pUv*2.1+vec2(time*.04,-time*.03));
+  vec4 nSpark=texture(grain,pUv*5.8+vec2(-time*.08,time*.06));
+  float tooth=mix(.78,1.16,nBrush.g);
+
+  // Hand-velocity radial qi ripple across the multi-layer magic circle
+  float hDist=length(worldPos-handRipple.xyz);
+  float hWave=(.5+.5*sin(hDist*20.-time*10.))*exp(-hDist*2.6)*handRipple.w;
+
+  float inkMask=0.;
+  float cyanMask=0.;
+  float goldMask=0.;
+
+  if(circleLayer<.5){
+    // === LAYER 0 (-9cm): Taoist Bagua (팔괘) + Eastern Cloud-Scroll (운문) Outer Circle ===
+    // 1. Outer double calligraphic concentric rings (organic brush thickness)
+    float wOut=.014+.005*sin(ang*5.+nBrush.r*2.);
+    float outerRing=exp(-pow((r-.945)/wOut,2.))+exp(-pow((r-.875)/.009,2.))*.78;
+    float innerFrame=exp(-pow((r-.645)/.010,2.))*.85;
+
+    // 2. Authentic 8 Bagua Trigrams (☰☱☲☳☴☵☶☷) rendered as curved polar arcs!
+    float secF=normAng*8.;
+    float secIdx=floor(secF);
+    float secU=fract(secF); // 0..1 within one trigram sector
+    // Curved angular span of each trigram bar (leaves clean space between the 8 trigrams)
+    float inBar=smoothstep(.16,.21,secU)*(1.-smoothstep(.79,.84,secU));
+    // Central yin break gap (curved!)
+    float yinGap=1.-(smoothstep(.44,.47,secU)*(1.-smoothstep(.53,.56,secU)));
+    // Decode 3-bit Bagua pattern for sector 0..7 (Heaven, Lake, Fire, Thunder, Wind, Water, Mountain, Earth)
+    float code=mod(secIdx*3.+1.,8.); // rich alternating yin/yang distribution across all 8 sectors
+    float b0=mod(floor(code),2.);
+    float b1=mod(floor(code*.5),2.);
+    float b2=mod(floor(code*.25),2.);
+    float trigram=
+      exp(-pow((r-.710)/.013,2.))*inBar*mix(yinGap,1.,b0) +
+      exp(-pow((r-.760)/.013,2.))*inBar*mix(yinGap,1.,b1) +
+      exp(-pow((r-.810)/.013,2.))*inBar*mix(yinGap,1.,b2);
+
+    // 3. Flowing Eastern Cloud-Scroll Scallops (구름문양/연화파) hugging inner & outer rim
+    float cloudR1=.575+.034*abs(sin(ang*8.));
+    float cloudWave1=exp(-pow((r-cloudR1)/.011,2.))*.82;
+    float cloudR2=.908+.016*sin(ang*16.);
+    float cloudWave2=exp(-pow((r-cloudR2)/.008,2.))*.55;
+
+    // 4. 8 Rotating Antique Gold Celestial Beads nestled between Bagua sectors
+    float beadDist=length(vec2((secU-.04)*2.4, (r-.760)*4.8));
+    float beadDist2=length(vec2((secU-.96)*2.4, (r-.760)*4.8));
+    float beads=exp(-beadDist*beadDist*14.)+exp(-beadDist2*beadDist2*14.);
+
+    float totalLine=clamp((outerRing+innerFrame+trigram*1.15+cloudWave1+cloudWave2)*tooth,0.,1.5);
+    inkMask=clamp((outerRing*.55+innerFrame*.45+trigram*.70+cloudWave1*.35)*tooth,0.,1.)*mix(.62,.38,passthrough);
+    cyanMask=clamp(totalLine*(.42+.58*charge+hWave*.85),0.,1.6);
+    goldMask=clamp((beads*1.35+cloudWave2*.65+pow(nSpark.b,3.2)*totalLine*1.4)*(.55+.65*charge+hWave*.7),0.,1.6);
+  } else {
+    // === LAYER 3 (+7cm): Counter-Rotating Hollow Front Talisman & Cloud Ring ===
+    float outerRing=exp(-pow((r-.945)/.010,2.))+exp(-pow((r-.765)/.009,2.))*.85;
+
+    // 12 Curved Talisman Seal Arcs (curved polar calligraphy — ZERO straight ticks!)
+    float secF=normAng*12.;
+    float secU=fract(secF);
+    float secIdx=floor(secF);
+    float glyphSpan=smoothstep(.18,.24,secU)*(1.-smoothstep(.76,.82,secU));
+    float arc1=exp(-pow((r-.855-.026*sin(secU*9.424+secIdx))/.010,2.))*glyphSpan;
+    float arc2=exp(-pow((r-.855+.022*cos(secU*6.283))/.008,2.))*glyphSpan*.72;
+
+    // Flowing scalloped outer cloud-crest wave
+    float crestR=.960+.018*sin(ang*12.);
+    float crest=exp(-pow((r-crestR)/.008,2.))*.65;
+
+    // 12 Antique Gold Shimmer Beads between the curved talisman glyphs
+    float b1=length(vec2((secU-.05)*3.2, (r-.855)*5.5));
+    float b2=length(vec2((secU-.95)*3.2, (r-.855)*5.5));
+    float beads=exp(-b1*b1*16.)+exp(-b2*b2*16.);
+
+    float totalLine=clamp((outerRing+arc1*1.15+arc2+crest)*tooth,0.,1.5);
+    inkMask=clamp((outerRing*.32+arc1*.45)*tooth,0.,1.)*mix(.46,.22,passthrough);
+    cyanMask=clamp((outerRing*.85+arc1*1.1+crest*.75)*tooth*(.50+.65*charge+hWave*.95),0.,1.6);
+    goldMask=clamp((beads*1.45+arc2*.90+pow(nSpark.b,3.0)*totalLine*1.5)*(.60+.70*charge+hWave*.85),0.,1.6);
+  }
+
+  vec3 inkCol=vec3(.020,.028,.036);
+  vec3 cyan=vec3(.14,.96,.90);
+  vec3 deepTeal=vec3(.01,.58,.64);
+  vec3 hotWhite=vec3(.96,1.,1.);
+  vec3 gold=vec3(1.,.80,.36);
+
+  float inkA=inkMask*alpha;
+  vec3 glowCol=mix(deepTeal,cyan,clamp(.45+charge*.55+passthrough*.35,0.,1.))*cyanMask*alpha
+    + mix(gold,hotWhite,.35)*goldMask*alpha;
+  float boost=mix(.88,1.38,passthrough);
+  float glowLum=clamp(max(glowCol.r,max(glowCol.g,glowCol.b)),0.,1.);
+  float alphaShare=mix(.46,.16,passthrough);
+
+  vec3 outRgb=inkCol*inkA + glowCol*boost;
+  float outA=clamp(inkA + glowLum*alphaShare*(1.-inkA),0.,1.);
+  if(outA<=.003 && glowLum<=.003) discard;
+  color=vec4(outRgb,outA);
+}`;
+
+// Dedicated Layer 1 (-3cm) 1-Draw-Call WorldWash Enso Quad Shader (replaces ~4,465 splats with crisp fluid ink texture!)
 const washVert=`#version 300 es
 layout(location=0) in vec2 corner;
 uniform mat4 view,projection;
 uniform vec3 washOrigin,washRight,washDown,washNormal;
-uniform float washHalfSpan;
+uniform float washHalfSpan,washZOffset,washScale;
 out vec2 uv;
 out vec3 worldPos;
 flat out float eyeSafe;
 void main(){
+  float span=washHalfSpan*washScale;
   vec3 world=washOrigin
-    +washRight*(corner.x*washHalfSpan)
-    +washDown*(corner.y*washHalfSpan);
+    +washRight*(corner.x*span)
+    +washDown*(corner.y*span)
+    +washNormal*washZOffset;
   worldPos=world;
   vec4 vp=view*vec4(world,1.);
   vec4 vc=view*vec4(washOrigin,1.);
@@ -613,6 +769,7 @@ export class Painter {
     this.gl=gl;
     this.cloud=program(gl,quadVert,inkFrag);
     this.sealProg=program(gl,sealVert,sealFrag);
+    this.circleProg=program(gl,circleVert,circleFrag);
     this.washProg=program(gl,washVert,washFrag);
     this.ribbonProg=program(gl,ribbonVert,ribbonFrag);
     this.paper=program(gl,paperVert,paperFrag);
@@ -623,11 +780,15 @@ export class Painter {
       this.uniforms[name]=gl.getUniformLocation(this.cloud,name);
 
     this.sealU={};
-    for (const name of ['view','projection','sealCenter','sealRight','sealUp','sealNormal','sealRadius','time','sealParams','passthrough','handRipple'])
+    for (const name of ['view','projection','sealCenter','sealRight','sealUp','sealNormal','sealRadius','sealScale','time','sealParams','passthrough','handRipple'])
       this.sealU[name]=gl.getUniformLocation(this.sealProg,name);
 
+    this.circleU={};
+    for (const name of ['view','projection','circleCenter','circleRight','circleUp','circleNormal','circleRadius','circleZOff','circleLayer','circleParams','time','passthrough','handRipple'])
+      this.circleU[name]=gl.getUniformLocation(this.circleProg,name);
+
     this.washU={};
-    for (const name of ['view','projection','washOrigin','washRight','washDown','washNormal','washHalfSpan','time','passthrough','washAlpha','washCharge','handRipple'])
+    for (const name of ['view','projection','washOrigin','washRight','washDown','washNormal','washHalfSpan','washZOffset','washScale','time','passthrough','washAlpha','washCharge','handRipple'])
       this.washU[name]=gl.getUniformLocation(this.washProg,name);
 
     this.ribbonU={};
@@ -641,6 +802,8 @@ export class Painter {
     gl.useProgram(this.sealProg);
     gl.uniform1i(gl.getUniformLocation(this.sealProg,'grain'),0);
     gl.uniform1i(gl.getUniformLocation(this.sealProg,'glyphSdf'),2);
+    gl.useProgram(this.circleProg);
+    gl.uniform1i(gl.getUniformLocation(this.circleProg,'grain'),0);
     gl.useProgram(this.washProg);
     gl.uniform1i(gl.getUniformLocation(this.washProg,'grain'),0);
     gl.uniform1i(gl.getUniformLocation(this.washProg,'washTex'),3);
@@ -780,7 +943,27 @@ export class Painter {
     const g=this.gl;g.activeTexture(g.TEXTURE1);g.bindTexture(g.TEXTURE_2D,this.labelTexture);
     g.texImage2D(g.TEXTURE_2D,0,g.RGBA,g.RGBA,g.UNSIGNED_BYTE,c);g.activeTexture(g.TEXTURE0);
   }
-  drawWashQuad(view,projection,wash,alpha,charge,time,passthrough,ripple){
+  drawCircleLayer(view,projection,seal,cfg,layerId,time,passthrough,ripple){
+    if(!seal||!cfg||cfg.alpha<=.002||cfg.scale<=.01)return;
+    const g=this.gl;
+    g.useProgram(this.circleProg);
+    g.bindVertexArray(this.flat);
+    g.uniformMatrix4fv(this.circleU.view,false,view);
+    g.uniformMatrix4fv(this.circleU.projection,false,projection);
+    g.uniform3fv(this.circleU.circleCenter,seal.c);
+    g.uniform3fv(this.circleU.circleRight,seal.u);
+    g.uniform3fv(this.circleU.circleUp,seal.v);
+    g.uniform3fv(this.circleU.circleNormal,seal.n);
+    g.uniform1f(this.circleU.circleRadius,seal.r*cfg.radiusMul);
+    g.uniform1f(this.circleU.circleZOff,cfg.zOff);
+    g.uniform1f(this.circleU.circleLayer,layerId);
+    g.uniform4f(this.circleU.circleParams,cfg.rot,cfg.scale,cfg.alpha,cfg.charge);
+    g.uniform1f(this.circleU.time,time);
+    g.uniform1f(this.circleU.passthrough,passthrough?1:0);
+    g.uniform4f(this.circleU.handRipple,ripple[0],ripple[1],ripple[2],ripple[3]);
+    g.drawArrays(g.TRIANGLE_STRIP,0,4);
+  }
+  drawWashQuad(view,projection,wash,alpha,charge,zOff,scale,time,passthrough,ripple){
     if(!wash||!wash.origin||alpha<=.002||this.washTexSize===0)return;
     const g=this.gl;
     g.useProgram(this.washProg);
@@ -792,6 +975,8 @@ export class Painter {
     g.uniform3fv(this.washU.washDown,wash.down);
     g.uniform3fv(this.washU.washNormal,wash.normal);
     g.uniform1f(this.washU.washHalfSpan,wash.halfSpan);
+    g.uniform1f(this.washU.washZOffset,zOff);
+    g.uniform1f(this.washU.washScale,scale);
     g.uniform1f(this.washU.time,time);
     g.uniform1f(this.washU.passthrough,passthrough?1:0);
     g.uniform1f(this.washU.washAlpha,alpha);
@@ -811,6 +996,7 @@ export class Painter {
     g.uniform3fv(this.sealU.sealUp,s.v);
     g.uniform3fv(this.sealU.sealNormal,s.n);
     g.uniform1f(this.sealU.sealRadius,s.r);
+    g.uniform1f(this.sealU.sealScale,sealVisual.scale??1);
     g.uniform1f(this.sealU.time,time);
     g.uniform1f(this.sealU.passthrough,passthrough?1:0);
     g.uniform4f(this.sealU.sealParams,sealVisual.writeProgress,sealVisual.charge,sealVisual.dissolve,sealVisual.alpha);
@@ -844,22 +1030,30 @@ export class Painter {
     const ripple=extras?.handRipple??[0,0,-10,0];
     const backRibbons=extras?.backRibbons??null;
     const frontRibbons=extras?.frontRibbons??null;
+    const circleVisual=extras?.circleVisual??null;
+    const washZ=circleVisual?circleVisual.washZOff:0;
+    const washScale=circleVisual?circleVisual.washScale:1;
     if(!passthrough){g.disable(g.BLEND);g.useProgram(this.paper);g.bindVertexArray(this.flat);g.drawArrays(g.TRIANGLE_STRIP,0,4);}
     g.enable(g.BLEND);
     this.bindCloud(view,projection,time,passthrough);
-    let sealDrawn=false, backRibbonsDrawn=false, frontRibbonsDrawn=false;
+    let sealDrawn=false, backRibbonsDrawn=false, frontRibbonsDrawn=false, backCircleDrawn=false, frontCircleDrawn=false;
     for(const item of groups){
       if(item.sheet){
-        // 1-Draw-Call WorldWash GPU quad replaces ~4,465 splats!
+        // Layer 0 (-9cm): Back Taoist Bagua & Cloud-Scroll Outer Magic Circle
+        if(circleVisual?.back && !backCircleDrawn){
+          this.drawCircleLayer(view,projection,circleVisual.seal,circleVisual.back,0,time,passthrough,ripple);
+          backCircleDrawn=true;
+        }
+        // Layer 1 (-3cm): 1-Draw-Call WorldWash GPU Enso Quad (replaces ~4,465 splats!)
         if(item.alpha>0 && item.sheet.origin){
-          this.drawWashQuad(view,projection,item.sheet,item.alpha,sealVisual?.charge??0,time,passthrough,ripple);
+          this.drawWashQuad(view,projection,item.sheet,item.alpha,sealVisual?.charge??0,washZ,washScale,time,passthrough,ripple);
         }
         // Back 3D curved ribbons (orbital calligraphic arcs, palm helixes, crow flight trails) behind crisp 鳥
         if(backRibbons && !backRibbonsDrawn){
           this.drawRibbons(view,projection,backRibbons,time,passthrough,ripple);
           backRibbonsDrawn=true;
         }
-        // Layer 1 crisp 3D SVG-SDF 鳥 seal right above WorldWash Enso ring & back ribbons
+        // Layer 2 (0cm): Crisp 3D SVG-SDF 鳥 calligraphy protagonist (true 11-stroke reveal!)
         if(sealVisual && !sealDrawn){
           this.drawSealQuad(view,projection,sealVisual,time,passthrough,ripple);
           sealDrawn=true;
@@ -875,15 +1069,23 @@ export class Painter {
           g.drawArraysInstanced(g.TRIANGLE_STRIP,0,4,item.batch.count);
         }
       }
-      // Front 3D curved crescent sword-arc slashes & shockwave rings right after 9 crows (item.frontAnchor)
-      if(item.frontAnchor && frontRibbons && !frontRibbonsDrawn){
-        this.drawRibbons(view,projection,frontRibbons,time,passthrough,ripple);
-        frontRibbonsDrawn=true;
+      // Layer 3 (+7cm): Hollow Front Counter-Rotating Talisman/Cloud Ring + Front Crescent Slashes/Shockwaves
+      if(item.frontAnchor){
+        if(circleVisual?.front && !frontCircleDrawn){
+          this.drawCircleLayer(view,projection,circleVisual.seal,circleVisual.front,1,time,passthrough,ripple);
+          frontCircleDrawn=true;
+        }
+        if(frontRibbons && !frontRibbonsDrawn){
+          this.drawRibbons(view,projection,frontRibbons,time,passthrough,ripple);
+          frontRibbonsDrawn=true;
+        }
         this.bindCloud(view,projection,time,passthrough);
       }
     }
-    if(sealVisual && !sealDrawn) this.drawSealQuad(view,projection,sealVisual,time,passthrough,ripple);
+    if(circleVisual?.back && !backCircleDrawn) this.drawCircleLayer(view,projection,circleVisual.seal,circleVisual.back,0,time,passthrough,ripple);
     if(backRibbons && !backRibbonsDrawn) this.drawRibbons(view,projection,backRibbons,time,passthrough,ripple);
+    if(sealVisual && !sealDrawn) this.drawSealQuad(view,projection,sealVisual,time,passthrough,ripple);
+    if(circleVisual?.front && !frontCircleDrawn) this.drawCircleLayer(view,projection,circleVisual.seal,circleVisual.front,1,time,passthrough,ripple);
     if(frontRibbons && !frontRibbonsDrawn) this.drawRibbons(view,projection,frontRibbons,time,passthrough,ripple);
     if(hudView&&this.lastLabel){
       g.useProgram(this.hud);g.bindVertexArray(this.flat);g.uniformMatrix4fv(this.hudView,false,hudView);

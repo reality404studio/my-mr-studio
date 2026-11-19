@@ -1,4 +1,4 @@
-import {TAU, cross, len, mul, sub, unit} from './gesture.js?v=bns-phase2';
+import {TAU, cross, len, mul, sub, unit} from './gesture.js?v=bns-phase3';
 
 export const RIBBON_STRIDE=9; // px,py,pz, u,v, mode,alpha,seed,energy
 

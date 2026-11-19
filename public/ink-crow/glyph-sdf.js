@@ -1,7 +1,79 @@
-// Drop-in SVG -> 512x512 RGBA SDF texture + filled-area splat sampler for the 鳥 seal.
+// Drop-in SVG -> 512x512 RGBA SDF texture + filled-area splat sampler + 11-stroke brush-order map for 鳥.
 // Works with any black-ink calligraphy SVG placed at ./assets/glyph-bird.svg.
+import {glyphStrokes} from './forms.js?v=bns-phase3';
 
 const INF = 1e20;
+
+// Build a normalized 11-stroke calligraphy spine table in [0..1] canvas UV space
+// aligned to the rasterized SVG's tight ink bounding box.
+function buildStrokeSpine(inkBox) {
+  // Measure canonical glyphStrokes bounds so they align cleanly to the real SVG ink box
+  let minU = 1, maxU = 0, minV = 1, maxV = 0;
+  for (const st of glyphStrokes) {
+    for (const pt of st) {
+      if (pt[0] < minU) minU = pt[0];
+      if (pt[0] > maxU) maxU = pt[0];
+      if (pt[1] < minV) minV = pt[1];
+      if (pt[1] > maxV) maxV = pt[1];
+    }
+  }
+  const spanU = Math.max(0.01, maxU - minU);
+  const spanV = Math.max(0.01, maxV - minV);
+
+  const rawPts = [];
+  let totalLen = 0;
+  glyphStrokes.forEach((st, strokeId) => {
+    for (let k = 1; k < st.length; k++) {
+      const a = st[k - 1], b = st[k];
+      const ax = inkBox.x0 + ((a[0] - minU) / spanU) * inkBox.w;
+      const ay = inkBox.y0 + ((a[1] - minV) / spanV) * inkBox.h;
+      const bx = inkBox.x0 + ((b[0] - minU) / spanU) * inkBox.w;
+      const by = inkBox.y0 + ((b[1] - minV) / spanV) * inkBox.h;
+      const segLen = Math.hypot(bx - ax, by - ay);
+      const steps = Math.max(3, Math.ceil(segLen * 32));
+      const dx = (bx - ax) / (segLen || 1);
+      const dy = -(by - ay) / (segLen || 1); // Y-up in 3D seal space
+      for (let s = 0; s < steps; s++) {
+        const t = s / steps;
+        rawPts.push({
+          x: ax + (bx - ax) * t,
+          y: ay + (by - ay) * t,
+          dx, dy,
+          strokeId,
+          dist: totalLen + segLen * t
+        });
+      }
+      totalLen += segLen;
+    }
+    // Slight virtual pause between strokes so each stroke completes cleanly before next begins
+    totalLen += 0.045;
+  });
+
+  const invTotal = 1 / Math.max(0.001, totalLen);
+  for (const pt of rawPts) pt.order = Math.max(0, Math.min(1, pt.dist * invTotal));
+
+  // Build 128-entry O(1) lookup table for live brush-tip emitter in Y-up [-0.5, 0.5] seal coords
+  const tipTable = new Array(128);
+  let idx = 0;
+  for (let i = 0; i < 128; i++) {
+    const p = i / 127;
+    while (idx + 1 < rawPts.length && rawPts[idx + 1].order <= p) idx++;
+    const cur = rawPts[idx];
+    const nxt = rawPts[Math.min(rawPts.length - 1, idx + 1)];
+    const span = Math.max(1e-5, nxt.order - cur.order);
+    const f = cur.strokeId === nxt.strokeId ? Math.max(0, Math.min(1, (p - cur.order) / span)) : 0;
+    const ux = cur.x + (nxt.x - cur.x) * f;
+    const uy = cur.y + (nxt.y - cur.y) * f;
+    tipTable[i] = {
+      x: ux - 0.5,
+      y: 0.5 - uy,
+      dx: cur.dx,
+      dy: cur.dy,
+      strokeId: cur.strokeId
+    };
+  }
+  return { spine: rawPts, tipTable };
+}
 
 function parseHexColor(str) {
   const s = str.trim().toLowerCase();
@@ -127,7 +199,7 @@ function edt2d(grid, size) {
   }
 }
 
-function buildSdfAndPack(alpha, size, spread) {
+function buildSdfAndPack(alpha, size, spread, inkBox) {
   const n = size * size;
   const outDist = new Float32Array(n);
   const inDist = new Float32Array(n);
@@ -144,7 +216,19 @@ function buildSdfAndPack(alpha, size, spread) {
   edt2d(outDist, size);
   edt2d(inDist, size);
 
+  const { spine, tipTable } = buildStrokeSpine(inkBox);
+  // Downsample spine to ~128 fast query knots for crisp nearest-stroke progression baking
+  const knotCount = Math.min(128, spine.length);
+  const kx = new Float32Array(knotCount);
+  const ky = new Float32Array(knotCount);
+  const ko = new Float32Array(knotCount);
+  for (let k = 0; k < knotCount; k++) {
+    const s = spine[Math.floor((k / Math.max(1, knotCount - 1)) * (spine.length - 1))];
+    kx[k] = s.x; ky[k] = s.y; ko[k] = s.order;
+  }
+
   const sdf = new Float32Array(n);
+  const orderMap = new Float32Array(n);
   const rgba = new Uint8Array(n * 4);
   const inv2Spread = 1 / (2 * spread);
 
@@ -162,8 +246,20 @@ function buildSdfAndPack(alpha, size, spread) {
       sdf[i] = sd;
 
       const sdfNorm = Math.max(0, Math.min(1, 0.5 + sd * inv2Spread));
-      // Calligraphic write progression: top-to-bottom with slight left-to-right brush sweep
-      const order = Math.max(0, Math.min(1, ny * 0.80 + nx * 0.24 - 0.04));
+      // True 11-stroke calligraphic brush order for ink + SDF halo band; fast fallback far outside
+      let order;
+      if (sd > -spread * 1.1) {
+        let bestD2 = 1e9, bestO = 0;
+        for (let k = 0; k < knotCount; k++) {
+          const ex = nx - kx[k], ey = ny - ky[k];
+          const d2 = ex * ex + ey * ey;
+          if (d2 < bestD2) { bestD2 = d2; bestO = ko[k]; }
+        }
+        order = Math.max(0, Math.min(1, bestO * 0.86 + ny * 0.14));
+      } else {
+        order = Math.max(0, Math.min(1, ny * 0.80 + nx * 0.24 - 0.04));
+      }
+      orderMap[i] = order;
       const radial = Math.max(0, Math.min(1, Math.hypot(dx, dy) * 2.0));
 
       const j = i * 4;
@@ -173,10 +269,10 @@ function buildSdfAndPack(alpha, size, spread) {
       rgba[j + 3] = Math.round(radial * 255);
     }
   }
-  return { sdf, rgba };
+  return { sdf, orderMap, rgba, tipTable };
 }
 
-function sampleFromMask(alpha, sdf, size, count, rng) {
+function sampleFromMask(alpha, sdf, orderMap, size, count, rng) {
   const candidates = [];
   // Stride 2 for fast candidate gathering while preserving all fine ink splatters.
   for (let y = 2; y < size - 2; y += 2) {
@@ -213,7 +309,7 @@ function sampleFromMask(alpha, sdf, size, count, rng) {
       dx = Math.cos(a);
       dy = Math.sin(a);
     }
-    const order = Math.max(0, Math.min(1, jy * 0.80 + jx * 0.24 - 0.04));
+    const order = orderMap[idx];
     const dry = sdf[idx] < 2.8;
     samples[k] = {
       // Normalized to [-0.5, 0.5] matching the 3D seal quad coordinates (Y-up).
@@ -227,6 +323,14 @@ function sampleFromMask(alpha, sdf, size, count, rng) {
     };
   }
   return samples;
+}
+
+export function createDefaultTipLookup() {
+  const { tipTable } = buildStrokeSpine({ x0: 0.24, y0: 0.14, w: 0.52, h: 0.72 });
+  return (progress) => {
+    const idx = Math.max(0, Math.min(tipTable.length - 1, Math.round(progress * (tipTable.length - 1))));
+    return tipTable[idx];
+  };
 }
 
 export async function loadGlyphSdf(url, { size = 512, margin = 0.14, spread = 28 } = {}) {
@@ -273,6 +377,7 @@ export async function loadGlyphSdf(url, { size = 512, margin = 0.14, spread = 28
   const fctx = finalCanvas.getContext('2d', { willReadFrequently: true });
   fctx.clearRect(0, 0, size, size);
 
+  let inkBox = { x0: margin, y0: margin, w: 1 - margin * 2, h: 1 - margin * 2 };
   if (maxX > minX && maxY > minY) {
     const bw = maxX - minX + 1;
     const bh = maxY - minY + 1;
@@ -283,6 +388,7 @@ export async function loadGlyphSdf(url, { size = 512, margin = 0.14, spread = 28
     const ox = (size - outW) * 0.5;
     const oy = (size - outH) * 0.5;
     fctx.drawImage(scratch, minX, minY, bw, bh, ox, oy, outW, outH);
+    inkBox = { x0: ox / size, y0: oy / size, w: outW / size, h: outH / size };
   } else {
     fctx.drawImage(scratch, 0, 0);
   }
@@ -297,13 +403,17 @@ export async function loadGlyphSdf(url, { size = 512, margin = 0.14, spread = 28
     alpha[i] = a * Math.max(0, Math.min(1, (0.90 - lum) / 0.55));
   }
 
-  const { sdf, rgba } = buildSdfAndPack(alpha, size, spread);
+  const { sdf, orderMap, rgba, tipTable } = buildSdfAndPack(alpha, size, spread, inkBox);
   return {
     size,
     rgba,
     canvas: finalCanvas,
+    tipAt(progress) {
+      const idx = Math.max(0, Math.min(tipTable.length - 1, Math.round(progress * (tipTable.length - 1))));
+      return tipTable[idx];
+    },
     sample(count, rng) {
-      return sampleFromMask(alpha, sdf, size, count, rng);
+      return sampleFromMask(alpha, sdf, orderMap, size, count, rng);
     }
   };
 }

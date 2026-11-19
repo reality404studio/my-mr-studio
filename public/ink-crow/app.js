@@ -1,10 +1,10 @@
-import {Duel} from './duel.js?v=bns-phase2';
-import {Painter,perspective,identity} from './render.js?v=bns-phase2';
-import {clamp,mul,dist,lerp3,random} from './gesture.js?v=bns-phase2';
-import {PaperPreview} from './paper-preview.js?v=bns-phase2';
-import {Rehearsal} from './rehearsal.js?v=bns-phase2';
-import {Immersion,supportedModes} from './xr.js?v=bns-phase2';
-import {loadGlyphSdf} from './glyph-sdf.js?v=bns-phase2';
+import {Duel} from './duel.js?v=bns-phase3';
+import {Painter,perspective,identity} from './render.js?v=bns-phase3';
+import {clamp,mul,dist,lerp3,random} from './gesture.js?v=bns-phase3';
+import {PaperPreview} from './paper-preview.js?v=bns-phase3';
+import {Rehearsal} from './rehearsal.js?v=bns-phase3';
+import {Immersion,supportedModes} from './xr.js?v=bns-phase3';
+import {loadGlyphSdf} from './glyph-sdf.js?v=bns-phase3';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
@@ -106,7 +106,7 @@ function desktop(ms){
   if(mode==='cover')paintedCover=key;
   const gl=painter.gl;if(gl){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);}
   view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null,game.sealVisual,{
-    backRibbons:game.backRibbons,frontRibbons:game.frontRibbons,handRipple:game.handRipple
+    backRibbons:game.backRibbons,frontRibbons:game.frontRibbons,handRipple:game.handRipple,circleVisual:game.circleVisual
   });
 }
 async function refreshModes(){
@@ -147,9 +147,10 @@ function boot(){
   }
   xr=new Immersion(painter,game,prepare,()=>Boolean($('metrics')?.checked),resumePage,showProgress);
   beginMode('cover');anim=requestAnimationFrame(desktop);refreshModes();
-  loadGlyphSdf('./assets/glyph-bird.svg?v=bns-phase2').then(sdf=>{
+  loadGlyphSdf('./assets/glyph-bird.svg?v=bns-phase3').then(sdf=>{
     loadedGlyphSdf=sdf;
     painter?.setGlyphSdf?.(sdf);
+    game.setGlyphSdfMeta(sdf);
     const samples=sdf.sample(game.bird.length,random(7703));
     if(samples)game.setGlyphSamples(samples);
     if(mode==='cover'){beginMode('cover');}
