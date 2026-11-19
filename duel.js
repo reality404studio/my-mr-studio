@@ -1,9 +1,9 @@
-import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=quest-entry-7';
-import {WorldWash} from './world-wash.js?v=quest-entry-7';
-import {InkSpray} from './ink-spray.js?v=quest-entry-7';
-import {SplatBatch,springStep,spiral} from './ink.js?v=quest-entry-7';
-import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=quest-entry-7';
-import {InkSound} from './sound.js?v=quest-entry-7';
+import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=d556bb3';
+import {WorldWash} from './world-wash.js?v=d556bb3';
+import {InkSpray} from './ink-spray.js?v=d556bb3';
+import {SplatBatch,springStep,spiral} from './ink.js?v=d556bb3';
+import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=d556bb3';
+import {InkSound} from './sound.js?v=d556bb3';
 
 export const CHARGE_SECONDS=1.35;
 const ORIGIN=[0,0,0], FORWARD=[0,0,-1];
@@ -21,8 +21,9 @@ const lines={
 export class Duel {
   constructor(){
     this.brush=new WorldWash();this.spray=new InkSpray();this.land=landscape();this.enemyCloud=new SplatBatch(1850);
-    this.flow=new SplatBatch(4100);this.decor=new SplatBatch(2800);this.handsCloud=new SplatBatch(1200);
+    this.flow=new SplatBatch(4100);this.decor=new SplatBatch(2800);this.fx=new SplatBatch(1400);this.handsCloud=new SplatBatch(1200);
     this.traces=new SplatBatch(2400);this.bird=crowForm();this.sound=new InkSound();
+    this.hasSdfGlyph=false;this.sealVisual=null;
     const rng=random(306),glyph=glyphSamples(this.bird.length,rng);
     this.bird.forEach((b,i)=>{
       const a=rng()*TAU;
@@ -31,7 +32,7 @@ export class Duel {
     });
     this.groups=[
       {batch:this.land,alpha:1,scenery:true},{batch:this.enemyCloud,alpha:1},{batch:this.traces,alpha:1},
-      {batch:this.brush.marks,alpha:1,sheet:this.brush},{batch:this.decor,alpha:1},{batch:this.flow,alpha:1},{batch:this.handsCloud,alpha:1},{batch:this.spray.marks,alpha:1}
+      {batch:this.brush.marks,alpha:1,sheet:this.brush},{batch:this.decor,alpha:1},{batch:this.flow,alpha:1},{batch:this.fx,alpha:1},{batch:this.handsCloud,alpha:1},{batch:this.spray.marks,alpha:1}
     ];
     this.depthOrder=Uint16Array.from(this.bird,(_,i)=>i);
     this.sortDepth=(i,j)=>this.bird[j].depth-this.bird[i].depth;
@@ -39,13 +40,18 @@ export class Duel {
     this.flockPrev=Array.from({length:9},()=>[0,0,0]);
     this.reset();
   }
+  setGlyphSamples(samples){
+    if(!samples||samples.length<this.bird.length)return;
+    for(let i=0;i<this.bird.length;i++)this.bird[i].g=samples[i];
+    this.hasSdfGlyph=true;
+  }
   reset(){
     this.spray.clear();this.time=0;this.enemyHP=3;this.selfHP=3;this.hitFlash=0;this.hurtFlash=0;
     this.enemy=[.83,-.16,-3.42];this.head=[0,0,0];this.shot=null;this.nextShot=Infinity;
     this.hasCast=false;this.handData=[];this.impacts=[];this.demo=false;this.resetCast();
   }
   resetCast(keepInk=false){
-    this.phase='ready';this.phaseTime=0;this.charge=0;this.seal=null;this.owner=null;
+    this.phase='ready';this.phaseTime=0;this.charge=0;this.seal=null;this.sealVisual=null;this.owner=null;
     this.brush.end();if(!keepInk)this.brush.reset();
     this.abandoned=keepInk?this.time:null;this.spray.stopMotion();this.wasDrawing=false;this.missing=0;this.previousTip=null;this.trail=[];this.struck=false;
     this.needLift=false;this.livePalm=null;this.lastSpringRoot=null;this.traceAlpha=1;this.checkAt=0;
@@ -119,9 +125,8 @@ export class Duel {
   }
   lock(seal){
     this.seal=seal;this.sealBorn=this.time;const ps=this.brush.points;
-    // Snap any rough user loop into a clean calligraphic enso circle of radius seal.r
-    // and begin writing 鳥 (새 조) stroke-by-stroke on the ink-wash paper.
-    this.brush.close(ps[0],this.time,seal);this.spray.stopMotion();
+    // Snap user loop into a clean calligraphic Enso ring; Layer 1 SVG-SDF shader renders 鳥 crisply on top.
+    this.brush.close(ps[0],this.time,seal,!this.hasSdfGlyph);this.spray.stopMotion();
     this.owner=null;this.enter('seal');
   }
   chargeInput(dt,hands){
@@ -131,7 +136,20 @@ export class Duel {
       this.charge=Math.min(1,this.charge+dt/CHARGE_SECONDS);
       if(this.phase!=='charge')this.enter('charge');
       if(this.charge>=1){
-        this.hasCast=true;this.formation();this.enter('release');this.crowRoot=this.seal.c.slice();this.lastSpringRoot=this.crowRoot.slice();
+        this.hasCast=true;this.formation();
+        // Stage 1 of Burst -> Gather Morph: explosive outward & forward burst from the 鳥 calligraphy strokes!
+        const s=this.seal, toEnemy=unit(sub(this.enemy,s.c));
+        for(let i=0;i<this.bird.length;i++){
+          const b=this.bird[i], g=b.g;
+          const outLen=Math.hypot(g.x,g.y)||.001;
+          const rx=g.x/outLen, ry=g.y/outLen;
+          const swirlX=-ry*s.sign, swirlY=rx*s.sign;
+          const kick=.85+1.35*b.f, fwd=.75+.95*b.f;
+          for(let k=0;k<3;k++){
+            b.vel[k]=(s.u[k]*(rx*.75+swirlX*.45)+s.v[k]*(ry*.75+swirlY*.45))*kick + toEnemy[k]*fwd;
+          }
+        }
+        this.enter('release');this.crowRoot=this.seal.c.slice();this.lastSpringRoot=this.crowRoot.slice();
         for(let f=0;f<9;f++)this.flockPrev[f]=this.seal.c.slice();
         if(this.nextShot===Infinity)this.nextShot=this.time+6.3;
       }
@@ -142,26 +160,46 @@ export class Duel {
   }
   formation(){
     const s=this.seal,t=this.time,charge=this.charge,cloud=this.flow;
-    const settled=smooth((t-this.sealBorn)/1.12);
-    const writeProgress=clamp(.16+(t-this.sealBorn)*.68+charge*.55,0,1);
-    this.brush.writeGlyph(writeProgress,t);
+    const settled=smooth((t-this.sealBorn)/1.05);
+    const writeProgress=clamp(.18+(t-this.sealBorn)*.82+charge*.55,0,1);
+    if(!this.hasSdfGlyph)this.brush.writeGlyph(writeProgress,t);
+    // Align Layer 2 splat coordinates exactly with the Layer 1 3D SDF quad (span = r * 0.93 -> diameter = r * 1.86)
+    const glyphSpan=this.hasSdfGlyph?s.r*1.86:s.r*1.22;
     for(let i=0;i<this.bird.length;i++){
-      const b=this.bird[i],g=b.g, decorative=i%7===0;
+      const b=this.bird[i],g=b.g;
       const strokeReady=clamp((writeProgress-(g.order??0)*.72)*2.1,0,1);
       let q=clamp((charge*.85+.25*strokeReady-.13*b.f)/(1-.13*b.f));
-      const a=b.a+t*(.27+b.f*.22)*(1-smooth(charge)), radius=s.r*mix(.88+.12*b.f,b.orbit*.78,settled)*(.96+.04*Math.sin(t*2+b.a));
-      const gx=g.x*s.r*1.22,gy=g.y*s.r*1.22;
+      const a=b.a+t*(.27+b.f*.22)*(1-smooth(charge)), radius=s.r*mix(.96+.14*b.f,b.orbit*.86,settled)*(.96+.04*Math.sin(t*2+b.a));
+      const gx=g.x*glyphSpan,gy=g.y*glyphSpan;
       const ox=Math.cos(a)*radius,oy=Math.sin(a)*radius;
-      spiral(this.tmp,ox-gx,oy-gy,-s.r*(.28+.36*b.f),q,s.sign,.65+b.f*.42,b.f);
-      const x=gx+this.tmp[0],y=gy+this.tmp[1],z=this.tmp[2]+.008;
+      spiral(this.tmp,ox-gx,oy-gy,-s.r*(.24+.32*b.f),q,s.sign,.65+b.f*.42,b.f);
+      const x=gx+this.tmp[0],y=gy+this.tmp[1],z=this.tmp[2]+.009;
       const p=b.pos;
       for(let k=0;k<3;k++){p[k]=s.c[k]+s.u[k]*x+s.v[k]*y+s.n[k]*z;b.vel[k]=0;}
       const ax=mix(-Math.sin(a),g.dx,smooth(q)),ay=mix(Math.cos(a),g.dy,smooth(q));
-      const mag=(.019+.015*b.f)*s.r;
-      const tone=decorative&&q<.88?(i%14===0?9:7):(g.dry&&i%3===0?1:0);
-      cloud.put(...p,s.u[0]*ax+s.v[0]*ay,s.u[1]*ax+s.v[1]*ay,s.u[2]*ax+s.v[2]*ay,
-        mag*(1.45+.58*q),mag*(.40+.35*q),(.34+2.25*q)*(decorative?.62:1),
-        .32+b.f*.54,tone,b.seed);
+      if(this.hasSdfGlyph){
+        // Layer 1 SVG-SDF quad owns the crisp jet-black 鳥 strokes & blazing cyan rim.
+        // Keep Layer 2 ultra-clean: gentle inward-spiraling ink wisps while gathering + sparse jewel-like star glints.
+        const isStar=i%72===0;
+        const isWisp=(i%8===0) && q<.96;
+        if(!isStar && !isWisp)continue;
+        const mag=(.011+.009*b.f)*s.r;
+        if(isStar){
+          cloud.put(...p,s.u[0]*ax+s.v[0]*ay,s.u[1]*ax+s.v[1]*ay,s.u[2]*ax+s.v[2]*ay,
+            mag*1.25,mag*1.25,.42+.68*charge,i%144===0?.92:.08,12,b.seed);
+        }else{
+          const gatherFade=1-smooth((q-.68)/.28);
+          cloud.put(...p,s.u[0]*ax+s.v[0]*ay,s.u[1]*ax+s.v[1]*ay,s.u[2]*ax+s.v[2]*ay,
+            mag*(1.4+.5*q),mag*(.34+.18*q),(.26+.72*gatherFade)*(.55+.45*charge),.42+b.f*.4,g.dry?1:0,b.seed);
+        }
+      }else{
+        const decorative=i%7===0;
+        const mag=(.019+.015*b.f)*s.r;
+        const tone=decorative&&q<.88?(i%14===0?9:7):(g.dry&&i%3===0?1:0);
+        cloud.put(...p,s.u[0]*ax+s.v[0]*ay,s.u[1]*ax+s.v[1]*ay,s.u[2]*ax+s.v[2]*ay,
+          mag*(1.45+.58*q),mag*(.40+.35*q),(.34+2.25*q)*(decorative?.62:1),
+          .32+b.f*.54,tone,b.seed);
+      }
     }
   }
   flight(t){
@@ -233,6 +271,8 @@ export class Duel {
       wCos:Math.cos(fp.flap),wSin:Math.sin(fp.flap),
       root:fp.root,scale:fp.scale
     }));
+    const burstGather=smooth((t-.06)/.26);
+    const springK=mix(52,330,burstGather), springDamp=mix(6.5,13.5,burstGather);
     for(const b of this.bird){
       const id=b.flockId??0, tr=trig[id], carry=carries[id];
       const side=b.wing, p=b.p;
@@ -245,12 +285,20 @@ export class Duel {
       h[1]=tr.root[1]+py;
       h[2]=tr.root[2]+px*tr.sy+pz*tr.cy;
       for(let k=0;k<3;k++)b.pos[k]+=carry[k]*grow;
-      springStep(b.pos,b.vel,h,310*(.92+.18*b.f),13,24,4,dt);
+      springStep(b.pos,b.vel,h,springK*(.92+.18*b.f),springDamp,26,5.2,dt);
       const ax=b.axis[0],az=side?b.axis[2]*tr.wCos:b.axis[2],ay=b.axis[1]+(side?b.axis[2]*side*tr.wSin:0);
       const ary=ay*tr.co-az*tr.si, arz=ay*tr.si+az*tr.co;
       const apx=ax*tr.cp-ary*tr.sp, apy=ax*tr.sp+ary*tr.cp;
       b.depth=dot(b.pos,sight);
-      b.ax[0]=apx*tr.cy-arz*tr.sy;b.ax[1]=apy;b.ax[2]=apx*tr.sy+arz*tr.cy;
+      // During early burst, align stretched ink splats along flight velocity before snapping to feather axes
+      const fax=apx*tr.cy-arz*tr.sy, fay=apy, faz=apx*tr.sy+arz*tr.cy;
+      const spd=Math.hypot(b.vel[0],b.vel[1],b.vel[2]);
+      if(burstGather<.98 && spd>.25){
+        const inv=1/spd, m=burstGather;
+        b.ax[0]=mix(b.vel[0]*inv,fax,m);b.ax[1]=mix(b.vel[1]*inv,fay,m);b.ax[2]=mix(b.vel[2]*inv,faz,m);
+      }else{
+        b.ax[0]=fax;b.ax[1]=fay;b.ax[2]=faz;
+      }
     }
     this.depthOrder.sort(this.sortDepth);
     this.lastSpringRoot=root.slice();this.crowRoot=root;this.crowScale=scale;this.wingGrow=grow;
@@ -294,18 +342,31 @@ export class Duel {
     else shot.prev=shot.p.slice();
   }
   paint(){
-    this.flow.clear();this.decor.clear();this.traces.clear();this.enemyCloud.clear();this.handsCloud.clear();
+    this.flow.clear();this.decor.clear();this.fx.clear();this.traces.clear();this.enemyCloud.clear();this.handsCloud.clear();
     const s=this.seal,t=this.phaseTime,releasing=this.phase==='release';
     const sealed=this.phase==='seal'||this.phase==='charge',finish=this.phase==='recover'||this.phase==='win'||this.phase==='lose';
-    const alpha=finish?0:releasing?1-smooth((t-.60)/1.25):1;this.groups[3].alpha=this.abandoned===null?alpha:1-smooth((this.time-this.abandoned-.85)/1.45);
+    const alpha=finish?0:releasing?1-smooth((t-.52)/1.15):1;
+    this.groups[3].alpha=this.abandoned===null?alpha:1-smooth((this.time-this.abandoned-.85)/1.45);
+    this.sealVisual=null;
     if(s && (sealed||releasing)){
+      const writeProgress=sealed?clamp(.18+(this.time-this.sealBorn)*.85+this.charge*.55,0,1):1;
+      const dissolve=releasing?clamp(t/.58,0,1):0;
+      const sealAlpha=releasing?1-smooth((t-.32)/.42):1;
+      if(sealAlpha>.002){
+        this.sealVisual={seal:s,writeProgress,charge:sealed?this.charge:1,dissolve,alpha:sealAlpha};
+      }
       this.sealDetails(s,alpha);
       if(sealed)this.formation();
       else {
         const k=this.crowScale??.2,fade=(1-smooth((t-2.86)/.26));
+        const burstStretch=1+(1-smooth(t/.28))*.85;
         for(const i of this.depthOrder){
           const b=this.bird[i];
-          this.flow.put(...b.pos,...b.ax,Math.max(.002,b.l*k),Math.max(.0015,b.w*k),b.mass*fade,b.water,b.tone,b.seed);
+          const isStar=b.tone>=11.5;
+          this.flow.put(...b.pos,...b.ax,
+            Math.max(.002,b.l*k*(isStar?1:burstStretch)),
+            Math.max(.0015,b.w*k*(isStar?1:1/Math.sqrt(burstStretch))),
+            b.mass*fade,b.water,b.tone,b.seed);
         }
       }
     }
@@ -316,177 +377,212 @@ export class Duel {
   sealDetails(s,alpha){
     if(alpha<=0)return;
     const b=this.decor,r=s.r,t=this.time,c=this.charge, rng=random(863);
-    // 1. Swirling Eastern summoning mist around the ink seal (소환진 안개/운기)
-    for(let i=0;i<36;i++){
-      const a=TAU*i/36+t*.22, rr=r*(.72+.55*((i*7)%13)/13);
-      const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-.012+.018*Math.sin(t*1.8+i));
+    // 1. Silky continuous outer summoning mist ring (keeps 鳥 interior completely crisp!)
+    for(let i=0;i<30;i++){
+      const a=TAU*i/30+t*.22, rr=r*(1.10+.36*((i*7)%13)/13);
+      const p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-.022+.014*Math.sin(t*1.8+i));
       const d=add(mul(s.u,-Math.sin(a)),mul(s.v,Math.cos(a)));
-      b.put(...p,...d,r*.28,r*.11,alpha*(.52+.38*c),.84,11,rng());
+      b.put(...p,...d,r*.36,r*.14,alpha*(.28+.24*c),.84,11,rng());
     }
-    // 2. Unclosed fine concentric strokes and broken cinnabar seals
-    for(let band=0;band<3;band++)for(let i=0;i<118;i++){
-      const a=TAU*i/118 + band*.29 + (band===2?t*.12:0);
-      if(band===0&&Math.sin(a*4+.8)<-.80||band===1&&Math.sin(a*3-.5)<-.48||band===2&&i%12>3)continue;
-      const rr=r*(band===0?.68:band===1?1.21:1.31),co=Math.cos(a),si=Math.sin(a),p=onSeal(s,co*rr,si*rr,.002*band);
-      const d=add(mul(s.u,-si),mul(s.v,co)), w=r*(band===0?.011:band===1?.009:.014);
-      b.put(...p,...d,r*.046,w,(band===0?.67:1.25)*alpha*(.63+.37*c),.45,band===0?0:2,rng());
+    // 2. Crisp outer calligraphic talisman rings (no inner ring overlapping 鳥!)
+    for(let band=0;band<2;band++)for(let i=0;i<104;i++){
+      const a=TAU*i/104 + band*.35 + (band===1?t*.16:-t*.08);
+      if(band===0&&Math.sin(a*3-.5)<-.45||band===1&&i%10>3)continue;
+      const rr=r*(band===0?1.13:1.25),co=Math.cos(a),si=Math.sin(a),p=onSeal(s,co*rr,si*rr,.002*band);
+      const d=add(mul(s.u,-si),mul(s.v,co)), w=r*(band===0?.0085:.011);
+      // Outer broken ring uses deep obsidian ink (0) + antique gold-dust talisman ticks (7)
+      const tone=band===0?0:(i%20<4?7:4);
+      b.put(...p,...d,r*.042,w,(band===0?.95:1.15)*alpha*(.65+.35*c),.42,tone,rng());
     }
-    // 3. Orbiting wet ink droplets (먹물 방울) & Blade & Soul style razor-sharp light slashes (날카로운 빛)
-    for(let i=0;i<42;i++){
-      const a=TAU*rng()+t*(.25+(i%3)*.12),rr=r*(1.08+rng()*.38),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.012);
-      const dropR=r*(.011+.009*rng());
-      b.put(...p,...s.u,dropR*1.12,dropR,alpha*1.35,.88,i%6===0?2:0,rng());
+    // 3. Orbiting wet ink droplets, Option A razor cyan light blades (9), and gold/cyan star flares (12)
+    for(let i=0;i<32;i++){
+      const a=TAU*rng()+t*(.28+(i%3)*.12),rr=r*(1.06+rng()*.38),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,.012);
+      const dropR=r*(.010+.008*rng());
+      b.put(...p,...s.u,dropR*1.12,dropR,alpha*1.35,.88,i%7===0?7:0,rng());
     }
-    const blades=14+Math.floor(c*22);
+    const blades=16+Math.floor(c*24);
     for(let i=0;i<blades;i++){
-      const a=TAU*i/blades+t*1.85, rr=r*(.94+.24*Math.sin(i*2.3+t*3));
-      const co=Math.cos(a),si=Math.sin(a),p=onSeal(s,co*rr,si*rr,.015);
+      const a=TAU*i/blades+t*(1.75+.6*c), rr=r*(1.03+.20*Math.sin(i*2.3+t*3));
+      const co=Math.cos(a),si=Math.sin(a),p=onSeal(s,co*rr,si*rr,.016);
       const d=add(mul(s.u,-si+.22*co),mul(s.v,co+.22*si));
-      b.put(...p,...d,r*(.11+.08*c),r*.008,alpha*(.95+1.25*c),.25,9,i/blades);
+      b.put(...p,...d,r*(.13+.10*c),r*.0085,alpha*(1.05+1.35*c),.22,9,i/blades);
+      if(i%3===0){
+        const starR=r*(.048+.038*c);
+        b.put(...p,...s.u,starR,starR,alpha*(.90+1.15*c),i%6===0?.92:.08,12,(i+.5)/blades);
+      }
     }
-    // 4. Live brush-tip flash & ink-droplet splash while 鳥 is actively being written on the seal
+    // 4. Legacy brush-tip flash only if SDF glyph hasn't loaded yet
     const tip=this.brush.activeTip;
-    if(tip){
+    if(tip && !this.hasSdfGlyph){
       const tp=onSeal(s,tip.wx,tip.wy,.009);
       const td=add(mul(s.u,tip.dx),mul(s.v,tip.dy));
       b.put(...tp,...td,r*.12,r*.012,2.4*alpha,.25,9,.37);
       b.put(...tp,...s.v,r*.035,r*.035,2.2*alpha,.85,0,.71);
-      for(let k=0;k<6;k++){
-        const ka=k*TAU/6+t*9, kr=r*(.018+.025*(k%3));
-        const dp=onSeal(s,tip.wx+Math.cos(ka)*kr,tip.wy+Math.sin(ka)*kr,.014);
-        b.put(...dp,...td,r*.014,r*.012,1.9*alpha,.88,k%2===0?0:9,k/6);
-      }
     }
-    if(this.phase==='release'){
-      // A thin sediment print stays on the seal as the bird flock takes flight.
+    if(this.phase==='release' && !this.hasSdfGlyph){
       for(let i=0;i<this.bird.length;i+=4){
         const b0=this.bird[i],g=b0.g,p=onSeal(s,g.x*r*1.22,g.y*r*1.22,.003),d=add(mul(s.u,g.dx),mul(s.v,g.dy));
         b.put(...p,...d,r*.052,r*.016,2.1*alpha,.45,0,b0.seed);
       }
     }
-    if(this.phase==='release'&&this.phaseTime<.85){
-      const q=this.phaseTime/.85;
-      for(let i=0;i<140;i++){
-        const a=i*TAU/140,rr=r*(1+q*.68),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-q*.055);
+    // 5. Explosive summoning shockwave ring on release: cyan light blades + gold star-flares + ink splatter ring
+    if(this.phase==='release'&&this.phaseTime<.82){
+      const q=this.phaseTime/.82, fade=(1-q)*(1-q*.35);
+      for(let i=0;i<132;i++){
+        const a=i*TAU/132,rr=r*(.92+q*.82),p=onSeal(s,Math.cos(a)*rr,Math.sin(a)*rr,-q*.06);
         const d=add(mul(s.u,-Math.sin(a)),mul(s.v,Math.cos(a)));
-        b.put(...p,...d,r*(i%3===0?.085:.026),r*(i%3===0?.008:.012),(1-q)*2.2,.65,i%3===0?9:i%5===0?2:0,i/140);
+        const isStar=i%11===0, isBlade=i%3===0;
+        this.fx.put(...p,...d,
+          r*(isStar?.068:isBlade?.11:.026),
+          r*(isStar?.068:isBlade?.009:.013),
+          fade*(isStar?2.1:2.3),
+          isStar?(i%22===0?.92:.08):.62,
+          isStar?12:isBlade?9:i%5===0?7:0,
+          i/132);
       }
     }
   }
   palmStream(s){
-    const a=this.livePalm,c=this.charge,t=this.time,b=this.decor,endpoint=onSeal(s,0,0,-.055);
-    for(let i=0;i<180;i++){
-      const strand=i%5,u=(Math.floor(i/5)/36+t*(.72+.22*c))%1,phi=u*TAU*1.7+strand*TAU/5-t*3.8;
-      const rr=(.012+.030*Math.sin(Math.PI*u))*(1-.6*u);
-      const p=add(lerp3(a,endpoint,u),add(mul(s.u,Math.cos(phi)*rr),mul(s.v,Math.sin(phi)*rr)));
-      const dir=unit(add(sub(endpoint,a),mul(s.u,.14*Math.sin(phi))));
-      // Mix razor-sharp light threads (9), mist wisps (11), ink droplets (0), and golden/cinnabar qi (2, 7)
-      const isBlade=strand===0, isMist=strand===4, isDrop=i%7===0;
-      const lenS=isBlade?.038+.024*c:isMist?.045:isDrop?.009:.012+.006*c;
-      const widS=isBlade?.0045:isMist?.022:isDrop?.0085:.0042;
-      const tone=isBlade?9:isMist?11:strand===1?2:strand===2?7:0;
-      b.put(...p,...dir,lenS,widS,1.15+.95*c,isDrop?.88:.55,tone,i/180);
+    // Flow coherent helical qi ribbons from palm into orbiting points on the outer Enso rim (never cutting across 鳥!)
+    const a=this.livePalm,c=this.charge,t=this.time,b=this.decor,r=s.r;
+    const strands=4, perStrand=28;
+    for(let strand=0;strand<strands;strand++){
+      const ringA=strand*TAU/strands+t*(.72+.35*c);
+      const target=onSeal(s,Math.cos(ringA)*r*1.04,Math.sin(ringA)*r*1.04,-.015);
+      // Outward control point arcs gracefully around the Enso rim instead of crossing the center glyph
+      const midA=ringA-.55;
+      const ctrl=add(lerp3(a,target,.52),add(mul(s.u,Math.cos(midA)*r*.42),mul(s.v,Math.sin(midA)*r*.42)));
+      for(let j=0;j<perStrand;j++){
+        const i=strand*perStrand+j;
+        const u=(j/perStrand+t*(.72+.28*c))%1;
+        const inv=1-u;
+        // Quadratic Bezier point + tight helical twist
+        const bx=inv*inv*a[0]+2*inv*u*ctrl[0]+u*u*target[0];
+        const by=inv*inv*a[1]+2*inv*u*ctrl[1]+u*u*target[1];
+        const bz=inv*inv*a[2]+2*inv*u*ctrl[2]+u*u*target[2];
+        const tx=2*inv*(ctrl[0]-a[0])+2*u*(target[0]-ctrl[0]);
+        const ty=2*inv*(ctrl[1]-a[1])+2*u*(target[1]-ctrl[1]);
+        const tz=2*inv*(ctrl[2]-a[2])+2*u*(target[2]-ctrl[2]);
+        const phi=u*TAU*1.8+strand*TAU/strands-t*3.8;
+        const rr=(.008+.016*Math.sin(Math.PI*u))*(1-.4*u);
+        const px=bx+s.u[0]*Math.cos(phi)*rr+s.v[0]*Math.sin(phi)*rr;
+        const py=by+s.u[1]*Math.cos(phi)*rr+s.v[1]*Math.sin(phi)*rr;
+        const pz=bz+s.u[2]*Math.cos(phi)*rr+s.v[2]*Math.sin(phi)*rr;
+        const dir=unit([tx,ty,tz]);
+        const isBlade=strand===0||strand===1, isMist=strand===3, isStar=j%10===0, isDrop=j%7===0;
+        const lenS=isStar?.018+.010*c:isBlade?.024+.014*c:isMist?.034:isDrop?.007:.013+.005*c;
+        const widS=isStar?.018+.010*c:isBlade?.0036:isMist?.016:isDrop?.0065:.004;
+        const tone=isStar?12:isBlade?9:isMist?11:strand===2?7:0;
+        const envelope=Math.sin(Math.PI*u);
+        b.put(px,py,pz,...dir,lenS,widS,(.55+.75*c)*envelope,isStar?(strand%2===0?.92:.08):isDrop?.88:.56,tone,i/(strands*perStrand));
+      }
     }
-    for(let i=0;i<42;i++){
-      const phi=TAU*i/42-t*2.4,rr=.038+.009*Math.sin(t*6+i);
+    for(let i=0;i<24;i++){
+      const phi=TAU*i/24-t*2.8,rr=.032+.006*Math.sin(t*6+i);
       const p=add(a,add(mul(s.u,Math.cos(phi)*rr),mul(s.v,Math.sin(phi)*rr)));
       const d=add(mul(s.u,-Math.sin(phi)),mul(s.v,Math.cos(phi)));
-      b.put(...p,...d,i%3===0?.028:.009,i%3===0?.005:.008,1.75,.75,i%3===0?9:i%2===0?7:0,i/42);
+      const isStar=i%6===0;
+      b.put(...p,...d,isStar?.018:i%3===0?.020:.007,isStar?.018:i%3===0?.0038:.006,1.05,isStar?.88:.72,isStar?12:i%3===0?9:i%2===0?7:0,i/24);
     }
   }
   paintCombat(){
-    const b=this.traces,rng=random(194),shot=this.shot,t=this.time;
+    const b=this.traces,fx=this.fx,rng=random(194),shot=this.shot,t=this.time;
     adversary(this.enemyCloud,this.enemy,t,this.enemyHP,shot?clamp(shot.age/1.15):0,this.hitFlash);
-    // 1. Ambient Eastern battle-arena mist & subtle floating light motes (전장 안개와 기운)
-    for(let i=0;i<36;i++){
-      const u=i/35, mx=mix(-1.35,1.65,u)+.18*Math.sin(t*.45+i), my=-.62+.22*Math.sin(i*1.7+t*.3), mz=-1.45-u*2.2;
-      b.put(mx,my,mz, 1,.06*Math.sin(t+i),0, .26+rng()*.24,.09+rng()*.07, .48,.85, 11, rng());
+    // 1. Ambient Eastern battle-arena mist & subtle floating cyan/gold light motes
+    for(let i=0;i<32;i++){
+      const u=i/31, mx=mix(-1.35,1.65,u)+.18*Math.sin(t*.45+i), my=-.62+.22*Math.sin(i*1.7+t*.3), mz=-1.45-u*2.2;
+      b.put(mx,my,mz, 1,.06*Math.sin(t+i),0, .24+rng()*.22,.085+rng()*.065, .44,.85, 11, rng());
     }
-    // 2. Dokkaebi-bul counterattack projectile: dark ink flames, spirit fire, ink droplets & sharp light needles
+    // 2. Dokkaebi-bul counterattack projectile: dark ink flames, crimson/gold spirit fire & gold star-sparks
     if(shot?.p){
       const dir=unit(sub(shot.from,shot.to));
       for(let i=0;i<110;i++){
         const u=rng(),p=add(shot.p,mul(dir,u*.34)),a=rng()*TAU,k=(.015+.14*u)*Math.sqrt(rng());
         const px=p[0]+Math.cos(a)*k, py=p[1]+Math.sin(a)*k+.04*Math.sin(u*8-t*9), pz=p[2];
         if(i%5===0){
-          // Razor-sharp crimson/gold light needle
-          b.put(px,py,pz, dir[0]+.3*(rng()-.5),dir[1]+.3*(rng()-.5),dir[2], .058,.006, (1-u)*2.4,.25, i%10===0?9:10, rng());
+          const isStar=i%10===0;
+          fx.put(px,py,pz, dir[0]+.3*(rng()-.5),dir[1]+.3*(rng()-.5),dir[2],
+            isStar?.038:.058, isStar?.038:.008, (1-u)*2.4, isStar?.95:.30, isStar?12:10, rng());
         }else if(i%4===1){
-          // Round wet ink droplet (먹물 방울)
           const dr=.008+.011*rng();
           b.put(px,py,pz, 1,0,0, dr*1.12,dr, (1-u)*2.6,.90, 0, rng());
         }else{
-          // Swirling black-ink & spirit flame wake
           b.put(px,py,pz, dir[0],dir[1]+.4*Math.sin(a),dir[2], .038,.016, (1-u)*2.5,.62, i%3===0?10:i%2===0?2:0, rng());
         }
       }
     }
-    // 3. Flock flight wake: feather-shaped ink splatters (깃털 모양 먹물), round ink droplets (먹물 방울),
-    // swirling mist (안개), and Blade & Soul style sharp wind/light slashes (날카로운 빛줄기)
+    // 3. Flock flight wake: ink-feather splatters, wet ink droplets, living mist, and Option A cyan light slashes + gold glints
     if(this.phase==='release'){
       for(const v of this.trail){
         const age=t-v.time;if(age>.78)continue;
         const fade=1-age/.78, pts=v.flock??[v.p];
         for(let f=0;f<pts.length;f++){
           const fp=pts[f];
-          // a) Feather-shaped ink splatter (깃털 모양의 먹물: 살짝 휘어진 깃대와 농담 깃판)
           const flutter=t*5.5+f*1.9+age*8;
-          const fx=fp[0]+(rng()-.5)*.09+Math.cos(flutter)*.025*age;
-          const fy=fp[1]-.12*age*age+(rng()-.5)*.06+Math.sin(flutter)*.02*age;
-          const fz=fp[2]+(rng()-.5)*.07;
+          const fx0=fp[0]+(rng()-.5)*.09+Math.cos(flutter)*.025*age;
+          const fy0=fp[1]-.12*age*age+(rng()-.5)*.06+Math.sin(flutter)*.02*age;
+          const fz0=fp[2]+(rng()-.5)*.07;
           const ax=Math.cos(flutter*.7), ay=-.35+.45*Math.sin(flutter), az=Math.sin(flutter*.7)*.6;
           const fLen=.032+.022*rng(), fWid=.007+.006*rng();
-          // Dark 농묵 feather shaft + translucent 담묵 feather vane
-          b.put(fx,fy,fz, ax,ay,az, fLen,fWid*.55, 2.2*fade,.32, 0, rng());
-          b.put(fx-.004*ay,fy+.004*ax,fz, ax+.18*ay,ay-.18*ax,az, fLen*.88,fWid*1.35, 1.45*fade,.78, f%3===0?4:1, rng());
-          // b) Round blooming ink droplets (먹물 방울 파티클)
+          b.put(fx0,fy0,fz0, ax,ay,az, fLen,fWid*.55, 2.2*fade,.32, 0, rng());
+          b.put(fx0-.004*ay,fy0+.004*ax,fz0, ax+.18*ay,ay-.18*ax,az, fLen*.88,fWid*1.35, 1.45*fade,.78, f%3===0?4:1, rng());
           if((f+Math.floor(age*30))%2===0){
             const dx=fp[0]+(rng()-.5)*.12, dy=fp[1]-.16*age*age+(rng()-.5)*.08, dz=fp[2]+(rng()-.5)*.08;
             const dr=.006+.009*rng();
             b.put(dx,dy,dz, 1,0,0, dr*1.12,dr, 2.1*fade,.92, rng()<.78?0:1, rng());
           }
-          // c) Razor-sharp light slash & mist along the flock dive (날카로운 빛과 안개)
-          if(f<3){
-            b.put(fp[0]+(rng()-.5)*.06,fp[1]+(rng()-.5)*.05,fp[2], -.45,-.15,-1, .075+.045*rng(),.0055, 1.55*fade,.22, 9, rng());
+          if(f<4){
+            fx.put(fp[0]+(rng()-.5)*.06,fp[1]+(rng()-.5)*.05,fp[2], -.45,-.15,-1, .095+.055*rng(),.0065, 1.85*fade,.20, 9, rng());
           }
-          if(f===0&&age<.45){
-            b.put(fp[0],fp[1],fp[2], 1,0,0, .14+.12*age,.06+.05*age, .65*fade,.85, 11, rng());
+          if(f===0&&age<.48){
+            b.put(fp[0],fp[1],fp[2], 1,0,0, .14+.12*age,.06+.05*age, .58*fade,.85, 11, rng());
+            if(Math.floor(age*25)%2===0){
+              fx.put(fp[0]+(rng()-.5)*.12,fp[1]+(rng()-.5)*.10,fp[2], 1,0,0, .036,.036, 1.9*fade, rng()>.45?.90:.08, 12, rng());
+            }
           }
         }
       }
     }
-    // 4. Skill impact burst: dramatic cross-slashing light blades, flying ink feathers, and ink-droplet splatters
+    // 4. Skill impact burst rendered in front layer (fx) so BnS cross-slashes & star flares blaze over the target!
     for(const imp of this.impacts){
       const age=t-imp.time,fade=1-smooth((age-.42)/1.03);
-      // a) Razor-sharp cross light slashes (블레이드 앤 소울 스타일 날카로운 섬광 참격)
-      if(age<.65){
-        const sFade=1-age/.65;
-        for(let i=0;i<32;i++){
-          const a=i*TAU/32, h=(rng()-.5)*.8, ax=Math.cos(a), ay=h, az=Math.sin(a)*.7;
-          const distR=(.04+.38*age)*(.5+.7*rng());
-          b.put(imp.p[0]+ax*distR,imp.p[1]+ay*distR,imp.p[2]+az*distR, ax,ay,az,
-            .095+.14*rng(),.006+.005*rng(), sFade*2.6,.20, i%3===0&&imp.side<0?10:9, rng());
+      if(age<.72){
+        const sFade=1-age/.72;
+        // Core blazing 4-point star-flare flash & X-cross hero slash
+        if(age<.38){
+          const flash=1-age/.38;
+          fx.put(imp.p[0],imp.p[1],imp.p[2]+.14, 1,0,0, .34+.22*age,.34+.22*age, flash*3.0, imp.side<0?.95:.08, 12, .17);
+          fx.put(imp.p[0],imp.p[1],imp.p[2]+.12, .82,.56,0, .42+.28*age,.022, flash*2.8, .15, imp.side<0?10:9, .31);
+          fx.put(imp.p[0],imp.p[1],imp.p[2]+.12, .74,-.66,0, .38+.24*age,.020, flash*2.6, .15, imp.side<0?10:9, .67);
+        }
+        for(let i=0;i<40;i++){
+          const a=i*TAU/40, h=(rng()-.5)*.85, ax=Math.cos(a), ay=h, az=Math.sin(a)*.7;
+          const distR=(.05+.52*age)*(.5+.7*rng());
+          const isStar=i%4===0;
+          fx.put(imp.p[0]+ax*distR,imp.p[1]+ay*distR,imp.p[2]+.10+az*distR, ax,ay,az,
+            isStar?.068+.045*rng():.14+.18*rng(),
+            isStar?.068+.045*rng():.008+.006*rng(),
+            sFade*2.9,
+            isStar?(imp.side<0?.95:(i%8===0?.92:.08)):.18,
+            isStar?12:(imp.side<0?10:9), rng());
         }
       }
-      // b) Billowing ink-mist shockwave (충격 안개 파동)
-      for(let i=0;i<24;i++){
-        const a=i*TAU/24+age*.8, rr=(.08+.46*age)*(.6+.5*rng());
+      for(let i=0;i<22;i++){
+        const a=i*TAU/22+age*.8, rr=(.08+.48*age)*(.6+.5*rng());
         b.put(imp.p[0]+Math.cos(a)*rr,imp.p[1]+Math.sin(a)*rr*.7,imp.p[2], -Math.sin(a),Math.cos(a),0,
-          .16+.12*age,.07+.05*age, fade*.95,.85, 11, rng());
+          .18+.12*age,.08+.05*age, fade*.82,.85, 11, rng());
       }
-      // c) Exploding ink feathers (흩날리는 먹깃털) & round blooming ink droplets (먹물 방울)
-      for(let i=0;i<185;i++){
-        const a=rng()*TAU,h=rng()*2-1,rr=Math.sqrt(1-h*h),speed=(.14+rng()*.92)*Math.min(age,.92);
+      for(let i=0;i<180;i++){
+        const a=rng()*TAU,h=rng()*2-1,rr=Math.sqrt(1-h*h),speed=(.14+.96*rng())*Math.min(age,.92);
         const ax=Math.cos(a)*rr,az=Math.sin(a)*rr;
         const px=imp.p[0]+ax*speed, py=imp.p[1]+h*speed-age*age*.28, pz=imp.p[2]+az*speed;
         if(i%3===0){
-          // Round blooming ink droplet (먹물 방울)
           const dr=(.008+.016*rng())*(1+age*.22);
-          b.put(px,py,pz, 1,0,0, dr*1.14,dr, fade*2.4,.92, i%9===0?2:0, rng());
+          b.put(px,py,pz, 1,0,0, dr*1.14,dr, fade*2.4,.92, i%9===0?7:0, rng());
         }else{
-          // Curved ink-feather splatter (먹깃털)
-          const fLen=(.022+.054*rng())*(1+age*.25), fWid=.005+rng()*.011;
-          b.put(px,py,pz, ax+.25*h,h-.3*age,az, fLen,fWid, fade*2.2,i%2===0?.38:.76, i%7===0?10:i%4===0?1:0, rng());
+          const fLen=(.022+.056*rng())*(1+age*.25), fWid=.005+rng()*.011;
+          const isLight=i%7===0;
+          (isLight?fx:b).put(px,py,pz, ax+.25*h,h-.3*age,az, fLen,fWid, fade*2.3,i%2===0?.38:.76, isLight?(imp.side<0?10:9):i%4===0?1:0, rng());
         }
       }
     }

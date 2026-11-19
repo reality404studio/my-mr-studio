@@ -1,4 +1,4 @@
-import {clamp, mix, random, TAU, sub, cross, unit, lerp3, dist} from './gesture.js';
+import {clamp, mix, random, TAU, sub, cross, unit, lerp3, dist} from './gesture.js?v=d556bb3';
 
 export const STRIDE=13;
 export const BRUSH_DIAMETER=.12;

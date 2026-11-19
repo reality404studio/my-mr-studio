@@ -1,5 +1,5 @@
-import {classifyHand,unit} from './gesture.js?v=quest-entry-7';
-import {identity,multiply} from './render.js?v=quest-entry-7';
+import {classifyHand,unit} from './gesture.js?v=d556bb3';
+import {identity,multiply} from './render.js?v=d556bb3';
 
 const JOINTS=['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'];
 for(const f of ['index','middle','ring','pinky'])
@@ -185,7 +185,7 @@ export class Immersion {
       const v=layer.getViewport(view);if(!v||!v.width||!v.height)continue;
       gl.viewport(v.x,v.y,v.width,v.height);
       multiply(this.viewMatrix,view.transform.inverse.matrix,this.stage.matrix);
-      this.painter.eye(this.viewMatrix,view.projectionMatrix,this.game.groups,this.game.time,passthrough,null);
+      this.painter.eye(this.viewMatrix,view.projectionMatrix,this.game.groups,this.game.time,passthrough,null,this.game.sealVisual);
       viewsDrawn++;
     }
     if(!this.presented&&viewsDrawn===pose.views.length){

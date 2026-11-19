@@ -1,9 +1,9 @@
 // Canvas fallback for the flat rehearsal on browsers without WebGL 2.
 // The metre-space particle buffers, glyph, wing rig and combat logic are shared.
-import {STRIDE} from './ink.js?v=quest-entry-7';
-import {WashPreview} from './wash-preview.js?v=quest-entry-7';
-import {random} from './gesture.js?v=quest-entry-7';
-const tones=[[14,17,17],[46,62,65],[150,36,21],[246,242,228],[82,103,106],[158,172,164],[194,79,48],[198,143,66],[17,18,17],[252,248,218],[235,84,42],[242,244,235]];
+import {STRIDE} from './ink.js?v=d556bb3';
+import {WashPreview} from './wash-preview.js?v=d556bb3';
+import {random} from './gesture.js?v=d556bb3';
+const tones=[[8,11,14],[26,45,52],[198,38,19],[245,251,251],[50,91,101],[122,162,167],[214,73,42],[242,196,90],[10,13,16],[42,238,228],[238,84,36],[172,216,218],[255,228,132]];
 const masses=[.42,1,2,3.65];
 function atlas(){
   const size=44,tex=document.createElement('canvas');tex.width=size*12;tex.height=size*tones.length;
@@ -33,6 +33,7 @@ export class PaperPreview {
     if(!this.ctx)throw Error('이 브라우저에서 미리보기를 열 수 없습니다.');
     this.wash=new WashPreview();this.atlas=atlas();this.background=document.createElement('canvas');this.key='';
   }
+  setGlyphSdf(sdf){this.glyphCanvas=sdf?.canvas??null;}
   upload(){}
   draw(ctx,b,opacity,time,f,w,h,eyeX,sheet){
     if(sheet){this.wash.draw(ctx,b,sheet,opacity,f,w,h,eyeX);return;}
@@ -52,7 +53,7 @@ export class PaperPreview {
     }
     ctx.setTransform(1,0,0,1,0,0);ctx.globalAlpha=1;
   }
-  eye(view,proj,groups,time){
+  eye(view,proj,groups,time,passthrough,hudView,sealVisual=null){
     const w=this.canvas.width,h=this.canvas.height,c=this.ctx,f=h*proj[5]*.5,eyeX=-view[12];
     const key=w+'x'+h+':'+Math.round(eyeX*35);
     if(this.key!==key){
@@ -66,6 +67,16 @@ export class PaperPreview {
       this.draw(b,groups[0].batch,1,time,f,w,h,eyeX);
     }
     c.drawImage(this.background,0,0);
-    for(const item of groups)if(!item.scenery&&item.alpha>0)this.draw(c,item.batch,item.alpha,time,f,w,h,eyeX,item.sheet);
+    for(const item of groups){
+      if(!item.scenery&&item.alpha>0)this.draw(c,item.batch,item.alpha,time,f,w,h,eyeX,item.sheet);
+      if(item.sheet&&sealVisual&&this.glyphCanvas&&sealVisual.alpha>.002){
+        const s=sealVisual.seal,depth=-s.c[2];
+        if(depth>.05){
+          const px=f/depth,sx=w*.5+(s.c[0]-eyeX)*px,sy=h*.5-s.c[1]*px,rad=s.r*.88*px;
+          c.save();c.globalAlpha=sealVisual.alpha*(1-sealVisual.dissolve);
+          c.drawImage(this.glyphCanvas,sx-rad,sy-rad,rad*2,rad*2);c.restore();
+        }
+      }
+    }
   }
 }

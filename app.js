@@ -1,14 +1,15 @@
-import {Duel} from './duel.js?v=quest-entry-7';
-import {Painter,perspective,identity} from './render.js?v=quest-entry-7';
-import {clamp,mul,dist,lerp3} from './gesture.js?v=quest-entry-7';
-import {PaperPreview} from './paper-preview.js?v=quest-entry-7';
-import {Rehearsal} from './rehearsal.js?v=quest-entry-7';
-import {Immersion,supportedModes} from './xr.js?v=quest-entry-7';
+import {Duel} from './duel.js?v=d556bb3';
+import {Painter,perspective,identity} from './render.js?v=d556bb3';
+import {clamp,mul,dist,lerp3,random} from './gesture.js?v=d556bb3';
+import {PaperPreview} from './paper-preview.js?v=d556bb3';
+import {Rehearsal} from './rehearsal.js?v=d556bb3';
+import {Immersion,supportedModes} from './xr.js?v=d556bb3';
+import {loadGlyphSdf} from './glyph-sdf.js?v=d556bb3';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
 let painter,xr,modes=[],mode='cover',demo=new Rehearsal(),last=null,anim=0,viewportKey='',proj;
-let paintedCover='',modesChecked=false;
+let paintedCover='',modesChecked=false,loadedGlyphSdf=null;
 let pointer=null,down=false,afterLift=false,lean=0,lastHint='',manualClock=0;
 function prepare(){
   game.paint();
@@ -98,7 +99,7 @@ function desktop(ms){
   if(mode==='cover'&&paintedCover===key)return;
   if(mode==='cover')paintedCover=key;
   const gl=painter.gl;if(gl){gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);}
-  view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null);
+  view[12]=-lean;painter.eye(view,proj,game.groups,game.time,false,null,game.sealVisual);
 }
 async function refreshModes(){
   modes=painter?.gl?await supportedModes():[];modesChecked=true;
@@ -134,6 +135,13 @@ function boot(){
   }
   xr=new Immersion(painter,game,prepare,()=>Boolean($('metrics')?.checked),resumePage,showProgress);
   beginMode('cover');anim=requestAnimationFrame(desktop);refreshModes();
+  loadGlyphSdf('./assets/glyph-bird.svg?v=d556bb3').then(sdf=>{
+    loadedGlyphSdf=sdf;
+    painter?.setGlyphSdf?.(sdf);
+    const samples=sdf.sample(game.bird.length,random(7703));
+    if(samples)game.setGlyphSamples(samples);
+    if(mode==='cover'){beginMode('cover');}
+  }).catch(err=>console.warn('Glyph SDF load fallback:',err));
 }
 let activePointer=null;
 canvas.addEventListener('pointerdown',e=>{
@@ -171,9 +179,11 @@ canvas.addEventListener('webglcontextlost',e=>{
 canvas.addEventListener('webglcontextrestored',()=>{
   try{
     painter=new Painter(canvas);xr.painter=painter;
+    if(loadedGlyphSdf)painter.setGlyphSdf(loadedGlyphSdf);
     viewportKey='';paintedCover='';prepare();
     if(!xr.session){cancelAnimationFrame(anim);anim=requestAnimationFrame(desktop);}
   }catch{xr?.stop('그래픽을 다시 준비하지 못했습니다. [XR-restore]');}
 });
 navigator.xr?.addEventListener('devicechange',refreshModes);
 try{boot();}catch(e){$('failure').hidden=false;$('failure').textContent='대련장을 열 수 없습니다. '+e.message;}
+

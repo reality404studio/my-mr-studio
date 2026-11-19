@@ -1,7 +1,7 @@
-import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js?v=quest-entry-7';
-import {SplatBatch} from './ink.js?v=quest-entry-7';
-import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=quest-entry-7';
-import {glyphStrokes} from './forms.js?v=quest-entry-7';
+import {InkBrush, InkPaper, PAPER_STEP} from '../ink-study/ink-engine.js?v=d556bb3';
+import {SplatBatch} from './ink.js?v=d556bb3';
+import {TAU, clamp, cross, dist, dot, lerp3, mul, sub, unit} from './gesture.js?v=d556bb3';
+import {glyphStrokes} from './forms.js?v=d556bb3';
 
 const CELLS=472, CELL=.0056, HALF=CELLS*CELL*.5, SPACING=.012;
 export class WorldWash {
@@ -70,11 +70,11 @@ export class WorldWash {
     const e=this.extent;e[0]=Math.min(e[0],loX);e[1]=Math.min(e[1],loY);e[2]=Math.max(e[2],hiX);e[3]=Math.max(e[3],hiY);
   }
   end(){this.brush.lift();this.glyphBrush.lift();}
-  close(to,time,seal=null){
+  close(to,time,seal=null,paintGridGlyph=false){
     if(seal){
       // The user's drawn loop is a gesture for size and plane. Replace the raw trace
-      // with a clean, expressive calligraphic enso circle of radius seal.r and
-      // prepare the stroke-by-stroke 鳥 (새 조) writing queue on the ink-wash paper.
+      // with a clean, expressive calligraphic enso circle of radius seal.r.
+      // The crisp 鳥 glyph is rendered via the 3D SVG-SDF quad shader on top.
       this.brush.lift();this.glyphBrush.lift();
       this.paper.clear();this.depth.fill(0);this.nearest.fill(Infinity);
       this.origin=seal.c.slice();this.normal=seal.n.slice();
@@ -87,7 +87,7 @@ export class WorldWash {
         Math.min(CELLS-1,Math.ceil((HALF+margin)/CELL)),
         Math.min(CELLS-1,Math.ceil((HALF+margin)/CELL))
       ];
-      this.brush.reload(.64,.86);
+      this.brush.reload(.60,.90);
       const steps=84, a0=-Math.PI*.62;
       let tVirtual=time;
       for(let i=0;i<=steps;i++){
@@ -100,8 +100,12 @@ export class WorldWash {
         else this.brush.sample(px,py,tVirtual);
       }
       this.brush.lift();
-      this.buildGlyphQueue(r,tVirtual+.05);
-      this.writeGlyph(.16,tVirtual+.05,false);
+      if(paintGridGlyph){
+        this.buildGlyphQueue(r,tVirtual+.05);
+        this.writeGlyph(.16,tVirtual+.05,false);
+      } else {
+        this.glyphQueue=[];this.glyphCursor=0;this.activeTip=null;
+      }
       this.paper.flush();this.bake();
       return;
     }
