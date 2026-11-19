@@ -41,3 +41,8 @@ node --test test/ink-crow.test.mjs
 **Antigravity** · 2026-11-18 16:05
 
 피드백 4건 반영: 1) 중앙 팝업 가이드(readyGuide, VR 중앙 HUD 배너, guide 모달/entryStatus) 제거 2) 뼈대 선 대신 손바닥 면과 손가락 볼륨을 채운 자연스러운 사람 손 마스크(paintHand) 적용 3) 수묵 붓질·풍경 종소리·기운 공명·까마귀 울음/날갯짓·도깨비불 타격 Web Audio 효과음(sound.js) 추가 4) 새떼 소환 직후(t=0)부터 모든 새가 도깨비불 방향을 바라보도록 비행 조준 수정
+
+---
+**Antigravity** · 2026-11-19 13:03
+
+1차 코어 블소(A안) 수묵·광채 VFX 폴리싱 완료: Drop-in SVG→512² SDF 鳥 2-레이어 인장(assets/glyph-bird.svg, glyph-sdf.js), 512² 4채널 Ink/Flow/Bristle/Glint 아틀라스, 단일패스 _AlphaShare 듀얼 블렌드, Tone 12 4각 성광·금분, AddEyeSafe 근안 페이드, Burst→Gather 2단 모핑, 전면 fx 레이어 크로스 참격 구현. 12/12 테스트 및 WebGL2 헤드리스 렌더링 0에러 검증 완료. 다음: 사용자 2766×4096 鳥 SVG 교체 테스트 및 Quest 3S 실기 검수(또는 2차 고도화 진행).

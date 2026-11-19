@@ -1,5 +1,5 @@
-import {SplatBatch} from './ink.js?v=quest-entry-7';
-import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=quest-entry-7';
+import {SplatBatch} from './ink.js?v=bns-core-1';
+import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=bns-core-1';
 
 // A tapered stroke consists of oriented pigment deposits along a spatial curve.
 export function stroke(batch,a,b,width,tone,mass,water,seed,taper=.55) {
@@ -214,13 +214,13 @@ export function crowForm() {
       const w=.034*(.45+.75*Math.sin(t*Math.PI))*(1-.25*t);
       splat([x,y,(rng()-.5)*.012],[1,.15,0],.038+rng()*.018,w, i>18?0:i%5===0?1:0, 3.4, 0, .26+.22*rng());
     }
-    // Sharp calligraphy beak & luminous eye catchlight
+    // Sharp calligraphy beak & luminous cyan/white BnS eye star-flare
     for(let i=0;i<8;i++){
       const t=i/7;
       splat([.22+t*.11,.032-.014*t,0],[1,-.14,0],.024*(1-.3*t),.012*(1-.72*t),0,3.6,0,.18);
     }
     for(const s of [-1,1]){
-      splat([.185,.042,s*.024],[1,0,0],.009,.007,3,3.8,0,.15);
+      splat([.185,.042,s*.026],[1,0,0],.019,.019,12,2.4,0,.05);
     }
     // Soft 담묵/중묵 belly & back ink wash halo (몸통 농담 번짐)
     for(let i=0;i<22;i++){
@@ -229,7 +229,7 @@ export function crowForm() {
         .042+rng()*.026,.022+rng()*.016, i%3===0?4:1, 1.35, 0, .74+.20*rng());
     }
     // 2. Swept-back crescent Sumi-e wings (초승달/낫 모양 먹 농담 날개)
-    // Leading edge: crisp dark 농묵 (Tone 0). Middle/trailing vanes: translucent 중묵/담묵 (Tones 1, 4, 5).
+    // Leading edge: crisp dark 농묵 (Tone 0) + electric cyan/white energy filament (Tone 9).
     for(const s of [-1,1]){
       // Leading edge dark ink bone stroke (날개 앞전 농묵 뼈대획)
       for(let i=0;i<20;i++){
@@ -237,6 +237,10 @@ export function crowForm() {
         const wx=.09-.24*t*t-.06*t, wy=.022+.055*Math.sin(t*Math.PI)-.035*t, wz=s*reach;
         const ax=[-.38-.35*t, .12-.28*t, s*.85];
         splat([wx,wy,wz],ax,.046*(1-.25*t),.022*(1-.48*t), 0, 3.6, s, .24+.18*t);
+        if(i%4===1){
+          // Electric celadon/cyan spirit energy rim along leading wing bone
+          splat([wx+.010,wy+.008,wz],ax,.052*(1-.20*t),.0065, 9, 1.35, s, .20);
+        }
       }
       // Layered ink-wash feather strokes trailing backward (농담 그라데이션 깃털 번짐)
       for(let k=0;k<11;k++){
@@ -253,11 +257,14 @@ export function crowForm() {
           splat([fx,fy,fz],fAxis,.036+v*.024,(.018+.014*(1-v))*(1-.35*t), tone, mass, s, water);
         }
       }
-      // Detached ink-feather tips & ink droplets off the wingtips (날개 끝 흩날리는 먹깃털)
+      // Detached ink-feather tips & subtle gold-dust / cyan glint off the wingtips
       for(let d=0;d<8;d++){
         const t=.35+rng()*.65, reach=.06+t*.52;
         const fx=-.12-.26*t-(rng()*.09), fy=.01+(rng()-.5)*.04, fz=s*(reach+.03*rng());
-        splat([fx,fy,fz],[-.92,(rng()-.5)*.3,s*.25],.028+rng()*.022,.007+rng()*.007, d%3===0?0:1, 1.75, s, .58+.32*rng());
+        const isGlint=d===7;
+        splat([fx,fy,fz],[-.92,(rng()-.5)*.3,s*.25],
+          isGlint?.022:.028+rng()*.022, isGlint?.022:.007+rng()*.007,
+          isGlint?12:d%3===0?0:1, isGlint?1.5:1.75, s, isGlint?.82:.58+.32*rng());
       }
     }
     // 3. Forked swallow/crow calligraphic tail (날렵한 갈래 먹선 꼬리)
@@ -272,22 +279,21 @@ export function crowForm() {
   return out;
 }
 
-// Amorphous floating Dokkaebi-bul (부정형의 떠 있는 도깨비불) with dark ink flames,
-// crimson/gold spirit-fire core, razor-sharp light slashes, drifting mist, and orbiting ink droplets.
+// Amorphous floating Dokkaebi-bul (부정형의 떠 있는 도깨비불) with deep obsidian ink flames,
+// blazing crimson/amber-gold spirit-fire core, gold star-flares, drifting mist, and orbiting ink droplets.
 export function adversary(batch,p,t,health,threat,hit) {
   if(health===0&&hit<=0)return;
   const rng=random(333),x=p[0],y=p[1]+.05*Math.sin(t*2.1),z=p[2];
   const pulse=1+.12*Math.sin(t*3.8)+threat*.22+hit*.35;
   // 1. Eerie floating mist aura around the Dokkaebi-bul (요기 서린 안개 장막)
-  for(let i=0;i<55;i++){
+  for(let i=0;i<44;i++){
     const a=rng()*TAU+t*.35, rr=(.16+rng()*.38)*pulse;
     const mx=x+Math.cos(a)*rr, my=y-.12+(rng()-.45)*.34+.04*Math.sin(a*2+t), mz=z+Math.sin(a)*rr*.55;
-    batch.put(mx,my,mz, Math.cos(a),.18*Math.sin(t+i),0, .14+rng()*.16,.065+rng()*.075, .75+threat*.4,.82, 11, rng());
+    batch.put(mx,my,mz, Math.cos(a),.18*Math.sin(t+i),0, .14+rng()*.16,.065+rng()*.075, .70+threat*.38,.82, 11, rng());
   }
   // 2. Amorphous shifting dark-ink flame body (부정형 흑염/먹물 소용돌이 본체)
-  for(let i=0;i<340;i++){
+  for(let i=0;i<320;i++){
     const u=rng(), a=rng()*TAU;
-    // Asymmetric multi-lobe amorphous deformation
     const lobe=1+.34*Math.sin(a*3+t*2.4)+.22*Math.cos(a*2-t*3.1)+.15*Math.sin(u*8-t*4.2);
     const rad=(.06+.22*Math.sin(u*Math.PI)*lobe)*pulse*(1-.28*u);
     const sway=.065*Math.sin(u*5.5-t*3.6)*u+.035*Math.cos(u*3.2+t*2.2);
@@ -296,7 +302,7 @@ export function adversary(batch,p,t,health,threat,hit) {
     const pz=z+Math.sin(a)*rad*.75;
     const tx=-Math.sin(a)*.35+sway*1.8, ty=1.1, tz=Math.cos(a)*.25;
     const tone=i%11===0?2:i%5===0?1:0;
-    batch.put(px,py,pz, tx,ty,tz, .038+u*.062,.016+rng()*.026, (hit>0?1.35:1.95)*(1-.35*u),.54+.32*rng(), tone, rng());
+    batch.put(px,py,pz, tx,ty,tz, .038+u*.062,.016+rng()*.026, (hit>0?1.35:2.05)*(1-.35*u),.54+.32*rng(), tone, rng());
   }
   // 3. Swirling tendrils of black ink & spirit fire rising from the core (피어오르는 부정형 먹불길 촉수)
   for(let s=0;s<7;s++){
@@ -315,25 +321,29 @@ export function adversary(batch,p,t,health,threat,hit) {
     }
   }
   // 4. Blazing spectral spirit-fire core (도깨비불 귀화 코어 - 붉은 주홍/금빛 광채)
-  for(let i=0;i<115;i++){
+  for(let i=0;i<110;i++){
     const a=rng()*TAU+t*2.6, rr=Math.pow(rng(),.68)*.17*pulse;
     const h=(rng()-.42)*.26*pulse;
     const px=x+Math.cos(a)*rr+.02*Math.sin(t*5+h*12);
     const py=y+.02+h, pz=z+.06+Math.sin(a)*rr*.6;
     const tone=i%3===0?10:i%4===1?7:2;
-    batch.put(px,py,pz, .2*Math.cos(a),1,0, .032+rng()*.042,.015+rng()*.022, 2.1+threat*.9,.45, tone, rng());
+    batch.put(px,py,pz, .2*Math.cos(a),1,0, .032+rng()*.042,.015+rng()*.022, 2.2+threat*.9,.45, tone, rng());
   }
-  // 5. Razor-sharp Blade & Soul style spirit light slashes around the Dokkaebi-bul (날카로운 빛줄기)
-  const slashCount=18+Math.floor(threat*22+hit*18);
-  for(let i=0;i<slashCount;i++){
-    const a=i*TAU/slashCount+t*2.9, rr=(.12+rng()*.24)*pulse;
+  // 5. Fiery gold/crimson star-flares & spirit embers around the Dokkaebi-bul
+  const sparkCount=18+Math.floor(threat*20+hit*18);
+  for(let i=0;i<sparkCount;i++){
+    const a=i*TAU/sparkCount+t*2.9, rr=(.12+rng()*.26)*pulse;
     const px=x+Math.cos(a)*rr, py=y+.02+(rng()-.5)*.28, pz=z+.08+Math.sin(a)*rr*.6;
+    const isStar=i%3===0;
     const sx=-Math.sin(a)+.35*(rng()-.5), sy=.65+(rng()-.5)*.8, sz=Math.cos(a)*.4;
-    batch.put(px,py,pz, sx,sy,sz, .055+rng()*.075,.006+rng()*.008, 1.45+threat*1.2,.25, i%3===0?10:9, rng());
+    batch.put(px,py,pz, sx,sy,sz,
+      isStar?.042+rng()*.035:.055+rng()*.065,
+      isStar?.042+rng()*.035:.008+rng()*.008,
+      1.55+threat*1.2, isStar?.92:.35, isStar?12:10, rng());
   }
   // 6. Floating & dripping round ink droplets (주변에 흩뿌려져 떠다니는 먹물 방울)
-  for(let i=0;i<68;i++){
-    const a=i*TAU/68-t*(.85+(i%5)*.22), orbit=(.20+.26*((i*17)%29)/29)*pulse;
+  for(let i=0;i<60;i++){
+    const a=i*TAU/60-t*(.85+(i%5)*.22), orbit=(.20+.26*((i*17)%29)/29)*pulse;
     const bob=.22*Math.sin(t*2.3+i*1.7);
     const px=x+Math.cos(a)*orbit, py=y+.02+bob, pz=z+Math.sin(a)*orbit*.75;
     const rad=.009+.014*((i*13)%19)/19;
@@ -345,17 +355,18 @@ export function adversary(batch,p,t,health,threat,hit) {
     const wx=x+(i-1)*.11, wy=y+.44+.018*Math.sin(t*3.5+i*2.1), wz=z+.05;
     batch.put(wx,wy,wz, 0,1,0, .034,.022, alive?2.8:.45,.45, alive?10:4, .24+i*.17);
     if(alive){
-      batch.put(wx,wy+.018,wz, .15*Math.sin(t*6+i),1,0, .042,.014, 2.1,.35, 9, .51+i*.13);
+      batch.put(wx,wy+.012,wz+.01, 1,0,0, .048,.048, 1.9,.92, 12, .51+i*.13);
       batch.put(wx,wy-.005,wz-.01, 0,1,0, .045,.028, 1.8,.62, 0, .19+i*.21);
     }
   }
-  // 8. Threat charging ring of razor-sharp crimson/golden light blades
+  // 8. Threat charging ring of crimson/gold spirit fire
   if(threat>0){
-    for(let i=0;i<90;i++){
-      const a=TAU*i/90+t*3.6, rr=.36*(1-.18*threat);
+    for(let i=0;i<84;i++){
+      const a=TAU*i/84+t*3.6, rr=.36*(1-.18*threat);
       batch.put(x+Math.cos(a)*rr,y+.02+Math.sin(a)*rr,z+.11, -Math.sin(a),Math.cos(a),0,
-        .034+.022*threat,.008, threat*2.1,.45, i%3===0?9:i%2===0?10:2, i/90);
+        .034+.022*threat,.010, threat*2.1, i%4===0?.95:.45, i%4===0?12:i%2===0?10:2, i/84);
     }
   }
 }
+
 
