@@ -1,5 +1,5 @@
-import {clamp, dot, len, mul, random, sub, unit} from './gesture.js?v=a2c3cb2';
-import {SplatBatch} from './ink.js?v=a2c3cb2';
+import {clamp, dot, len, mul, random, sub, unit} from './gesture.js?v=9431b4a';
+import {SplatBatch} from './ink.js?v=9431b4a';
 
 // A drop keeps its mass and the virtual ink surface at its point of departure.
 const CAPACITY = 128;

@@ -1,5 +1,5 @@
-import {classifyHand,unit} from './gesture.js?v=a2c3cb2';
-import {identity,multiply} from './render.js?v=a2c3cb2';
+import {classifyHand,unit} from './gesture.js?v=9431b4a';
+import {identity,multiply} from './render.js?v=9431b4a';
 
 const JOINTS=['wrist','thumb-metacarpal','thumb-phalanx-proximal','thumb-phalanx-distal','thumb-tip'];
 for(const f of ['index','middle','ring','pinky'])
