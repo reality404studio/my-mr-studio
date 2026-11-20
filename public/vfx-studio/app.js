@@ -12,6 +12,8 @@ import { SHOWCASE_PRESETS, compilePrompt, getPresetById } from './compiler.js';
 import { VfxEngine } from './sim.js';
 import { VfxPainter, identity, lookAt, perspective } from './renderer.js';
 import { VfxImmersion, supportedModes } from './xr-bridge.js';
+import { BACKDROP_PRESETS, VIEW_PRESETS, evaluateViewSafety, ortho } from './stage.js';
+import { PixelArtPass } from './pixel-pass.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -25,10 +27,16 @@ let currentRating = 4;
 let datasetItems = [];
 let serverAvailable = true;
 
+let activeViewId = 'mmo-3p';
+let activeBackdropId = 'dungeon';
+let showActorSilhouette = true;
+let pixelState = { enabled: false, resolution: 128, colors: 16, fps: 12, outline: true, dither: 0.35 };
+let pixelAccumDt = 0;
+
 let pointerMode = 'orbit'; // 'orbit' | 'hand'
-const camera = { yaw: 0.36, pitch: 0.24, dist: 1.85, target: [0, 0.0, 0] };
+const camera = { ...VIEW_PRESETS['mmo-3p'].camera, target: [...VIEW_PRESETS['mmo-3p'].camera.target] };
 const viewMat = identity();
-let projMat = perspective(16 / 9, (50 * Math.PI) / 180);
+let projMat = perspective(16 / 9, (46 * Math.PI) / 180);
 let viewportKey = '';
 
 let fpsFrames = 0;
@@ -40,6 +48,7 @@ let rafId = 0;
 const canvas = $('viewport');
 const engine = new VfxEngine(currentRecipe);
 let painter = null;
+let pixelPass = null;
 let xrModes = [];
 let xrSession = null;
 
@@ -53,14 +62,77 @@ function toast(msg) {
   toastTimer = setTimeout(() => { el.hidden = true; }, 2600);
 }
 
+// ── 시점 · 배경 · 2D 도트 무대 제어 ──────────────────────────────────
+function applyViewPreset(viewId, silent = false) {
+  const preset = VIEW_PRESETS[viewId] || VIEW_PRESETS['mmo-3p'];
+  activeViewId = preset.id;
+  camera.yaw = preset.camera.yaw;
+  camera.pitch = preset.camera.pitch;
+  camera.dist = preset.camera.dist;
+  camera.target = [...preset.camera.target];
+  viewportKey = '';
+
+  document.querySelectorAll('#viewSwitchGroup .seg').forEach((btn) => {
+    btn.classList.toggle('is-active', btn.dataset.view === activeViewId);
+  });
+
+  setPixelMode(Boolean(preset.pixelDefault), true);
+  updateViewSafetyHint();
+  if (!silent) toast(`시점 전환: ${preset.label}`);
+}
+
+function applyBackdrop(backdropId) {
+  const bd = BACKDROP_PRESETS[backdropId] || BACKDROP_PRESETS.dungeon;
+  activeBackdropId = bd.id;
+  const stageEl = $('stageSection');
+  if (stageEl) stageEl.style.background = bd.cssBg;
+  const sel = $('backdropSelect');
+  if (sel && sel.value !== bd.id) sel.value = bd.id;
+}
+
+function setPixelMode(on, silent = false) {
+  pixelState.enabled = Boolean(on);
+  pixelAccumDt = 0;
+  viewportKey = '';
+  const btn = $('pixelToggleBtn');
+  if (btn) btn.classList.toggle('is-active', pixelState.enabled);
+  const bar = $('pixelBar');
+  if (bar) bar.hidden = !pixelState.enabled;
+  if (!silent) {
+    toast(pixelState.enabled ? `도트 필터 켜짐 (${pixelState.resolution}px · ${pixelState.colors}색 · ${pixelState.fps}fps)` : '도트 필터 꺼짐');
+  }
+}
+
+function computeStageProjection(aspect) {
+  const viewPreset = VIEW_PRESETS[activeViewId] || VIEW_PRESETS['mmo-3p'];
+  if (viewPreset.projection === 'ortho') {
+    const zoomScale = camera.dist / (viewPreset.camera.dist || 3.5);
+    const halfH = (viewPreset.orthoHalfH || 1.05) * zoomScale;
+    const halfW = halfH * aspect;
+    return ortho(halfW, halfH, 0.05, 40);
+  }
+  return perspective(aspect, ((viewPreset.fovDeg || 46) * Math.PI) / 180);
+}
+
+function updateViewSafetyHint() {
+  const safety = evaluateViewSafety(engine, activeViewId);
+  const el = $('stageHint');
+  if (!el) return;
+  el.textContent = safety.text;
+  el.classList.toggle('is-warn', safety.level === 'warn');
+}
+
 // ── 렌더링 & 업로드 ──────────────────────────────────────────────────
 function uploadAll() {
   if (!painter) return;
+  const bd = BACKDROP_PRESETS[activeBackdropId] || BACKDROP_PRESETS.dungeon;
+  const viewPreset = VIEW_PRESETS[activeViewId] || VIEW_PRESETS['mmo-3p'];
   painter.setFloor(
     engine.recipe.floorY * engine.recipe.scale,
     engine.stageOrigin,
     engine.floorGlowColor,
     engine.floorGlowIntensity,
+    { floorBase: bd.floorBase, ringTint: bd.ringTint, showRings: viewPreset.showRings },
   );
   for (const g of engine.groups) painter.upload(g.batch);
 }
@@ -89,35 +161,65 @@ function renderDesktop(ms) {
     fpsFrames = 0;
     fpsClock = 0;
     updateTelemetry();
+    updateViewSafetyHint();
   }
 
-  engine.tick(dt, []);
+  // 도트 모드에서는 12fps/15fps/24fps 프레임 스텝 클록으로 도트 특유의 끊어지는 타격감 재현
+  if (pixelState.enabled && pixelState.fps < 55) {
+    pixelAccumDt += dt;
+    const stepDt = 1 / pixelState.fps;
+    if (pixelAccumDt >= stepDt) {
+      engine.tick(stepDt, []);
+      pixelAccumDt = pixelAccumDt % stepDt;
+    }
+  } else {
+    engine.tick(dt, []);
+  }
   uploadAll();
 
   const w = Math.max(1, canvas.clientWidth);
   const h = Math.max(1, canvas.clientHeight);
   const dpr = Math.min(window.devicePixelRatio || 1, 1.75);
-  const key = `${w}x${h}@${dpr}`;
+  const key = `${w}x${h}@${dpr}:${activeViewId}:${pixelState.enabled}:${camera.dist.toFixed(2)}`;
   if (viewportKey !== key) {
     canvas.width = Math.max(1, Math.round(w * dpr));
     canvas.height = Math.max(1, Math.round(h * dpr));
-    projMat = perspective(w / h, (48 * Math.PI) / 180);
+    projMat = computeStageProjection(pixelState.enabled ? 1.0 : w / h);
     viewportKey = key;
   }
 
   const gl = painter.gl;
-  gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-  gl.viewport(0, 0, canvas.width, canvas.height);
-  gl.clearColor(0.043, 0.051, 0.063, 1);
-  gl.clear(gl.COLOR_BUFFER_BIT);
+  const bd = BACKDROP_PRESETS[activeBackdropId] || BACKDROP_PRESETS.dungeon;
+  const viewPreset = VIEW_PRESETS[activeViewId] || VIEW_PRESETS['mmo-3p'];
+  const actorOverlay = (showActorSilhouette && viewPreset.showActor)
+    ? { actor: engine.actor, color: bd.actorColor }
+    : null;
 
   updateDesktopCamera();
-  painter.eye(viewMat, projMat, engine.groups, engine.time, false);
+
+  if (pixelState.enabled && pixelPass) {
+    pixelPass.beginCapture(pixelState.resolution);
+    painter.eye(viewMat, projMat, engine.groups, engine.time, !viewPreset.showFloor, actorOverlay);
+    pixelPass.present(canvas.width, canvas.height, {
+      colors: pixelState.colors,
+      dither: pixelState.dither,
+      outline: pixelState.outline,
+      bgColor: bd.clear,
+    }, false);
+  } else {
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    gl.clearColor(bd.clear[0], bd.clear[1], bd.clear[2], 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    painter.eye(viewMat, projMat, engine.groups, engine.time, !viewPreset.showFloor, actorOverlay);
+  }
 }
 
 function updateTelemetry() {
   const m = engine.metrics;
-  $('statFps').textContent = xrSession?.hz ? `${Math.round(xrSession.hz)} XR` : `${displayFps}`;
+  $('statFps').textContent = xrSession?.hz
+    ? `${Math.round(xrSession.hz)} XR`
+    : pixelState.enabled ? `${pixelState.fps} px` : `${displayFps}`;
   $('statSplats').textContent = `${m.splatCount} / 4800`;
   $('statOverdraw').textContent = `${m.estOverdraw.toFixed(2)} m²`;
   $('statSimMs').textContent = `${m.simMs.toFixed(1)} ms`;
@@ -222,9 +324,17 @@ function loadNewRecipe(recipe, source = 'compiler', resetSim = true) {
   currentRecipe = structuredClone(applied);
   currentSource = source;
 
+  const targetActor = applied.previewStage?.actor || 'idle';
+  engine.setActorMode(targetActor);
+  const actorSel = $('actorSelect');
+  if (actorSel) actorSel.value = targetActor;
+  if (applied.previewStage?.backdrop && source === 'preset') {
+    applyBackdrop(applied.previewStage.backdrop);
+  }
+
   $('promptInput').value = applied.prompt || '';
   $('saveName').value = applied.name || '';
-  $('saveTags').value = [applied.archetype, budgetReport.questGrade === 'OK' ? 'quest-72fps' : 'clamped'].filter(Boolean).join(', ');
+  $('saveTags').value = [applied.archetype, applied.category, budgetReport.questGrade === 'OK' ? 'quest-72fps' : 'clamped'].filter(Boolean).join(', ');
   $('jsonEditor').value = JSON.stringify(currentRecipe, null, 2);
 
   renderMeta();
@@ -723,6 +833,65 @@ function initUi() {
     t.onclick = () => switchTab(t.dataset.tab);
   });
 
+  // 시점 · 테스트 액터 · 배경 · 도트 필터 컨트롤
+  document.querySelectorAll('#viewSwitchGroup .seg').forEach((btn) => {
+    btn.onclick = () => applyViewPreset(btn.dataset.view);
+  });
+  $('actorSelect').onchange = (e) => {
+    engine.setActorMode(e.target.value);
+    toast(`테스트 액터 → ${e.target.options[e.target.selectedIndex].text}`);
+  };
+  $('backdropSelect').onchange = (e) => {
+    applyBackdrop(e.target.value);
+  };
+  $('toggleActorVisBtn').onclick = () => {
+    showActorSilhouette = !showActorSilhouette;
+    $('toggleActorVisBtn').classList.toggle('is-active', showActorSilhouette);
+  };
+  $('pixelToggleBtn').onclick = () => setPixelMode(!pixelState.enabled);
+  $('pixelRes').onchange = (e) => { pixelState.resolution = Number(e.target.value) || 128; };
+  $('pixelColors').onchange = (e) => { pixelState.colors = Number(e.target.value) || 16; };
+  $('pixelFps').onchange = (e) => { pixelState.fps = Number(e.target.value) || 12; updateTelemetry(); };
+  $('pixelOutline').onchange = (e) => { pixelState.outline = Boolean(e.target.checked); };
+
+  $('bakeSpriteBtn').onclick = () => {
+    if (!pixelPass || !painter) return;
+    try {
+      const squareProj = computeStageProjection(1.0);
+      updateDesktopCamera();
+      const { pngDataUrl, meta } = pixelPass.bakeSpriteSheet({
+        engine,
+        painter,
+        viewMat,
+        projMat: squareProj,
+        resolution: pixelState.resolution,
+        fps: Math.min(24, pixelState.fps),
+        duration: Math.min(2.2, Math.max(1.0, currentRecipe.loopPeriod || 1.6)),
+        pixelOpts: {
+          colors: pixelState.colors,
+          dither: pixelState.dither,
+          outline: pixelState.outline,
+        },
+      });
+      // PNG 스프라이트 시트 + 메타 JSON 동시 다운로드
+      const aPng = document.createElement('a');
+      aPng.href = pngDataUrl;
+      aPng.download = `${currentRecipe.id || 'vfx'}-${meta.frameWidth}px-${meta.columns}x${meta.rows}.png`;
+      aPng.click();
+
+      const metaBlob = new Blob([JSON.stringify(meta, null, 2)], { type: 'application/json' });
+      const metaUrl = URL.createObjectURL(metaBlob);
+      const aJson = document.createElement('a');
+      aJson.href = metaUrl;
+      aJson.download = `${currentRecipe.id || 'vfx'}-spritesheet.json`;
+      setTimeout(() => { aJson.click(); URL.revokeObjectURL(metaUrl); }, 250);
+
+      toast(`스프라이트 시트 Bake 완료 (${meta.frameCount}프레임 · ${meta.columns}×${meta.rows} · ${meta.frameWidth}px)`);
+    } catch (err) {
+      toast(`스프라이트 시트 생성 실패: ${err.message}`);
+    }
+  };
+
   // 뷰포트 컨트롤
   $('modeOrbitBtn').onclick = () => {
     pointerMode = 'orbit';
@@ -825,6 +994,9 @@ function initUi() {
 initUi();
 try {
   painter = new VfxPainter(canvas);
+  pixelPass = new PixelArtPass(painter.gl, painter.corners);
+  applyBackdrop('dungeon');
+  applyViewPreset('mmo-3p', true);
   loadNewRecipe(initialRecipe, 'preset', true);
   refreshDataset();
   refreshXrSupport();

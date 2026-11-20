@@ -1,7 +1,8 @@
-// 순수 WebGL2 GPU 인스턴싱 멀티-커널 스플랫 렌더러 (Quest 3S WebXR + 데스크톱 공용).
-// STRIDE = 21 floats/splat: center(3), axis(3), halfSize(2), coreRGB(3), rimRGB(3), mat(4), aux(3)
-// 2-패스 블렌딩(Alpha 연기/물질 → Additive 화염/뇌전/참격) + 바닥 인터랙티브 반사광.
+// 순수 WebGL2 GPU 인스턴싱 11-커널 스플랫 렌더러 (MMO 3인칭 / Quest 3S WebXR / 2D·도트 공용).
+// STRIDE = 21 floats/splat 유지 (Quest 3S 메모리 대역폭 최적화).
+// Texture 0: uNoise (다중 옥타브/섬유/보로노이), Texture 1: uMasks (서리SDF/오로라커튼/Gray-Scott반응확산/암석파편).
 import { STRIDE } from './sim.js';
+import { createMaskPackTexture } from './masks.js';
 
 const SPLAT_VERT = `#version 300 es
 layout(location=0) in vec2 corner;
@@ -11,7 +12,7 @@ layout(location=3) in vec2 halfSize;
 layout(location=4) in vec3 coreColor;
 layout(location=5) in vec3 rimColor;
 layout(location=6) in vec4 mat;   // x: kernel, y: opacity, z: erosion, w: emission
-layout(location=7) in vec3 aux;   // x: seed, y: lifeT, z: glint
+layout(location=7) in vec3 aux;   // x: seed, y: lifeT, z: glint (or absorption for mist)
 
 uniform mat4 uView;
 uniform mat4 uProj;
@@ -25,8 +26,9 @@ flat out vec3 vAux;
 void main() {
   vec4 p = uView * vec4(center, 1.0);
   vec3 camAxis = mat3(uView) * axis;
-  // 카메라 공간 원근 투영 방향성 빌보드 (ink-crow quadVert 수학 계승)
-  vec2 a = camAxis.xy - camAxis.z * p.xy / min(-0.04, p.z);
+  // 원근/직교 모두 안정적으로 동작하는 카메라 공간 방향성 빌보드
+  float safeZ = min(-0.04, p.z);
+  vec2 a = camAxis.xy - camAxis.z * p.xy / safeZ;
   float l = length(a);
   vec2 along = l > 0.0002 ? a / l : vec2(1.0, 0.0);
   vec2 perp = vec2(-along.y, along.x);
@@ -50,6 +52,7 @@ flat in vec4 vMat;
 flat in vec3 vAux;
 
 uniform sampler2D uNoise;
+uniform sampler2D uMasks;
 uniform float uTime;
 uniform float uGroupAlpha;
 
@@ -79,7 +82,6 @@ void main() {
     float body = exp(-2.1 * max(0.0, edge)) * (1.0 - smoothstep(0.66, 1.0, edge));
     float rimBand = exp(-34.0 * pow(sqrt(max(0.001, edge)) - 0.72, 2.0)) * 0.32;
     float a = clamp((1.0 - exp(-(body + rimBand) * tooth * opacity * 1.45)), 0.0, 1.0);
-    // 마이크로패싯 반짝임 (SplatGlint.hlsl 경량 포트)
     float facet = pow(max(0.0, sin(seed * 41.0 + uTime * 3.8 + n1.r * 6.28)), 16.0);
     float glint = facet * glintAmt * exp(-r2 * 4.5);
     vec3 col = mix(vRim, vCore, clamp(body * 1.25 - lifeT * 0.35, 0.0, 1.0));
@@ -98,21 +100,27 @@ void main() {
     float core = exp(-5.6 * dist);
     float outer = exp(-1.85 * dist) * (1.0 - smoothstep(0.62, 1.0, dist));
     float a = clamp(opacity * (core * 0.95 + outer * 0.65) * dissolve, 0.0, 1.0);
-    float temp = clamp(core * 1.45 * (1.0 - lifeT * 0.45), 0.0, 1.0);
+    float temp = clamp(core * 1.45 * (1.0 - lifeT * 0.48), 0.0, 1.0);
     vec3 col = mix(vRim, vCore, temp) * (0.75 + 0.55 * emission);
     outColor = vec4(col * a, a * 0.45);
     return;
   }
 
-  // 2: mist (부드러운 다중 옥타브 연기/운기 볼륨)
+  // 2: mist (B10: Beer-Lambert 투과 T=exp(-sigma_t*s) + 흡수(그을음) vs 산란(안개) 분리)
   if (kernel < 2.5) {
+    float absorption = clamp(glintAmt, 0.0, 1.0);
     float turb = (n1.b - 0.5) * 0.36 + (n2.b - 0.5) * 0.22;
     float dist = max(0.0, r2 + turb);
-    float wisp = exp(-2.1 * dist) * (0.52 + 0.48 * n1.b) * (1.0 - smoothstep(0.58, 1.0, r2));
-    float erode = smoothstep(erosion * 0.55, 1.0, n2.b * 0.7 + (1.0 - r2) * 0.55);
-    float a = clamp((1.0 - exp(-opacity * wisp * erode * 1.15)), 0.0, 1.0);
-    vec3 col = mix(vRim, vCore, clamp(n1.b * 0.8 + (1.0 - r2) * 0.35, 0.0, 1.0)) * (1.0 + emission * 0.35);
-    outColor = vec4(col * a, a * 0.85);
+    float density = exp(-1.95 * dist) * (0.50 + 0.50 * n1.b) * (1.0 - smoothstep(0.58, 1.0, r2));
+    float erode = smoothstep(erosion * 0.52, 1.0, n2.b * 0.7 + (1.0 - r2) * 0.55);
+    float opticalDepth = opacity * density * erode * (1.15 + absorption * 0.85);
+    float transmittance = exp(-opticalDepth);
+    float a = clamp(1.0 - transmittance, 0.0, 1.0);
+    // 높은 흡수율(그을음)은 내부가 어둡게 잠기고, 낮은 흡수율(산란 안개)은 가장자리가 밝게 빛남
+    float scatterLight = mix(n1.b * 0.8 + (1.0 - r2) * 0.35, (1.0 - density) * 0.45, absorption);
+    vec3 col = mix(vRim, vCore, clamp(scatterLight, 0.0, 1.0));
+    col *= mix(1.0 + emission * 0.35, 0.55 + emission * 0.18, absorption);
+    outColor = vec4(col * a, a * 0.92);
     return;
   }
 
@@ -127,7 +135,7 @@ void main() {
     return;
   }
 
-  // 4: electric (고주파 지글거리는 플라즈마 뇌전 필라멘트 + 이온 코로나)
+  // 4: electric (E01/E02: 고주파 플라즈마 뇌전 필라멘트 + 이온 코로나)
   if (kernel < 4.5) {
     float warp = (texture(uNoise, vec2(vUv.x * 0.65 + uTime * 2.1, seed * 3.7)).r - 0.5) * 0.48;
     float dy = vUv.y + warp;
@@ -141,12 +149,85 @@ void main() {
   }
 
   // 5: ring (충격파 아크 + 노이즈 침식 꼬리)
-  float band = exp(-14.0 * vUv.y * vUv.y) * (1.0 - smoothstep(0.65, 1.0, abs(vUv.x)));
-  float trail = exp(-3.5 * max(0.0, vUv.y + 0.15) * max(0.0, vUv.y + 0.15)) * (0.5 + 0.5 * n1.b);
-  float dissolve = smoothstep(erosion * 0.65, 1.0, n2.a * 0.6 + (1.0 - abs(vUv.y)) * 0.65);
-  float a = clamp(opacity * (band * 1.15 + trail * 0.42) * dissolve, 0.0, 1.0);
-  vec3 col = mix(vRim, vCore, clamp(band * 1.4, 0.0, 1.0)) * (0.8 + 0.6 * emission);
-  outColor = vec4(col * a, a * 0.35);
+  if (kernel < 5.5) {
+    float band = exp(-14.0 * vUv.y * vUv.y) * (1.0 - smoothstep(0.65, 1.0, abs(vUv.x)));
+    float trail = exp(-3.5 * max(0.0, vUv.y + 0.15) * max(0.0, vUv.y + 0.15)) * (0.5 + 0.5 * n1.b);
+    float dissolve = smoothstep(erosion * 0.65, 1.0, n2.a * 0.6 + (1.0 - abs(vUv.y)) * 0.65);
+    float a = clamp(opacity * (band * 1.15 + trail * 0.42) * dissolve, 0.0, 1.0);
+    vec3 col = mix(vRim, vCore, clamp(band * 1.4, 0.0, 1.0)) * (0.8 + 0.6 * emission);
+    outColor = vec4(col * a, a * 0.35);
+    return;
+  }
+
+  // 6: frost (D03/D05: Voronoi 서리 결정 SDF + 날카로운 균열 + 크리스탈 반짝임)
+  if (kernel < 6.5) {
+    vec2 mUv = vUv * 0.5 + 0.5 + seedOff * 0.37;
+    float frost = texture(uMasks, mUv).r;
+    float edgeMask = 1.0 - smoothstep(0.52, 1.0, r2 + (1.0 - frost) * 0.32);
+    float crystal = smoothstep(0.22 + erosion * 0.42, 0.85, frost) * edgeMask;
+    if (crystal < 0.02) discard;
+    float rimSpec = exp(-22.0 * pow(sqrt(max(0.001, r2)) - 0.70, 2.0)) * 0.55;
+    float facet = pow(max(0.0, sin(seed * 53.0 + uTime * 4.2 + frost * 9.4)), 14.0) * glintAmt;
+    float a = clamp(opacity * (crystal * 1.05 + rimSpec * 0.6), 0.0, 1.0);
+    vec3 col = mix(vRim, vCore, clamp(frost * 1.15 + rimSpec, 0.0, 1.0)) * (0.85 + 0.55 * emission);
+    col += vec3(0.95, 0.99, 1.0) * facet * 1.65;
+    outColor = vec4(col * a, a * 0.65);
+    return;
+  }
+
+  // 7: aurora (F01/F09: 접히는 수직 오로라 커튼 드레이퍼리 + 높이별 발광 분포)
+  if (kernel < 7.5) {
+    vec2 aUv = vec2(vUv.x * 0.42 + seed * 1.7 + sin(uTime * 0.45 + vUv.y * 2.0) * 0.12, vUv.y * 0.5 + 0.5);
+    float curtain = texture(uMasks, aUv).g;
+    float horizFade = 1.0 - smoothstep(0.35, 1.0, abs(vUv.x));
+    float bottomSharp = smoothstep(-0.95, -0.35, vUv.y) * (1.0 - smoothstep(-0.1, 1.0, vUv.y));
+    float a = clamp(opacity * curtain * horizFade * (0.35 + 0.95 * bottomSharp) * (1.0 - erosion * 0.4), 0.0, 1.0);
+    if (a < 0.01) discard;
+    // 고도별 색 전이 (하단 코어 → 상단 외곽)
+    vec3 col = mix(vCore, vRim, clamp((vUv.y + 0.6) * 0.72, 0.0, 1.0)) * (0.85 + 0.65 * emission);
+    outColor = vec4(col * a, a * 0.32);
+    return;
+  }
+
+  // 8: shield (F02/F08: 얇은 막 간섭색 Thin-Film Iridescence + 프레넬 실드 테두리)
+  if (kernel < 8.5) {
+    float r = sqrt(r2);
+    float fresnel = pow(clamp(r, 0.0, 1.0), 2.4);
+    float rim = exp(-36.0 * pow(r - 0.84, 2.0));
+    float phase = r * 5.2 + seed * 6.28 + uTime * 1.35 + n1.b * 1.8;
+    vec3 irid = 0.5 + 0.5 * cos(phase + vec3(0.0, 2.094, 4.188));
+    float hexNoise = texture(uMasks, vUv * 0.55 + seedOff).r;
+    float a = clamp(opacity * (rim * 1.15 + fresnel * 0.52 + hexNoise * 0.22 * (1.0 - erosion)), 0.0, 1.0);
+    vec3 baseCol = mix(vRim, vCore, clamp(rim * 1.3 + fresnel * 0.4, 0.0, 1.0));
+    vec3 col = mix(baseCol, irid * 1.25, 0.42 + 0.3 * glintAmt) * (0.8 + 0.55 * emission);
+    outColor = vec4(col * a, a * 0.42);
+    return;
+  }
+
+  // 9: debris (G05/G08: 각진 다각형 암석/강체 파편 + 단면 명암)
+  if (kernel < 9.5) {
+    float ang = seed * 6.2831 + uTime * (seed - 0.5) * 9.0;
+    float cs = cos(ang), sn = sin(ang);
+    vec2 rotUv = vec2(vUv.x * cs - vUv.y * sn, vUv.x * sn + vUv.y * cs) * 0.5 + 0.5;
+    float rock = texture(uMasks, rotUv).a;
+    if (rock < 0.42) discard;
+    float shade = clamp(0.55 + (rotUv.y - 0.5) * 0.95 + (n1.r - 0.5) * 0.25, 0.2, 1.25);
+    float a = clamp(opacity * smoothstep(0.42, 0.58, rock), 0.0, 1.0);
+    vec3 col = mix(vRim, vCore, clamp(shade - 0.25, 0.0, 1.0)) * shade * (1.0 + emission * 0.25);
+    outColor = vec4(col * a, a);
+    return;
+  }
+
+  // 10: bio (J07: Gray-Scott 반응-확산 생체/독/치유 맥동 마스크)
+  vec2 bUv = vUv * 0.52 + seedOff * 0.41 + vec2(0.0, -uTime * 0.08);
+  float rd = texture(uMasks, bUv).b;
+  float radialFade = 1.0 - smoothstep(0.45, 1.0, r2);
+  float veins = smoothstep(0.18 + erosion * 0.48, 0.78, rd + (1.0 - r2) * 0.22);
+  float pulse = 0.82 + 0.18 * sin(uTime * 5.2 + seed * 12.0 + rd * 4.0);
+  float a = clamp(opacity * veins * radialFade * 1.15, 0.0, 1.0);
+  if (a < 0.01) discard;
+  vec3 col = mix(vRim, vCore, clamp(rd * 1.35 * pulse, 0.0, 1.0)) * (0.8 + 0.65 * emission);
+  outColor = vec4(col * a, a * 0.72);
 }`;
 
 const FLOOR_VERT = `#version 300 es
@@ -157,7 +238,7 @@ uniform float uFloorY;
 uniform vec3 uStageOrigin;
 out vec2 vWorldXZ;
 void main() {
-  vec2 xz = corner * 2.6;
+  vec2 xz = corner * 3.2;
   vec3 wp = vec3(xz.x + uStageOrigin.x, uFloorY + uStageOrigin.y, xz.y + uStageOrigin.z);
   gl_Position = uProj * uView * vec4(wp, 1.0);
   vWorldXZ = xz;
@@ -167,23 +248,44 @@ const FLOOR_FRAG = `#version 300 es
 precision mediump float;
 in vec2 vWorldXZ;
 uniform sampler2D uNoise;
+uniform vec3 uFloorBase;
+uniform vec3 uRingTint;
+uniform float uShowRings;
 uniform vec3 uGlowColor;
 uniform float uGlowIntensity;
 out vec4 outColor;
 void main() {
   float r = length(vWorldXZ);
-  if (r > 2.55) discard;
-  float fade = 1.0 - smoothstep(0.95, 2.55, r);
+  if (r > 3.1) discard;
+  float fade = 1.0 - smoothstep(1.3, 3.1, r);
   float grain = texture(uNoise, vWorldXZ * 0.65).r;
-  // 미세한 스튜디오 거리 기준 링 (0.5m, 1.0m) - 과한 그리드 배제
-  float ring05 = exp(-950.0 * pow(r - 0.5, 2.0)) * 0.13;
-  float ring10 = exp(-950.0 * pow(r - 1.0, 2.0)) * 0.09;
-  // 인터랙티브 바닥 반사광 (RitualDeskGlow 스타일 지수 감쇠)
+  float ring05 = exp(-950.0 * pow(r - 0.5, 2.0)) * 0.14;
+  float ring10 = exp(-950.0 * pow(r - 1.0, 2.0)) * 0.18;
+  float ring20 = exp(-950.0 * pow(r - 2.0, 2.0)) * 0.12;
+  float axisX = exp(-1200.0 * vWorldXZ.y * vWorldXZ.y) * smoothstep(2.2, 0.4, r) * 0.06;
+  float axisZ = exp(-1200.0 * vWorldXZ.x * vWorldXZ.x) * smoothstep(2.2, 0.4, r) * 0.06;
+  float guides = (ring05 + ring10 + ring20 + axisX + axisZ) * uShowRings;
   float bounce = (exp(-2.8 * r * r) * 0.72 + exp(-0.85 * r * r) * 0.28) * uGlowIntensity;
-  vec3 base = vec3(0.068, 0.074, 0.085) + (grain - 0.5) * 0.015;
-  vec3 col = base + vec3(0.45, 0.43, 0.39) * (ring05 + ring10) + uGlowColor * bounce * 0.48;
+  vec3 base = uFloorBase + (grain - 0.5) * 0.015;
+  vec3 col = base + uRingTint * guides + uGlowColor * bounce * 0.48;
   float alpha = clamp(fade * (0.78 + bounce * 0.22), 0.0, 0.96);
   outColor = vec4(col * alpha, alpha);
+}`;
+
+const LINE_VERT = `#version 300 es
+layout(location=0) in vec3 pos;
+uniform mat4 uView;
+uniform mat4 uProj;
+void main() {
+  gl_Position = uProj * uView * vec4(pos, 1.0);
+}`;
+
+const LINE_FRAG = `#version 300 es
+precision mediump float;
+uniform vec4 uColor;
+out vec4 outColor;
+void main() {
+  outColor = vec4(uColor.rgb * uColor.a, uColor.a);
 }`;
 
 function compileProgram(gl, vertSrc, fragSrc) {
@@ -260,7 +362,6 @@ function buildNoiseTexture(gl) {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     return seed / 4294967296;
   };
-  // 타일링 가능한 다중 주파수 노이즈 + 보로노이 셀 패턴
   const cells = 10;
   const pts = Array.from({ length: cells * cells }, () => [rng(), rng()]);
 
@@ -279,7 +380,6 @@ function buildNoiseTexture(gl) {
         + 0.09 * Math.sin((u + v) * tau * 6)
         + 0.05 * Math.cos((u - v) * tau * 11);
 
-      // 타일링 Voronoi 거리
       const gx = u * cells;
       const gy = v * cells;
       const ix = Math.floor(gx);
@@ -332,6 +432,7 @@ export class VfxPainter {
 
     this.splatProg = compileProgram(gl, SPLAT_VERT, SPLAT_FRAG);
     this.floorProg = compileProgram(gl, FLOOR_VERT, FLOOR_FRAG);
+    this.lineProg = compileProgram(gl, LINE_VERT, LINE_FRAG);
 
     this.uSplat = {
       view: gl.getUniformLocation(this.splatProg, 'uView'),
@@ -339,19 +440,29 @@ export class VfxPainter {
       time: gl.getUniformLocation(this.splatProg, 'uTime'),
       groupAlpha: gl.getUniformLocation(this.splatProg, 'uGroupAlpha'),
       noise: gl.getUniformLocation(this.splatProg, 'uNoise'),
+      masks: gl.getUniformLocation(this.splatProg, 'uMasks'),
     };
     this.uFloor = {
       view: gl.getUniformLocation(this.floorProg, 'uView'),
       proj: gl.getUniformLocation(this.floorProg, 'uProj'),
       floorY: gl.getUniformLocation(this.floorProg, 'uFloorY'),
       stageOrigin: gl.getUniformLocation(this.floorProg, 'uStageOrigin'),
+      floorBase: gl.getUniformLocation(this.floorProg, 'uFloorBase'),
+      ringTint: gl.getUniformLocation(this.floorProg, 'uRingTint'),
+      showRings: gl.getUniformLocation(this.floorProg, 'uShowRings'),
       glowColor: gl.getUniformLocation(this.floorProg, 'uGlowColor'),
       glowIntensity: gl.getUniformLocation(this.floorProg, 'uGlowIntensity'),
       noise: gl.getUniformLocation(this.floorProg, 'uNoise'),
     };
+    this.uLine = {
+      view: gl.getUniformLocation(this.lineProg, 'uView'),
+      proj: gl.getUniformLocation(this.lineProg, 'uProj'),
+      color: gl.getUniformLocation(this.lineProg, 'uColor'),
+    };
 
     gl.useProgram(this.splatProg);
     gl.uniform1i(this.uSplat.noise, 0);
+    gl.uniform1i(this.uSplat.masks, 1);
     gl.useProgram(this.floorProg);
     gl.uniform1i(this.uFloor.noise, 0);
 
@@ -366,13 +477,27 @@ export class VfxPainter {
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.bindVertexArray(null);
 
+    this.lineBuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.lineBuf);
+    gl.bufferData(gl.ARRAY_BUFFER, 256 * 6 * 4, gl.DYNAMIC_DRAW);
+    this.lineVao = gl.createVertexArray();
+    gl.bindVertexArray(this.lineVao);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.lineBuf);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+
     this.noiseTex = buildNoiseTexture(gl);
+    this.maskTex = createMaskPackTexture(gl, 256);
     this.buffers = new Map();
     this.floorState = {
       floorY: -0.42,
       stageOrigin: [0, 0, 0],
       glowColor: [1, 0.5, 0.2],
       glowIntensity: 0.7,
+      floorBase: [0.068, 0.074, 0.085],
+      ringTint: [0.46, 0.44, 0.40],
+      showRings: true,
     };
 
     gl.disable(gl.DEPTH_TEST);
@@ -422,17 +547,40 @@ export class VfxPainter {
     }
   }
 
-  setFloor(floorY, stageOrigin, glowColor, glowIntensity) {
+  setFloor(floorY, stageOrigin, glowColor, glowIntensity, style = null) {
     this.floorState.floorY = floorY;
     this.floorState.stageOrigin = stageOrigin;
     this.floorState.glowColor = glowColor;
     this.floorState.glowIntensity = glowIntensity;
+    if (style) {
+      if (style.floorBase) this.floorState.floorBase = style.floorBase;
+      if (style.ringTint) this.floorState.ringTint = style.ringTint;
+      if (typeof style.showRings === 'boolean') this.floorState.showRings = style.showRings;
+    }
   }
 
-  eye(view, proj, groups, time, passthrough) {
+  drawActorLines(view, proj, actor, color = [0.6, 0.64, 0.7, 0.34]) {
+    if (!actor || !actor.lineCount) return;
+    const gl = this.gl;
+    gl.enable(gl.BLEND);
+    gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
+    gl.useProgram(this.lineProg);
+    gl.uniformMatrix4fv(this.uLine.view, false, view);
+    gl.uniformMatrix4fv(this.uLine.proj, false, proj);
+    gl.uniform4fv(this.uLine.color, color);
+    gl.bindBuffer(gl.ARRAY_BUFFER, this.lineBuf);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, actor.lineVerts, 0, actor.lineCount * 6);
+    gl.bindVertexArray(this.lineVao);
+    gl.drawArrays(gl.LINES, 0, actor.lineCount * 2);
+    gl.bindVertexArray(null);
+  }
+
+  eye(view, proj, groups, time, passthrough, actorOverlay = null) {
     const gl = this.gl;
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.noiseTex);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, this.maskTex);
     gl.enable(gl.BLEND);
 
     if (!passthrough) {
@@ -442,10 +590,17 @@ export class VfxPainter {
       gl.uniformMatrix4fv(this.uFloor.proj, false, proj);
       gl.uniform1f(this.uFloor.floorY, this.floorState.floorY);
       gl.uniform3fv(this.uFloor.stageOrigin, this.floorState.stageOrigin);
+      gl.uniform3fv(this.uFloor.floorBase, this.floorState.floorBase);
+      gl.uniform3fv(this.uFloor.ringTint, this.floorState.ringTint);
+      gl.uniform1f(this.uFloor.showRings, this.floorState.showRings ? 1.0 : 0.0);
       gl.uniform3fv(this.uFloor.glowColor, this.floorState.glowColor);
       gl.uniform1f(this.uFloor.glowIntensity, this.floorState.glowIntensity);
       gl.bindVertexArray(this.floorVao);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
+
+    if (actorOverlay?.actor) {
+      this.drawActorLines(view, proj, actorOverlay.actor, actorOverlay.color);
     }
 
     gl.useProgram(this.splatProg);

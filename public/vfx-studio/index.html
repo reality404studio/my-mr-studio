@@ -43,23 +43,77 @@
     </header>
 
     <div class="workspace">
-      <section class="stage" aria-label="3D VFX 시뮬레이션 뷰포트">
+      <section class="stage" id="stageSection" aria-label="3D/2D VFX 시뮬레이션 뷰포트">
         <canvas id="viewport" tabindex="0" aria-label="3D 스플랫 VFX 캔버스"></canvas>
 
         <div class="stage__top-controls">
-          <div class="seg-group" role="group" aria-label="카메라 및 손 상호작용 모드">
-            <button id="modeOrbitBtn" class="seg is-active" type="button">회전 (Orbit)</button>
-            <button id="modeHandBtn" class="seg" type="button" title="드래그로 가상 손 콜라이더를 휘둘러 파티클 물성을 테스트합니다">손 휘젓기</button>
+          <div class="stage__controls-row">
+            <div id="viewSwitchGroup" class="seg-group" role="group" aria-label="시점(카메라) 프리셋">
+              <button class="seg is-active" type="button" data-view="mmo-3p">MMO 3인칭</button>
+              <button class="seg" type="button" data-view="vr-1p">VR 1인칭</button>
+              <button class="seg" type="button" data-view="2d-side">2D · 도트</button>
+              <button class="seg" type="button" data-view="2d-iso">2D 쿼터</button>
+              <button class="seg" type="button" data-view="topdown">탑다운</button>
+            </div>
+
+            <div class="seg-group" role="group" aria-label="테스트 액터 및 배경">
+              <label class="sr-only" for="actorSelect">테스트 액터</label>
+              <select id="actorSelect" class="seg-select" title="테스트 더미 액터 모션 선택">
+                <option value="idle">액터: 제자리</option>
+                <option value="sword-swing">액터: 검 휘두르기</option>
+                <option value="projectile-hit">액터: 발사→적중</option>
+                <option value="hand-collider">액터: 자동 손 휘젓기</option>
+              </select>
+              <label class="sr-only" for="backdropSelect">배경 조도</label>
+              <select id="backdropSelect" class="seg-select" title="배경 밝기 전환 (가독성 검수)">
+                <option value="dungeon">배경: 던전</option>
+                <option value="daylight">배경: 낮(밝음)</option>
+                <option value="passthrough">배경: 패스스루</option>
+              </select>
+              <button id="toggleActorVisBtn" class="seg is-active" type="button" title="더미 실루엣 표시 전환">더미</button>
+            </div>
           </div>
 
-          <div class="seg-group" role="group" aria-label="재생 제어">
-            <button id="burstBtn" class="seg" type="button" title="폭발/버스트 재발사 (Space)">버스트 ↻</button>
-            <button id="pauseBtn" class="seg" type="button">일시정지</button>
-            <button id="speedBtn" class="seg" type="button" title="재생 속도 전환">1.0×</button>
+          <div class="stage__controls-row">
+            <div class="seg-group" role="group" aria-label="카메라 및 손 상호작용 모드">
+              <button id="modeOrbitBtn" class="seg is-active" type="button">회전</button>
+              <button id="modeHandBtn" class="seg" type="button" title="드래그로 가상 손 콜라이더를 휘둘러 파티클 물성을 테스트합니다">손 휘젓기</button>
+              <button id="pixelToggleBtn" class="seg" type="button" title="실시간 도트(픽셀아트) 후처리 필터 전환">도트 필터</button>
+            </div>
+
+            <div class="seg-group" role="group" aria-label="재생 제어">
+              <button id="burstBtn" class="seg" type="button" title="폭발/버스트 재발사 (Space)">버스트 ↻</button>
+              <button id="pauseBtn" class="seg" type="button">일시정지</button>
+              <button id="speedBtn" class="seg" type="button" title="재생 속도 전환">1.0×</button>
+            </div>
           </div>
         </div>
 
-        <p id="stageHint" class="stage__hint">드래그: 시점 회전 · 휠: 줌 · Shift+드래그: 손 콜라이더로 파티클 밀기 · Space: 버스트</p>
+        <div id="pixelBar" class="pixel-bar" hidden>
+          <span class="pixel-bar__tag">PIXEL</span>
+          <select id="pixelRes" class="seg-select" title="도트 캔버스 해상도">
+            <option value="64">64×64</option>
+            <option value="128" selected>128×128</option>
+            <option value="256">256×256</option>
+          </select>
+          <select id="pixelColors" class="seg-select" title="팔레트 색 수">
+            <option value="8">8색</option>
+            <option value="16" selected>16색</option>
+            <option value="32">32색</option>
+          </select>
+          <select id="pixelFps" class="seg-select" title="도트 스텝 프레임레이트">
+            <option value="12" selected>12fps</option>
+            <option value="15">15fps</option>
+            <option value="24">24fps</option>
+            <option value="60">60fps</option>
+          </select>
+          <label class="pixel-bar__check">
+            <input id="pixelOutline" type="checkbox" checked> 1px 외곽선
+          </label>
+          <button id="bakeSpriteBtn" class="btn btn--small btn--primary" type="button" title="투명 PNG 스프라이트 시트와 프레임 메타 JSON을 다운로드합니다">스프라이트 시트 Bake ↓</button>
+        </div>
+
+        <p id="stageHint" class="stage__hint">MMO 3인칭 백뷰 · 드래그: 시점 회전 · Shift+드래그: 손 콜라이더 · Space: 버스트</p>
 
         <div id="xrBanner" class="banner" role="alert" hidden></div>
 

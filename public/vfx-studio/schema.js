@@ -9,9 +9,38 @@ export const KERNEL_IDS = Object.freeze({
   blade: 3,
   electric: 4,
   ring: 5,
+  frost: 6,
+  aurora: 7,
+  shield: 8,
+  debris: 9,
+  bio: 10,
 });
 
 export const KERNEL_NAMES = Object.keys(KERNEL_IDS);
+
+export const VFX_USAGES = Object.freeze([
+  { id: 'cast', label: '시전·차징', defaultActor: 'idle' },
+  { id: 'projectile', label: '투사체·빔', defaultActor: 'projectile-hit' },
+  { id: 'slash', label: '검격·궤적', defaultActor: 'sword-swing' },
+  { id: 'impact', label: '적중·파괴', defaultActor: 'projectile-hit' },
+  { id: 'aoe', label: '광역 장판', defaultActor: 'idle' },
+  { id: 'aura', label: '오라·실드', defaultActor: 'idle' },
+  { id: 'status', label: '상태·치유', defaultActor: 'idle' },
+  { id: 'env', label: '환경·이동', defaultActor: 'idle' },
+]);
+
+export const VFX_CATEGORIES = Object.freeze([
+  { id: 'A', label: 'A. 불·연소·폭발' },
+  { id: 'B', label: 'B. 연기·안개·가스' },
+  { id: 'C', label: 'C. 물·파도·액체' },
+  { id: 'D', label: 'D. 얼음·눈·서리' },
+  { id: 'E', label: 'E. 번개·전기·스파크' },
+  { id: 'F', label: 'F. 빛·오로라·광학' },
+  { id: 'G', label: 'G. 흙·암석·파편' },
+  { id: 'H', label: 'H. 바람·회오리' },
+  { id: 'I', label: 'I. 타격·검격·탄도' },
+  { id: 'J', label: 'J. 생명·치유·독' },
+]);
 
 export const QUEST_BUDGET = Object.freeze({
   maxSplats: 4800,
@@ -151,7 +180,13 @@ function normalizeLayer(raw = {}, idx = 0) {
     : type === 'arc' ? 'blade' : type === 'wave' ? 'ring' : 'flame';
   const blend = raw.blend === 'alpha' || raw.blend === 'additive'
     ? raw.blend
-    : (kernel === 'mist' || kernel === 'matter' ? 'alpha' : 'additive');
+    : (kernel === 'mist' || kernel === 'matter' || kernel === 'debris' ? 'alpha' : 'additive');
+  const socket = ['origin', 'bladeTrail', 'projectile', 'impact', 'casterHand'].includes(raw.socket)
+    ? raw.socket
+    : 'origin';
+  const trigger = ['continuous', 'onHit', 'onFloor'].includes(raw.trigger)
+    ? raw.trigger
+    : 'continuous';
 
   const base = {
     id: String(raw.id || `layer_${idx + 1}`).replace(/[^a-zA-Z0-9_-]/g, '_'),
@@ -160,12 +195,15 @@ function normalizeLayer(raw = {}, idx = 0) {
     type,
     kernel,
     blend,
+    socket,
+    trigger,
     colorCore: normalizeHex(raw.colorCore, '#fff3d6'),
     colorRim: normalizeHex(raw.colorRim, '#e05a28'),
     opacity: clampNum(raw.opacity, 0.02, 2.0, 0.85),
     emission: clampNum(raw.emission, 0.0, 3.5, blend === 'additive' ? 1.5 : 0.3),
     erosion: clampNum(raw.erosion, 0.0, 1.0, 0.35),
-    glint: clampNum(raw.glint, 0.0, 2.0, kernel === 'matter' ? 0.55 : 0.15),
+    glint: clampNum(raw.glint, 0.0, 2.0, (kernel === 'matter' || kernel === 'frost') ? 0.65 : 0.15),
+    absorption: clampNum(raw.absorption, 0.0, 1.0, kernel === 'mist' ? 0.45 : 0.0),
     delay: clampNum(raw.delay, 0, 5, 0),
   };
 
@@ -191,10 +229,14 @@ function normalizeLayer(raw = {}, idx = 0) {
       curlAmp: clampNum(raw.curlAmp, 0.0, 4.5, 0.95),
       curlFreq: clampNum(raw.curlFreq, 0.2, 8.0, 2.1),
       vortex: clampNum(raw.vortex, -6.0, 6.0, 0.9),
+      rankineCore: clampNum(raw.rankineCore, 0.06, 1.4, 0.28),
       radial: clampNum(raw.radial, -5.0, 5.0, 0.15),
       homeSpring: clampNum(raw.homeSpring, 0.0, 1.0, 0.0),
       floorBounce: clampNum(raw.floorBounce, 0.0, 1.0, 0.25),
       subEmit: Math.round(clampNum(raw.subEmit, 0, 4, 0)),
+      tempStart: clampNum(raw.tempStart, 0.0, 1.5, kernel === 'flame' ? 1.0 : 0.0),
+      coolingRate: clampNum(raw.coolingRate, 0.0, 4.0, kernel === 'flame' ? 1.35 : 0.0),
+      smokeTransition: clampNum(raw.smokeTransition, 0.0, 1.0, 0.0),
       origin: Array.isArray(raw.origin) && raw.origin.length === 3
         ? raw.origin.map((v) => clampNum(v, -2, 2, 0))
         : [0, 0, 0],
@@ -212,9 +254,9 @@ function normalizeLayer(raw = {}, idx = 0) {
       helixRadius: clampNum(raw.helixRadius, 0.0, 0.55, 0.09),
       jitter: clampNum(raw.jitter, 0.0, 0.35, 0.055),
       flowSpeed: clampNum(raw.flowSpeed, 0.1, 8.0, 1.6),
-      width: clampNum(raw.width, 0.003, 0.12, 0.016),
+      width: clampNum(raw.width, 0.003, 0.14, 0.016),
       branches: Math.round(clampNum(raw.branches, 0, 6, 2)),
-      mode: ['helix', 'orbit', 'bolt', 'slash'].includes(raw.mode) ? raw.mode : 'helix',
+      mode: ['helix', 'orbit', 'bolt', 'slash', 'ribbon', 'leader'].includes(raw.mode) ? raw.mode : 'helix',
       origin: Array.isArray(raw.origin) && raw.origin.length === 3
         ? raw.origin.map((v) => clampNum(v, -2, 2, 0))
         : [0, 0, 0],
@@ -254,7 +296,7 @@ export function buildDefaultControls(recipe) {
     const p = `layers.${firstEmitter}`;
     controls.push(
       { label: `${layers[firstEmitter].name} · 난류(Curl)`, path: `${p}.curlAmp`, min: 0, max: 3.5, step: 0.05, group: '시뮬레이션' },
-      { label: `${layers[firstEmitter].name} · 소용돌이`, path: `${p}.vortex`, min: -4.5, max: 4.5, step: 0.1, group: '시뮬레이션' },
+      { label: `${layers[firstEmitter].name} · 와류(Rankine)`, path: `${p}.vortex`, min: -4.5, max: 4.5, step: 0.1, group: '시뮬레이션' },
       { label: `${layers[firstEmitter].name} · 입자 크기`, path: `${p}.sizeStart`, min: 0.006, max: 0.18, step: 0.002, group: '형태' },
       { label: `${layers[firstEmitter].name} · 알파 침식`, path: `${p}.erosion`, min: 0, max: 0.95, step: 0.02, group: '쉐이더' },
     );
@@ -283,14 +325,33 @@ export function normalizeRecipe(raw = {}) {
 
   const layers = layersRaw.map((l, i) => normalizeLayer(l, i));
   const feel = clampFeel(raw.feel || SPLAT_FEEL_PRESETS.Ember);
+  const validUsage = VFX_USAGES.some((u) => u.id === raw.usage) ? raw.usage : 'cast';
+  const validCat = VFX_CATEGORIES.some((c) => c.id === raw.category) ? raw.category : 'A';
+  const validView = ['mmo-3p', 'vr-1p', '2d-side', '2d-iso', 'topdown'].includes(raw.previewStage?.view)
+    ? raw.previewStage.view
+    : 'mmo-3p';
+  const validActor = ['idle', 'sword-swing', 'projectile-hit', 'hand-collider'].includes(raw.previewStage?.actor)
+    ? raw.previewStage.actor
+    : 'idle';
+  const validBackdrop = ['dungeon', 'daylight', 'passthrough'].includes(raw.previewStage?.backdrop)
+    ? raw.previewStage.backdrop
+    : 'dungeon';
 
   const recipe = {
-    schemaVersion: 'vfx-recipe/1',
+    schemaVersion: raw.schemaVersion === 'vfx-recipe/2' ? 'vfx-recipe/2' : 'vfx-recipe/1',
     id: String(raw.id || 'custom-vfx').replace(/[^a-zA-Z0-9_-]/g, '-'),
     name: String(raw.name || '커스텀 VFX').slice(0, 64),
     prompt: String(raw.prompt || '').slice(0, 600),
     archetype: String(raw.archetype || 'custom').slice(0, 32),
+    usage: validUsage,
+    category: validCat,
+    refIds: Array.isArray(raw.refIds) ? raw.refIds.map((x) => String(x).slice(0, 8)).slice(0, 8) : [],
     summary: String(raw.summary || '').slice(0, 240),
+    previewStage: {
+      view: validView,
+      actor: validActor,
+      backdrop: validBackdrop,
+    },
     scale: clampNum(raw.scale, 0.35, 2.2, 1.0),
     timeScale: clampNum(raw.timeScale, 0.1, 2.5, 1.0),
     floorY: clampNum(raw.floorY, -1.2, 0.2, -0.42),

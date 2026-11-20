@@ -1,6 +1,10 @@
-// 실시간 3D 멀티-레이어 VFX 시뮬레이션 엔진 (Node 테스트 + 브라우저 + Quest WebXR 공용).
-// meta-mr-picker/ritual의 SplatFeel / SplatSimKernel 물리 커널 + 3D Curl Noise +
-// Bézier/Helix 에너지 아크 + Shockwave 링 + 2차 비산(Sub-emitter) + 손 콜라이더를 통합한다.
+// 실시간 3D/2D 멀티-레이어 VFX 시뮬레이션 엔진 (Node 테스트 + 브라우저 + Quest WebXR 공용).
+// Phase 1+2 업그레이드:
+// - meta-mr-picker/ritual SplatFeel / SplatSimKernel 물리 커널 + 3D Curl Noise
+// - Rankine 결합 와류(H07: r<=R 강체 회전 / r>R 반비례 감쇠)
+// - 온도 냉각 → 흑염/그을음 연기 자동 전환(A·B) + Beer-Lambert 흡수/산란(B10)
+// - 가상 테스트 액터(ActorRig) 소켓 바인딩 + 소켓 히스토리 Catmull-Rom 리본(I01/I04)
+// - 전극→타깃 Leader-Branch 번개(E02/E07) + OnHit 충돌 이벤트 발화(I02/G05)
 import {
   KERNEL_IDS,
   QUEST_BUDGET,
@@ -9,6 +13,7 @@ import {
   hexToRgb01,
   normalizeRecipe,
 } from './schema.js';
+import { ActorRig } from './actors.js';
 
 export const STRIDE = 21;
 const TAU = Math.PI * 2;
@@ -24,15 +29,20 @@ function makeRng(seed = 1337) {
   };
 }
 
-// 발산이 0인 해석적 3D Curl Noise (유체 소용돌이 속도장, 할당 없음)
+// H07: Rankine 결합 와류 접선 속도 (r=R에서 연속, 중심 무한 발산 제거 + 태풍의 눈 형성)
+export function rankineTangential(r, coreR, strength) {
+  const R = Math.max(0.04, coreR || 0.28);
+  if (r <= R) return strength * (r / R);
+  return strength * (R / r);
+}
+
+// 발산이 0인 해석적 3D Curl Noise (H08, 할당 없음)
 export function curlNoise3(out, x, y, z, t, freq) {
   const fx = x * freq;
   const fy = y * freq;
   const fz = z * freq;
   const t1 = t * 1.15;
   const t2 = t * 0.78;
-  // psi = (sin(fy + t1) + 0.5*cos(fz*1.7 - t2), sin(fz + t2) + 0.5*cos(fx*1.6 + t1), sin(fx - t1) + 0.5*cos(fy*1.8 + t2))
-  // curl(psi) = (dPz/dy - dPy/dz, dPx/dz - dPz/dx, dPy/dx - dPx/dy)
   const dPz_dy = -0.5 * 1.8 * Math.sin(fy * 1.8 + t2);
   const dPy_dz = Math.cos(fz + t2);
   const dPx_dz = -0.5 * 1.7 * Math.sin(fz * 1.7 - t2);
@@ -40,7 +50,6 @@ export function curlNoise3(out, x, y, z, t, freq) {
   const dPy_dx = -0.5 * 1.6 * Math.sin(fx * 1.6 + t1);
   const dPx_dy = Math.cos(fy + t1);
 
-  // 2차 옥타브 (고주파 난류)
   const fx2 = fx * 2.13 + 3.1;
   const fy2 = fy * 2.13 - 1.7;
   const fz2 = fz * 2.13 + 2.4;
@@ -101,6 +110,7 @@ function createEmitterState(layer, seedOffset = 0) {
     age: 0, life: 1,
     size0: 0.02, size1: 0.01,
     seed: 0.5, stick: 0, glow: 0,
+    temp: 1.0,
   }));
   return {
     layerId: layer.id,
@@ -121,12 +131,15 @@ export class VfxEngine {
       { batch: this.alphaBatch, blend: 'alpha', alpha: 1 },
       { batch: this.addBatch, blend: 'additive', alpha: 1 },
     ];
+    this.actor = new ActorRig();
     this.time = 0;
+    this.lastHitTime = -10;
     this.frame = 0;
     this.paused = false;
     this.speedMultiplier = 1.0;
     this.stageOrigin = [0, 0, 0];
     this.colliders = [];
+    this.pointerCollider = null;
     this.prevHandPos = new Map();
     this.emitterStates = new Map();
     this.tmpCurl = [0, 0, 0];
@@ -141,8 +154,33 @@ export class VfxEngine {
       simMs: 0,
       questGrade: 'OK',
       activeColliders: 0,
+      smokeConverted: 0,
     };
     this.loadRecipe(initialRecipe || { layers: [] }, true);
+  }
+
+  setActorMode(mode) {
+    this.actor.setMode(mode);
+  }
+
+  resolveSocketOrigin(layer, scale) {
+    const ox = (layer.origin?.[0] || 0) * scale;
+    const oy = (layer.origin?.[1] || 0) * scale;
+    const oz = (layer.origin?.[2] || 0) * scale;
+    const s = this.actor.sockets;
+    if (layer.socket === 'projectile' && this.actor.mode === 'projectile-hit') {
+      return [s.projectile[0] + ox * 0.25, s.projectile[1] + oy * 0.25, s.projectile[2] + oz * 0.25];
+    }
+    if (layer.socket === 'impact' && (this.actor.mode === 'projectile-hit' || this.actor.mode === 'sword-swing')) {
+      return [s.impact[0] + ox * 0.25, s.impact[1] + oy * 0.25, s.impact[2] + oz * 0.25];
+    }
+    if (layer.socket === 'bladeTrail' && this.actor.mode === 'sword-swing') {
+      return [s.bladeTip[0] + ox * 0.2, s.bladeTip[1] + oy * 0.2, s.bladeTip[2] + oz * 0.2];
+    }
+    if (layer.socket === 'casterHand' && this.actor.mode !== 'idle') {
+      return [s.casterHand[0] + ox * 0.2, s.casterHand[1] + oy * 0.2, s.casterHand[2] + oz * 0.2];
+    }
+    return [ox, oy, oz];
   }
 
   loadRecipe(rawRecipe, resetSim = false) {
@@ -169,8 +207,9 @@ export class VfxEngine {
 
     if (resetSim) {
       this.time = 0;
+      this.lastHitTime = -10;
+      this.actor.reset();
       this.triggerBurst();
-      // 첫 프레임부터 풍성하게 보이도록 0.65초 워밍업
       for (let i = 0; i < 24; i++) this.stepSimulation(1 / 40, []);
     }
     return { recipe: this.recipe, budgetReport: this.budgetReport };
@@ -182,6 +221,7 @@ export class VfxEngine {
 
   reset() {
     this.time = 0;
+    this.lastHitTime = -10;
     this.prevHandPos.clear();
     this.loadRecipe(this.recipe, true);
   }
@@ -191,13 +231,15 @@ export class VfxEngine {
     this.colliders = [];
   }
 
-  triggerBurst() {
+  triggerBurst(onlyOnHit = false) {
     const scale = this.recipe.scale;
+    if (onlyOnHit) this.lastHitTime = this.time;
     for (const layer of this.recipe.layers) {
       if (!layer.enabled || layer.type !== 'emitter') continue;
+      if (onlyOnHit && layer.trigger !== 'onHit') continue;
       const st = this.emitterStates.get(layer.id);
       if (!st) continue;
-      const burstN = layer.burst > 0 ? layer.burst : Math.min(48, Math.round(layer.count * 0.16));
+      const burstN = layer.burst > 0 ? layer.burst : Math.min(56, Math.round(layer.count * 0.22));
       for (let i = 0; i < burstN; i++) this.spawnParticle(st, layer, scale, false, null, null);
     }
   }
@@ -218,6 +260,7 @@ export class VfxEngine {
   buildCollidersFromHands(hands, dt) {
     const out = [];
     if (this.pointerCollider) out.push(this.pointerCollider);
+    if (this.actor.autoHandCollider) out.push(this.actor.autoHandCollider);
     if (!Array.isArray(hands) || !hands.length) return out;
     const invDt = dt > 1e-4 ? 1 / dt : 72;
     for (const h of hands) {
@@ -232,7 +275,6 @@ export class VfxEngine {
         const vy = prev ? clamp((p[1] - prev[1]) * invDt, -5, 5) : 0;
         const vz = prev ? clamp((p[2] - prev[2]) * invDt, -5, 5) : 0;
         this.prevHandPos.set(key, [p[0], p[1], p[2]]);
-        // 스테이지 원점 기준으로 변환
         out.push({
           position: [p[0] - this.stageOrigin[0], p[1] - this.stageOrigin[1], p[2] - this.stageOrigin[2]],
           velocity: [vx, vy, vz],
@@ -254,9 +296,7 @@ export class VfxEngine {
     }
     if (!p) return;
 
-    const ox = (layer.origin?.[0] || 0) * scale;
-    const oy = (layer.origin?.[1] || 0) * scale;
-    const oz = (layer.origin?.[2] || 0) * scale;
+    const [ox, oy, oz] = this.resolveSocketOrigin(layer, scale);
     const rad = layer.radius * scale;
     const hgt = layer.height * scale;
 
@@ -299,7 +339,6 @@ export class VfxEngine {
       dirX = Math.cos(theta) * s; dirY = u; dirZ = Math.sin(theta) * s;
       x = ox + dirX * 0.015; y = oy + dirY * 0.015; z = oz + dirZ * 0.015;
     } else {
-      // sphere
       const theta = rng() * TAU;
       const u = rng() * 2 - 1;
       const s = Math.sqrt(Math.max(0, 1 - u * u));
@@ -321,6 +360,13 @@ export class VfxEngine {
       p.vx = (dirX + (rng() - 0.5) * j) * spd;
       p.vy = (dirY + (rng() - 0.5) * j) * spd;
       p.vz = (dirZ + (rng() - 0.5) * j) * spd;
+      // 투사체 적중 시 타깃 반발 노멀 방향 임펄스 가미 (I02/I05)
+      if (layer.trigger === 'onHit' && this.actor.mode === 'projectile-hit') {
+        const n = this.actor.sockets.impactNormal;
+        p.vx += n[0] * spd * 0.65;
+        p.vy += n[1] * spd * 0.45;
+        p.vz += n[2] * spd * 0.65;
+      }
     }
 
     p.age = 0;
@@ -332,16 +378,23 @@ export class VfxEngine {
     p.seed = rng();
     p.stick = 0;
     p.glow = isSub ? 0.85 : 0;
+    p.temp = layer.tempStart > 0 ? layer.tempStart * (0.82 + 0.36 * rng()) : 0;
   }
 
   tick(dt, hands = []) {
     const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
     const clampedDt = clamp(dt, 0, 0.05);
     this.frame++;
-    this.colliders = this.buildCollidersFromHands(hands, clampedDt);
     if (!this.paused) {
       const simDt = clampedDt * this.recipe.timeScale * this.speedMultiplier;
+      this.actor.update(simDt, this.recipe.floorY * this.recipe.scale);
+      if (this.actor.justHit) {
+        this.triggerBurst(true);
+      }
+      this.colliders = this.buildCollidersFromHands(hands, clampedDt);
       this.stepSimulation(simDt, this.colliders);
+    } else {
+      this.colliders = this.buildCollidersFromHands(hands, clampedDt);
     }
     this.paint();
     const t1 = typeof performance !== 'undefined' ? performance.now() : 0;
@@ -363,29 +416,34 @@ export class VfxEngine {
       const st = this.emitterStates.get(layer.id);
       if (!st) continue;
 
-      // 연속 스폰 + 주기적 버스트
-      st.credit += layer.rate * dt;
-      const spawnCount = Math.min(48, Math.floor(st.credit));
-      if (spawnCount > 0) {
-        st.credit -= spawnCount;
-        for (let i = 0; i < spawnCount; i++) this.spawnParticle(st, layer, scale, false, null, null);
-      }
-
-      if (layer.burst > 0 && recipe.loopPeriod > 0.25) {
-        st.burstClock += dt;
-        if (st.burstClock >= recipe.loopPeriod) {
-          st.burstClock -= recipe.loopPeriod;
-          const n = Math.min(layer.burst, Math.round(layer.count * 0.55));
-          for (let i = 0; i < n; i++) this.spawnParticle(st, layer, scale, false, null, null);
+      const isHitOnly = layer.trigger === 'onHit' && (this.actor.mode === 'projectile-hit' || this.actor.mode === 'sword-swing');
+      if (!isHitOnly) {
+        // 투사체 비행 소켓일 때는 비행/차징 구간에만 연속 방출
+        const activeProj = !(layer.socket === 'projectile' && this.actor.mode === 'projectile-hit' && this.actor.phase === 'impact');
+        if (activeProj) {
+          st.credit += layer.rate * dt;
+          const spawnCount = Math.min(48, Math.floor(st.credit));
+          if (spawnCount > 0) {
+            st.credit -= spawnCount;
+            for (let i = 0; i < spawnCount; i++) this.spawnParticle(st, layer, scale, false, null, null);
+          }
+        }
+        if (layer.burst > 0 && recipe.loopPeriod > 0.25) {
+          st.burstClock += dt;
+          if (st.burstClock >= recipe.loopPeriod) {
+            st.burstClock -= recipe.loopPeriod;
+            const n = Math.min(layer.burst, Math.round(layer.count * 0.55));
+            for (let i = 0; i < n; i++) this.spawnParticle(st, layer, scale, false, null, null);
+          }
         }
       }
 
-      const ox = (layer.origin?.[0] || 0) * scale;
-      const oy = (layer.origin?.[1] || 0) * scale;
-      const oz = (layer.origin?.[2] || 0) * scale;
+      const [ox, oy, oz] = this.resolveSocketOrigin(layer, scale);
       const dragFactor = Math.exp(-(layer.drag + simFeel.fallDamping * 0.28) * dt);
       const springK = layer.homeSpring * simFeel.homeStiffness;
       const bounceK = clamp(layer.floorBounce * 0.7 + simFeel.bounce * 0.3, 0, 0.92);
+      const coolDecay = layer.coolingRate > 0 ? Math.exp(-layer.coolingRate * dt) : 1;
+      const rankineR = Math.max(0.05, (layer.rankineCore || 0.28) * scale);
 
       for (let i = 0; i < st.cap; i++) {
         const p = st.particles[i];
@@ -396,8 +454,13 @@ export class VfxEngine {
           continue;
         }
 
+        // 온도 냉각 (Category A: 점화 → 팽창 → 냉각 → 그을음 연기)
+        if (p.temp > 0) p.temp *= coolDecay;
+
         let ax = 0;
-        let ay = -layer.gravity - simFeel.weight * 0.14;
+        // 뜨거운 입자일수록 부력이 강하고 식으면 서서히 완만해짐
+        const thermalBuoyancy = layer.smokeTransition > 0 ? p.temp * 0.65 : 0;
+        let ay = -layer.gravity + thermalBuoyancy - simFeel.weight * 0.14;
         let az = 0;
 
         // 1. 3D Curl Noise 난류
@@ -408,7 +471,7 @@ export class VfxEngine {
           az += curl[2] * layer.curlAmp;
         }
 
-        // 2. 소용돌이(Vortex) + 방사형(Radial) 힘
+        // 2. Rankine 결합 와류(H07) + 방사형(Radial) 힘
         const rx = p.x - ox;
         const ry = p.y - oy;
         const rz = p.z - oz;
@@ -418,9 +481,9 @@ export class VfxEngine {
           const nx = rx * invR;
           const nz = rz * invR;
           if (Math.abs(layer.vortex) > 0.001) {
-            const swirlGain = layer.vortex / (0.28 + rHoriz);
-            ax += -nz * swirlGain;
-            az += nx * swirlGain;
+            const vTheta = rankineTangential(rHoriz, rankineR, layer.vortex * 1.45);
+            ax += -nz * vTheta;
+            az += nx * vTheta;
           }
           if (Math.abs(layer.radial) > 0.001) {
             ax += nx * layer.radial;
@@ -428,7 +491,7 @@ export class VfxEngine {
           }
         }
 
-        // 3. SplatSimKernel Home Spring (응집·복원)
+        // 3. SplatSimKernel Home Spring
         if (springK > 0.1) {
           const sx = (p.hx - p.x) * springK;
           const sy = (p.hy - p.y) * springK;
@@ -440,7 +503,7 @@ export class VfxEngine {
           az += sz * sCap;
         }
 
-        // 4. Hand / Pointer Collider 상호작용 (meta-mr-picker SplatSimKernel.AccumulateCollider 포트)
+        // 4. Hand / Pointer Collider 상호작용
         let contactGlow = 0;
         for (let cIdx = 0; cIdx < colliders.length; cIdx++) {
           const c = colliders[cIdx];
@@ -460,7 +523,6 @@ export class VfxEngine {
 
           if (dist < c.radius) {
             const w = 1 - dist / c.radius;
-            // SplatSimKernel.Firmness (비뉴턴 전단 농화)
             let firm = 1;
             if (simFeel.thicken > 0) {
               const relSpd = Math.hypot(rvx, rvy, rvz);
@@ -498,8 +560,8 @@ export class VfxEngine {
         p.vy = (p.vy + ay * dt) * dragFactor;
         p.vz = (p.vz + az * dt) * dragFactor;
         const speed = Math.hypot(p.vx, p.vy, p.vz);
-        if (speed > 4.2) {
-          const capS = 4.2 / speed;
+        if (speed > 4.4) {
+          const capS = 4.4 / speed;
           p.vx *= capS; p.vy *= capS; p.vz *= capS;
         }
         p.x += p.vx * dt;
@@ -533,8 +595,7 @@ export class VfxEngine {
           }
         }
 
-        // 스테이지 밖 폭주 방지
-        if (Math.hypot(rx, ry, rz) > 4.2 * scale) p.alive = false;
+        if (Math.hypot(rx, ry, rz) > 4.8 * scale) p.alive = false;
       }
     }
   }
@@ -552,6 +613,7 @@ export class VfxEngine {
     const t = this.time;
 
     let pulseEnergy = 0;
+    let smokeConverted = 0;
 
     for (let li = 0; li < recipe.layers.length; li++) {
       const layer = recipe.layers[li];
@@ -564,11 +626,12 @@ export class VfxEngine {
       if (layer.type === 'emitter') {
         const st = this.emitterStates.get(layer.id);
         if (!st) continue;
+        const auxZBase = layer.kernel === 'mist' ? layer.absorption : layer.glint;
+
         for (let i = 0; i < st.cap; i++) {
           const p = st.particles[i];
           if (!p.alive) continue;
           const lifeT = clamp(p.age / Math.max(p.life, 0.05));
-          // 급팽창(Anticipation/Snap) → 완만한 소멸 커브
           const envIn = smooth(lifeT / 0.11);
           const envOut = 1 - smooth((lifeT - 0.52) / 0.48);
           const alpha = layer.opacity * envIn * envOut * (1 + p.glow * 0.45);
@@ -584,6 +647,37 @@ export class VfxEngine {
           const longR = baseSize * Math.max(1, layer.stretch * 0.55 + velStretch * 0.45);
           const wideR = baseSize * (1 + lookFeel.fluff * 0.15);
 
+          // Category A+B: 뜨거운 화염 입자가 식으면 자동으로 어두운 그을음 연기(Alpha Mist)로 전환
+          if (layer.smokeTransition > 0.05 && p.temp < 0.42) {
+            const coolBlend = clamp((0.42 - p.temp) / 0.34) * layer.smokeTransition;
+            const smokeAlpha = alpha * coolBlend * 0.72;
+            if (smokeAlpha > 0.01) {
+              smokeConverted++;
+              const smokeSize = baseSize * (1.4 + coolBlend * 1.15);
+              this.alphaBatch.put(
+                p.x + oxStage, p.y + oyStage, p.z + ozStage,
+                ax, ay, az,
+                smokeSize * 1.18, smokeSize,
+                0.14, 0.12, 0.11,
+                0.04, 0.045, 0.055,
+                KERNEL_IDS.mist, smokeAlpha, clamp(layer.erosion + lifeT * 0.25), 0.06,
+                p.seed, lifeT, 0.72, // high absorption soot
+              );
+            }
+            const remFire = alpha * (1 - coolBlend * 0.85);
+            if (remFire <= 0.01) continue;
+            batch.put(
+              p.x + oxStage, p.y + oyStage, p.z + ozStage,
+              ax, ay, az,
+              longR, wideR,
+              coreRgb[0], coreRgb[1], coreRgb[2],
+              rimRgb[0], rimRgb[1], rimRgb[2],
+              kernelId, remFire, clamp(layer.erosion + lifeT * 0.28), layer.emission * (0.4 + p.temp * 0.8),
+              p.seed, clamp(1 - p.temp), auxZBase,
+            );
+            continue;
+          }
+
           batch.put(
             p.x + oxStage, p.y + oyStage, p.z + ozStage,
             ax, ay, az,
@@ -591,7 +685,7 @@ export class VfxEngine {
             coreRgb[0], coreRgb[1], coreRgb[2],
             rimRgb[0], rimRgb[1], rimRgb[2],
             kernelId, alpha, clamp(layer.erosion + lifeT * 0.28), layer.emission * (1 + p.glow * 0.55),
-            p.seed, lifeT, layer.glint,
+            p.seed, lifeT, auxZBase,
           );
         }
         pulseEnergy += layer.emission * 0.22;
@@ -612,6 +706,7 @@ export class VfxEngine {
     this.metrics.addSplats = this.addBatch.count;
     this.metrics.splatCount = totalSplats;
     this.metrics.estOverdraw = estOverdraw;
+    this.metrics.smokeConverted = smokeConverted;
     this.metrics.questGrade = this.budgetReport?.clamped
       ? 'CLAMPED'
       : totalSplats > QUEST_BUDGET.tightSplats || estOverdraw > QUEST_BUDGET.tightOverdrawArea
@@ -619,11 +714,124 @@ export class VfxEngine {
         : 'OK';
   }
 
-  // RitualGlowSplat.shader 베지에+헬릭스 + 후디니 다중 스케일 노이즈/분기 곡선
   paintArcLayer(layer, batch, kernelId, coreRgb, rimRgb, scale, t, oxStage, oyStage, ozStage) {
-    const ox = (layer.origin?.[0] || 0) * scale + oxStage;
-    const oy = (layer.origin?.[1] || 0) * scale + oyStage;
-    const oz = (layer.origin?.[2] || 0) * scale + ozStage;
+    // I01/I04: 무기 소켓 히스토리 Catmull-Rom 리본 모드
+    if (layer.mode === 'ribbon') {
+      const ribbon = this.actor.sampleBladeRibbon(Math.max(16, layer.segments));
+      if (ribbon.length >= 2) {
+        const width = layer.width * scale;
+        const strands = Math.max(1, Math.min(4, layer.strands));
+        for (let s = 0; s < strands; s++) {
+          const frac = strands === 1 ? 0.82 : mix(0.28, 1.0, s / (strands - 1));
+          let prev = null;
+          for (let i = 0; i < ribbon.length; i++) {
+            const pt = ribbon[i];
+            const px = mix(pt.base[0], pt.tip[0], frac) + oxStage;
+            const py = mix(pt.base[1], pt.tip[1], frac) + oyStage;
+            const pz = mix(pt.base[2], pt.tip[2], frac) + ozStage;
+            if (prev) {
+              const dx = px - prev[0], dy = py - prev[1], dz = pz - prev[2];
+              const segLen = Math.hypot(dx, dy, dz) || 0.001;
+              const fade = Math.pow(1 - pt.u, 1.15) * (0.25 + 0.75 * pt.w);
+              const edgeBoost = 0.55 + 0.65 * frac;
+              const alpha = layer.opacity * fade * edgeBoost;
+              if (alpha > 0.01) {
+                batch.put(
+                  (px + prev[0]) * 0.5, (py + prev[1]) * 0.5, (pz + prev[2]) * 0.5,
+                  dx / segLen, dy / segLen, dz / segLen,
+                  segLen * 0.88, width * (1.2 + (1 - pt.u) * 1.3) * edgeBoost,
+                  coreRgb[0], coreRgb[1], coreRgb[2],
+                  rimRgb[0], rimRgb[1], rimRgb[2],
+                  kernelId, alpha, layer.erosion + pt.u * 0.35, layer.emission * edgeBoost,
+                  (s * 0.23 + pt.u * 0.83) % 1, pt.u, layer.glint,
+                );
+              }
+            }
+            prev = [px, py, pz];
+          }
+        }
+        return;
+      }
+    }
+
+    // E02/E07: 시전자 손/원점 → 타깃 전극 Leader-Branch 방전 모드
+    if (layer.mode === 'leader') {
+      const start = this.actor.mode === 'projectile-hit'
+        ? this.actor.sockets.casterHand
+        : [-0.72 * scale, 0.08 * scale, 0];
+      const end = this.actor.mode === 'projectile-hit'
+        ? (this.actor.phase === 'anticipation' ? this.actor.sockets.casterHand : this.actor.sockets.target)
+        : [0.72 * scale, 0.06 * scale, 0];
+      const segs = Math.max(12, layer.segments);
+      const width = layer.width * scale;
+      // E01 연속 다중 섬광 리듬 (짧은 번쩍임 2~3회 + 어두운 간격)
+      const strobe = 0.45 + 0.55 * Math.pow(Math.abs(Math.sin(t * 13.5)), 0.45);
+      const tickQuant = Math.floor(t * 24) * 2.31;
+
+      for (let s = 0; s < Math.min(layer.strands, 5); s++) {
+        let prevX = start[0] + oxStage;
+        let prevY = start[1] + oyStage;
+        let prevZ = start[2] + ozStage;
+        const spreadAmp = (s === 0 ? 1.0 : 1.55) * layer.jitter * scale;
+
+        for (let k = 1; k <= segs; k++) {
+          const u = k / segs;
+          const env = Math.sin(u * Math.PI);
+          const j1 = Math.sin(u * 9.3 + tickQuant + s * 3.7) * 0.6;
+          const j2 = Math.cos(u * 23.1 - tickQuant * 1.4 + s * 6.1) * 0.4;
+          const x = mix(start[0], end[0], u) + oxStage + (j2 * 0.35) * spreadAmp * env;
+          const y = mix(start[1], end[1], u) + oyStage + (j1 + j2) * spreadAmp * env;
+          const z = mix(start[2], end[2], u) + ozStage + (Math.sin(u * 15.7 + tickQuant * 1.2 + s * 4.9) * 0.8) * spreadAmp * env;
+
+          const dx = x - prevX, dy = y - prevY, dz = z - prevZ;
+          const segLen = Math.hypot(dx, dy, dz) || 0.001;
+          const isMain = s === 0;
+          const w = width * (isMain ? 1.25 : 0.65) * (0.45 + 0.55 * env);
+          batch.put(
+            (x + prevX) * 0.5, (y + prevY) * 0.5, (z + prevZ) * 0.5,
+            dx / segLen, dy / segLen, dz / segLen,
+            segLen * 0.85, w,
+            coreRgb[0], coreRgb[1], coreRgb[2],
+            rimRgb[0], rimRgb[1], rimRgb[2],
+            kernelId, layer.opacity * strobe * (isMain ? 1.0 : 0.65), layer.erosion, layer.emission * strobe,
+            (s * 0.29 + u * 0.77) % 1, u, layer.glint,
+          );
+
+          // 측면 가지 방전 (E02)
+          if (isMain && layer.branches > 0 && k > 3 && k < segs - 3 && (k % Math.max(4, Math.floor(segs / (layer.branches + 1))) === 0)) {
+            const bSteps = Math.max(4, Math.floor(segs * 0.24));
+            let bx = x, by = y, bz = z;
+            const sign = (k % 2 === 0 ? 1 : -1);
+            for (let b = 1; b <= bSteps; b++) {
+              const bu = b / bSteps;
+              const nx = bx + (end[0] - start[0]) * 0.045 + Math.sin(b * 7.2 + tickQuant) * spreadAmp * 0.4;
+              const ny = by + sign * 0.055 * scale + Math.cos(b * 9.1 - tickQuant) * spreadAmp * 0.65;
+              const nz = bz + Math.sin(b * 6.4 + k + tickQuant) * spreadAmp * 0.55;
+              const bdx = nx - bx, bdy = ny - by, bdz = nz - bz;
+              const bl = Math.hypot(bdx, bdy, bdz) || 0.001;
+              const bt = 1 - bu;
+              batch.put(
+                (nx + bx) * 0.5, (ny + by) * 0.5, (nz + bz) * 0.5,
+                bdx / bl, bdy / bl, bdz / bl,
+                bl * 0.82, width * 0.5 * bt,
+                coreRgb[0], coreRgb[1], coreRgb[2],
+                rimRgb[0], rimRgb[1], rimRgb[2],
+                kernelId, layer.opacity * strobe * 0.62 * bt, layer.erosion + 0.1, layer.emission * 0.85,
+                (bu * 0.63 + k * 0.17) % 1, bu, layer.glint,
+              );
+              bx = nx; by = ny; bz = nz;
+            }
+          }
+          prevX = x; prevY = y; prevZ = z;
+        }
+      }
+      return;
+    }
+
+    const [sox, soy, soz] = this.resolveSocketOrigin(layer, scale);
+    const ox = sox + oxStage;
+    const oy = soy + oyStage;
+    const oz = soz + ozStage;
     const rad = layer.radius * scale;
     const hgt = layer.height * scale;
     const segs = layer.segments;
@@ -648,7 +856,6 @@ export class VfxEngine {
           y = oy + Math.sin(hAng) * hR + (u - 0.5) * hgt;
           z = oz + Math.sin(ang) * rr;
         } else if (layer.mode === 'slash') {
-          // 블레이드 앤 소울풍 기울어진 초승달 참격 아크
           const sweep = (u - 0.5) * 2.45 + Math.sin(t * layer.flowSpeed + s) * 0.25;
           const tilt = (sNorm - 0.5) * 1.35 + 0.35;
           const arcR = rad * (0.85 + 0.25 * Math.sin(u * Math.PI));
@@ -659,7 +866,6 @@ export class VfxEngine {
           y = oy + ly * Math.cos(tilt) - lz * Math.sin(tilt) * 0.55;
           z = oz + lz * Math.cos(tilt) + ly * Math.sin(tilt) * 0.55;
         } else if (layer.mode === 'bolt') {
-          // 중심에서 방사형·상향으로 꺾이며 뻗는 분기 뇌전
           const ang = baseAngle + Math.sin(t * 3.8 + s * 3.1) * 0.25;
           const distR = rad * u;
           const bend = Math.sin(u * Math.PI) * hgt * 0.32;
@@ -667,7 +873,6 @@ export class VfxEngine {
           y = oy + (u - 0.35) * hgt + bend;
           z = oz + Math.sin(ang) * distR;
         } else {
-          // helix: 상승 나선 화염/기운 촉수
           const ang = baseAngle + u * TAU * layer.helixTurns * 0.55;
           const rCurve = rad * (0.35 + 0.65 * Math.sin(u * Math.PI * 0.85)) * (1 - 0.28 * u);
           const hAng = phase + u * TAU * layer.helixTurns;
@@ -677,7 +882,6 @@ export class VfxEngine {
           z = oz + Math.sin(ang) * rCurve + Math.sin(hAng) * hR;
         }
 
-        // 다중 스케일 노이즈 변위 (저주파 굴곡 + 중주파 떨림 + 고주파 지글거림)
         const env = Math.sin(u * Math.PI);
         const jit = layer.jitter * scale * env;
         if (jit > 0.0002) {
@@ -710,7 +914,6 @@ export class VfxEngine {
             (s * 0.173 + u * 0.89) % 1, u, layer.glint,
           );
 
-          // 2차 잔가지 분기 (Houdini Branching)
           if (layer.branches > 0 && k > 4 && k < segs - 4 && (k % Math.max(4, Math.floor(segs / (layer.branches + 1))) === 0) && s < Math.max(2, layer.branches + 1)) {
             const bSteps = Math.max(4, Math.floor(segs * 0.26));
             let bx = midX, by = midY, bz = midZ;
@@ -743,11 +946,17 @@ export class VfxEngine {
     }
   }
 
-  // RitualSealWave.cs: Anticipation → 폭발적 팽창(Snap) → 완만한 소멸(Slow Decay)
   paintWaveLayer(layer, batch, kernelId, coreRgb, rimRgb, scale, t, oxStage, oyStage, ozStage) {
     const period = Math.max(0.4, layer.period);
-    const u = ((t - layer.delay) % period + period) % period / period;
-    // 비선형 폭발 커브: 빠르게 팽창하고 길게 잔광 소멸
+    let u;
+    if (layer.trigger === 'onHit' && (this.actor.mode === 'projectile-hit' || this.actor.mode === 'sword-swing')) {
+      const elapsed = t - this.lastHitTime;
+      if (elapsed < 0 || elapsed > period) return 0;
+      u = elapsed / period;
+    } else {
+      u = ((t - layer.delay) % period + period) % period / period;
+    }
+
     const expand = 1 - Math.pow(1 - u, 3.1);
     const fadeIn = smooth(u / 0.08);
     const fadeOut = 1 - smooth((u - 0.18) / 0.82);
@@ -756,9 +965,10 @@ export class VfxEngine {
 
     const r = mix(layer.radiusStart, layer.radiusEnd, expand) * scale;
     const thick = layer.thickness * scale * (1.2 - 0.55 * u);
-    const ox = (layer.origin?.[0] || 0) * scale + oxStage;
-    const oy = (layer.origin?.[1] || 0) * scale + oyStage;
-    const oz = (layer.origin?.[2] || 0) * scale + ozStage;
+    const [sox, soy, soz] = this.resolveSocketOrigin(layer, scale);
+    const ox = sox + oxStage;
+    const oy = soy + oyStage;
+    const oz = soz + ozStage;
     const cosT = Math.cos(layer.tilt);
     const sinT = Math.sin(layer.tilt);
     const n = layer.splats;
