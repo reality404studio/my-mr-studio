@@ -1,4 +1,4 @@
-import {STRIDE} from './ink.js?v=4654aca';
+import {STRIDE} from './ink.js?v=6bc0e5d';
 
 // Software equivalent of the world-space wash shader. Sum optical depth in
 // screen space before converting it to alpha, so individual quads leave no grid.

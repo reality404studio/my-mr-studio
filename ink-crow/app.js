@@ -1,10 +1,10 @@
-import {Duel} from './duel.js?v=4654aca';
-import {Painter,perspective,identity} from './render.js?v=4654aca';
-import {clamp,mul,dist,lerp3,random} from './gesture.js?v=4654aca';
-import {PaperPreview} from './paper-preview.js?v=4654aca';
-import {Rehearsal} from './rehearsal.js?v=4654aca';
-import {Immersion,supportedModes} from './xr.js?v=4654aca';
-import {loadGlyphSdf} from './glyph-sdf.js?v=4654aca';
+import {Duel} from './duel.js?v=6bc0e5d';
+import {Painter,perspective,identity} from './render.js?v=6bc0e5d';
+import {clamp,mul,dist,lerp3,random} from './gesture.js?v=6bc0e5d';
+import {PaperPreview} from './paper-preview.js?v=6bc0e5d';
+import {Rehearsal} from './rehearsal.js?v=6bc0e5d';
+import {Immersion,supportedModes} from './xr.js?v=6bc0e5d';
+import {loadGlyphSdf} from './glyph-sdf.js?v=6bc0e5d';
 
 const $=id=>document.getElementById(id),canvas=$('field'),guide=$('guide');
 const game=new Duel(),FOV=51*Math.PI/180,view=identity();
@@ -147,7 +147,7 @@ function boot(){
   }
   xr=new Immersion(painter,game,prepare,()=>Boolean($('metrics')?.checked),resumePage,showProgress);
   beginMode('cover');anim=requestAnimationFrame(desktop);refreshModes();
-  loadGlyphSdf('./assets/glyph-bird.svg?v=4654aca').then(sdf=>{
+  loadGlyphSdf('./assets/glyph-bird.svg?v=6bc0e5d').then(sdf=>{
     loadedGlyphSdf=sdf;
     painter?.setGlyphSdf?.(sdf);
     game.setGlyphSdfMeta(sdf);

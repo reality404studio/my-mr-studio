@@ -1,12 +1,12 @@
-import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=4654aca';
-import {WorldWash} from './world-wash.js?v=4654aca';
-import {InkSpray} from './ink-spray.js?v=4654aca';
-import {SplatBatch,springStep,spiral} from './ink.js?v=4654aca';
-import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=4654aca';
-import {InkSound} from './sound.js?v=4654aca';
-import {RibbonBatch} from './ribbon.js?v=4654aca';
-import {FeatherSwarm} from './curl-feathers.js?v=4654aca';
-import {createDefaultTipLookup} from './glyph-sdf.js?v=4654aca';
+import {TAU,clamp,mix,smooth,random,add,sub,mul,unit,len,dot,cross,dist,lerp3,onSeal,fitSeal,palmAtSeal} from './gesture.js?v=6bc0e5d';
+import {WorldWash} from './world-wash.js?v=6bc0e5d';
+import {InkSpray} from './ink-spray.js?v=6bc0e5d';
+import {SplatBatch,springStep,spiral} from './ink.js?v=6bc0e5d';
+import {landscape,crowForm,glyphSamples,adversary,stroke} from './forms.js?v=6bc0e5d';
+import {InkSound} from './sound.js?v=6bc0e5d';
+import {RibbonBatch} from './ribbon.js?v=6bc0e5d';
+import {FeatherSwarm} from './curl-feathers.js?v=6bc0e5d';
+import {createDefaultTipLookup} from './glyph-sdf.js?v=6bc0e5d';
 
 export const CHARGE_SECONDS=1.35;
 export const WRITE_SECONDS=0.65;

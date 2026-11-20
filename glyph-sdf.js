@@ -1,6 +1,6 @@
 // Drop-in SVG -> 512x512 RGBA SDF texture + filled-area splat sampler + 11-stroke brush-order map for 鳥.
 // Works with any black-ink calligraphy SVG placed at ./assets/glyph-bird.svg.
-import {glyphStrokes} from './forms.js?v=4654aca';
+import {glyphStrokes} from './forms.js?v=6bc0e5d';
 
 const INF = 1e20;
 
