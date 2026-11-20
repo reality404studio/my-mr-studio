@@ -46,7 +46,7 @@ export class InkSound {
     if(typeof document==='undefined'||this.bgmEl||this.bgmFailed)return;
     try{
       const el=document.createElement('video');
-      el.src='./assets/bgm.mp4?v=bns-dark-1';
+      el.src='./assets/bgm.mp3?v=bns-dark-1';
       el.loop=true;
       el.preload='auto';
       el.playsInline=true;
