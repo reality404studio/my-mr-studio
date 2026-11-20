@@ -56,3 +56,8 @@ node --test test/ink-crow.test.mjs
 **Antigravity** · 2026-11-19 14:46
 
 3차 시네마틱 6단계 소환 연출 완료: 블소 도교풍 4단 입체 Z-스택 마법진(circleProg 2 Draw Call: -9cm 팔괘·구름 / -3cm 원상 / 0cm 鳥 / +7cm 중앙 비운 부적 링), 실제 11획 필순 붓글씨 전개+붓끝 이미터(glyph-sdf.js), vfx-studio 3D Curl Noise+손 콜라이더 깃털 군집(curl-feathers.js) 및 SplatGlint 이식, 0.14초 흡입 정적->대북 폭발 오디오(sound.js) 통합. 13/13 테스트 및 WebGL2 7장면 0-에러 검수 통과(패스스루 충전 스플랫 882개).
+
+---
+**Antigravity** · 2026-11-20 05:04
+
+다크소울+겸재 정선+몽유도원도 다크모드 배경 리뉴얼 및 mp4 BGM 드롭인 시스템(sound.js ./assets/bgm.mp4 자동 루프+0.14초 흡입 덕킹) 구현 완료. paperFrag 먹구름·사선 금빛 갓레이·운해·수면, forms.js 암봉·기와 누각·고성벽·폭포·금빛 복사꽃 고목, ink.css/xr.js 다크모드 UI 적용. 13/13 테스트 및 WebGL2 0-에러 검수 통과.

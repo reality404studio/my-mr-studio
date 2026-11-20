@@ -17,6 +17,9 @@ export class InkSound {
     this.flapClock=0;
     this.brushNode=null;
     this.chargeNode=null;
+    this.bgmEl=null;
+    this.bgmGain=null;
+    this.bgmFailed=false;
   }
   unlock(){
     if(typeof window==='undefined')return null;
@@ -30,10 +33,40 @@ export class InkSound {
         this.master.connect(this.ctx.destination);
         this.buildNoise();
         this.setupContinuous();
+        this.setupBgm();
       }catch{return null;}
     }
     if(this.ctx.state==='suspended')this.ctx.resume().catch(()=>{});
+    if(this.bgmEl&&!this.bgmFailed&&this.bgmEl.paused){
+      this.bgmEl.play().catch(()=>{});
+    }
     return this.ctx;
+  }
+  setupBgm(){
+    if(typeof document==='undefined'||this.bgmEl||this.bgmFailed)return;
+    try{
+      const el=document.createElement('video');
+      el.src='./assets/bgm.mp4?v=bns-dark-1';
+      el.loop=true;
+      el.preload='auto';
+      el.playsInline=true;
+      el.crossOrigin='anonymous';
+      el.muted=false;
+      el.volume=1.0;
+      el.addEventListener('error',()=>{this.bgmFailed=true;});
+      const src=this.ctx.createMediaElementSource(el);
+      const gain=this.ctx.createGain();
+      gain.gain.value=0.001;
+      src.connect(gain);
+      gain.connect(this.master);
+      this.bgmEl=el;
+      this.bgmGain=gain;
+      el.play().then(()=>{
+        gain.gain.setTargetAtTime(0.38,this.ctx.currentTime,0.65);
+      }).catch(()=>{});
+    }catch{
+      this.bgmFailed=true;
+    }
   }
   buildNoise(){
     const ctx=this.ctx, len=ctx.sampleRate*2;
@@ -73,6 +106,12 @@ export class InkSound {
     const ctx=this.ctx;
     if(!ctx||ctx.state!=='running')return;
     const now=ctx.currentTime, p=game.phase;
+
+    // 0. Dynamic BGM ducking during the 0.14s implosion hush so the Taiko burst hits harder
+    if(this.bgmGain&&this.bgmEl&&!this.bgmFailed&&!this.bgmEl.paused){
+      const hushed=p==='release'&&game.phaseTime<0.14;
+      this.bgmGain.gain.setTargetAtTime(hushed?0.06:0.38,now,hushed?0.02:0.28);
+    }
 
     // 1. Brush drawing friction sound
     if(this.brushNode){

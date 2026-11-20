@@ -168,7 +168,7 @@ export class Immersion {
     const passthrough=this.mode!=='immersive-vr'&&sess.environmentBlendMode==='alpha-blend';
     // Clear the actual XR framebuffer, even when the first pose or hands are unavailable.
     gl.bindFramebuffer(gl.FRAMEBUFFER,layer.framebuffer);
-    if(passthrough)gl.clearColor(0,0,0,0);else gl.clearColor(.94,.92,.86,1);
+    if(passthrough)gl.clearColor(0,0,0,0);else gl.clearColor(.055,.075,.095,1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     const pose=frame.getViewerPose(this.space);
     if(!pose?.views.length){this.game.interruptTracking();this.last=null;if(!this.presented)this.progress('pose');return;}

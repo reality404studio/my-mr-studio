@@ -656,15 +656,65 @@ void main(){gl_Position=vec4(a,0.,1.);uv=a*.5+.5;}`;
 
 const paperFrag=`#version 300 es
 precision mediump float;
-in vec2 uv;uniform sampler2D grain;out vec4 color;
+in vec2 uv;
+uniform sampler2D grain;
+uniform highp float time;
+out vec4 color;
 void main(){
-  float g=texture(grain,gl_FragCoord.xy/256.).r;
-  float fiber=texture(grain,gl_FragCoord.xy/vec2(380.,190.)).g;
-  float cloud=texture(grain,uv*1.25).a;
-  float edge=dot(uv-.5,uv-.5);
-  // Subtle cool-warm antique hanji paper that makes deep black ink & cyan glow pop cleanly
-  vec3 paper=mix(vec3(.958,.952,.918),vec3(.868,.862,.822),clamp(.12+edge*.62+cloud*.18,0.,1.));
-  color=vec4(paper+(g-.5)*.024+(fiber-.5)*.012,1.);
+  // Dark Souls + Gyeomjae Jeong Seon + Mongyudowondo Dark Mode Sky & Mist Backdrop
+  float t=time*.014;
+  vec2 cUv1=uv*vec2(1.45,1.95)+vec2(-t*.55,t*.18);
+  vec2 cUv2=uv*vec2(2.85,3.40)+vec2(t*.38,-t*.22);
+  float c1=texture(grain,cUv1).r;
+  float c2=texture(grain,cUv2).a;
+  float fiber=texture(grain,gl_FragCoord.xy/vec2(320.,180.)).g;
+  float storm=clamp(c1*.62+c2*.38,0.,1.);
+
+  // Base vertical atmospheric gradient: obsidian mirror water -> misty jade valley -> stormy ink sky
+  vec3 waterCol=vec3(.042,.062,.078);
+  vec3 valleyMist=vec3(.19,.27,.30);
+  vec3 midSky=vec3(.115,.152,.178);
+  vec3 stormDark=vec3(.032,.042,.054);
+
+  // Misty luminous valley horizon band (uv.y ~ 0.28..0.58) so dark Jeong Seon peaks pop dramatically!
+  float mistBand=exp(-pow((uv.y-.39)/.20,2.))*(.72+.28*c2);
+  float skyGrad=smoothstep(.42,.96,uv.y);
+  vec3 col=mix(waterCol,midSky,smoothstep(.16,.44,uv.y));
+  col=mix(col,valleyMist,mistBand*.82);
+  // Heavy rolling Dark Souls storm clouds overhead (deep moody ink framing the golden break)
+  float cloudWeight=smoothstep(.42,.88,uv.y)*(.48+.52*storm);
+  col=mix(col,stormDark,cloudWeight*.92);
+
+  // Volumetric Amber-Gold God-Rays emerging organically from above the cloud canopy (no sharp point pinch!)
+  vec2 sunPos=vec2(.67,1.16);
+  vec2 d=uv-sunPos;
+  float distSun=length(d*vec2(1.05,.82));
+  // Broad luminous cloud-break opening at upper-right sky
+  vec2 breakPos=vec2(.62,.92);
+  float breakDist=length((uv-breakPos)*vec2(1.15,1.65));
+  float sunBreak=exp(-breakDist*breakDist*4.8)*(.60+.40*(1.-storm*.55));
+  // Slanted soft volumetric sunbeam shafts pouring down-left into the misty valley
+  float ang=atan(d.y,d.x);
+  float rayMask=smoothstep(.16,.76,uv.y)*smoothstep(1.04,.84,uv.y);
+  float beamDir=exp(-pow((ang+2.08)/.36,2.));
+  float shafts=pow(.5+.5*sin(ang*20.+c1*2.4),1.6)*.52 + pow(.5+.5*cos(ang*12.-c2*1.9),1.4)*.48;
+  float godRay=beamDir*rayMask*shafts*exp(-distSun*.95)*(.68+.32*(1.-storm));
+
+  // Soft golden-amber light pool reflecting on the misty valley & dark mirror water floor
+  float valleyGold=exp(-pow((uv.x-.51)/.28,2.))*exp(-pow((uv.y-.38)/.17,2.))*.34;
+  float waterReflect=exp(-pow((uv.x-.51)/.26,2.))*smoothstep(.26,.04,uv.y)*(.45+.55*sin(uv.y*95.+c2*6.)*.5+.5)*.18;
+
+  vec3 goldCore=vec3(1.,.90,.68);
+  vec3 goldAmber=vec3(.92,.62,.28);
+  col += goldCore*sunBreak*.95;
+  col += mix(goldAmber,goldCore,.42)*godRay*.82;
+  col += goldAmber*(valleyGold+waterReflect);
+
+  // Subtle dark-ink vignette + antique rice-paper tooth
+  float vig=dot(uv-.5,uv-.5);
+  col *= clamp(1.04-vig*.65,0.42,1.06);
+  col += (fiber-.5)*.014;
+  color=vec4(col,1.);
 }`;
 
 const hudVert=`#version 300 es
@@ -795,6 +845,7 @@ export class Painter {
     for (const name of ['view','projection','time','passthrough','handRipple'])
       this.ribbonU[name]=gl.getUniformLocation(this.ribbonProg,name);
 
+    this.paperTime=gl.getUniformLocation(this.paper,'time');
     this.hudView=gl.getUniformLocation(this.hud,'view');
     this.hudProjection=gl.getUniformLocation(this.hud,'projection');
 
@@ -1033,7 +1084,7 @@ export class Painter {
     const circleVisual=extras?.circleVisual??null;
     const washZ=circleVisual?circleVisual.washZOff:0;
     const washScale=circleVisual?circleVisual.washScale:1;
-    if(!passthrough){g.disable(g.BLEND);g.useProgram(this.paper);g.bindVertexArray(this.flat);g.drawArrays(g.TRIANGLE_STRIP,0,4);}
+    if(!passthrough){g.disable(g.BLEND);g.useProgram(this.paper);g.uniform1f(this.paperTime,time);g.bindVertexArray(this.flat);g.drawArrays(g.TRIANGLE_STRIP,0,4);}
     g.enable(g.BLEND);
     this.bindCloud(view,projection,time,passthrough);
     let sealDrawn=false, backRibbonsDrawn=false, frontRibbonsDrawn=false, backCircleDrawn=false, frontCircleDrawn=false;

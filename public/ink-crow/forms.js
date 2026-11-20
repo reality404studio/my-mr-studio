@@ -12,116 +12,171 @@ export function stroke(batch,a,b,width,tone,mass,water,seed,taper=.55) {
 }
 export function landscape() {
   const out=new SplatBatch(10000), r=random(4433);
-  // 1. Jeong Seon (겸재 정선 신묘년풍악도첩) vertical white/celadon granite crags (금강산 암봉과 수직 준법)
-  for(let i=0;i<38;i++){
-    const u=i/37*2-1, x=u*11.5+(r()-.5)*.35;
-    const cluster=Math.exp(-u*u*2.2), spire=(.45+.55*Math.abs(Math.sin(x*1.7+.4)))*cluster;
-    if(spire<.12)continue;
-    const z=-10.8+Math.cos(x*.8)*.9+(r()-.5)*.4, base=-1.85+.35*cluster;
-    const h=1.45+spire*2.95+r()*.45, w=.16+r()*.14;
-    // Luminous white-jade granite face (백색/청백 화강암면)
-    for(let k=0;k<7;k++){
-      const q=k/6, py=base+h*q;
-      out.put(x+(r()-.5)*.06,py,z, .04*(r()-.5),1,0, h*.19,w*(1.05-.42*q), .78,.72, k%3===0?5:3, r());
+
+  // Helper: Draw a curved-eave Joseon mountain pavilion (몽유도원도 기와 누각) in crisp dark ink
+  function pavilion(cx,cy,cz,sc){
+    // Stone terrace foundation
+    out.put(cx,cy-sc*.18,cz, 1,0,0, sc*.52,sc*.14, 1.8,.42, 0, r());
+    // Four slender pillars + warm dim lantern ember inside
+    for(const px of [-.34,-.12,.12,.34]){
+      stroke(out,[cx+px*sc,cy-sc*.12,cz+.01],[cx+px*sc,cy+sc*.20,cz+.01],sc*.034,0,2.1,.28,r(),.1);
     }
-    // Crisp dark vertical texture strokes (수직 준법 / 철선묘)
-    for(let s=-1;s<=1;s+=2){
-      const sx=x+s*w*(.48+r()*.18);
-      stroke(out,[sx,base+.12,z+.04],[sx-.03*s,base+h*.96,z+.04],.032+r()*.014, i%3===0?0:1, 1.85,.32, r(),.35);
+    out.put(cx,cy+sc*.06,cz+.015, 1,0,0, sc*.11,sc*.08, .95,.72, 7, r());
+    // Lower & upper upturned sweeping tiled roofs (추녀 곡선 기와지붕)
+    for(const [ry,rw,rh] of [[.22,.56,.11],[.39,.40,.10]]){
+      stroke(out,[cx-rw*sc,cy+(ry+.05)*sc,cz+.02],[cx,cy+(ry+rh)*sc,cz+.02],sc*.055,0,2.3,.28,r(),.2);
+      stroke(out,[cx,cy+(ry+rh)*sc,cz+.02],[cx+rw*sc,cy+(ry+.05)*sc,cz+.02],sc*.055,0,2.3,.28,r(),.2);
+      stroke(out,[cx-rw*.88*sc,cy+ry*sc,cz+.025],[cx+rw*.88*sc,cy+ry*sc,cz+.025],sc*.032,1,1.6,.42,r(),.1);
     }
-    if(i%2===0){
-      stroke(out,[x,base+.25,z+.05],[x+.02,base+h*.88,z+.05],.028,4,1.35,.48,r(),.4);
+    // Warm golden rim kiss on roof ridge facing the upper-right god-rays
+    stroke(out,[cx+sc*.02,cy+sc*.49,cz+.03],[cx+sc*.36,cy+sc*.42,cz+.03],sc*.018,7,1.25,.55,r(),.3);
+  }
+
+  // Helper: Draw gnarled Dark-Souls / Mongyudowondo twisted plum-peach branches with glowing golden blossoms
+  function blossomTree(ox,oy,oz,dirX,scale,blossomDensity=1){
+    let cur=[ox,oy,oz];
+    const segs=7;
+    for(let s=0;s<segs;s++){
+      const t=s/(segs-1);
+      const nx=cur[0]+dirX*scale*(.34+.14*Math.sin(s*1.9))*(.92-.38*t);
+      const ny=cur[1]+scale*(.20+.18*Math.cos(s*1.4)-.10*t);
+      const nz=cur[2]+(r()-.5)*.08;
+      const w=scale*(.078*(1-.62*t));
+      stroke(out,cur,[nx,ny,nz],w,0,2.45,.26,r(),.25);
+      // Sub-twig forking upward/outward with luminous warm peach-gold blossoms
+      if(s>=2){
+        const side=s%2===0?1:-1;
+        const tx=nx+dirX*scale*(.22+r()*.20), ty=ny+scale*(.14+side*.12+r()*.14), tz=nz+.04;
+        stroke(out,[nx,ny,nz],[tx,ty,tz],w*.58,0,2.1,.30,r(),.4);
+        const buds=Math.round((5+r()*6)*blossomDensity);
+        for(let b=0;b<buds;b++){
+          const q=.25+r()*.85;
+          const bx=mix(nx,tx,q)+(r()-.5)*scale*.18;
+          const by=mix(ny,ty,q)+(r()-.5)*scale*.16;
+          const bz=tz+.02+(r()-.5)*.05;
+          const br=scale*(.034+r()*.030);
+          out.put(bx,by,bz, 1,0,0, br*1.12,br, 1.55,.58, b%4===0?6:7, r());
+          if(b%3===0){
+            out.put(bx,by,bz+.01, 1,0,0, br*1.45,br*1.45, .92,.92, 12, r());
+          }
+        }
+      }
+      cur=[nx,ny,nz];
     }
   }
-  // 2. Central cascading waterfall (비로봉/금강 폭포) & splash mist
-  for(const wx of [-.65, 1.45]){
-    const wz=-9.4, top=.75, bot=-1.75;
-    for(let k=0;k<24;k++){
-      const q=k/23, py=mix(top,bot,q), sway=.03*Math.sin(q*11+wx);
-      out.put(wx+sway,py,wz+.08, .05,-1,0, .14,.032+.022*q, 1.35,.78, 3, r());
-      if(k%2===0)out.put(wx+sway+(r()-.5)*.08,py,wz+.06, 0,-1,0, .11,.018, 1.1,.45, 1, r());
+
+  // 1. Massive Dark-Ink Gyeomjae Jeong Seon Craggy Granite Peaks (인왕제색도/금강전도 다크 부벽준)
+  // Framing cathedral-like valleys: towering peaks left & right, stepping back into golden-lit central spires
+  const peaks=[
+    // Far golden-lit Mongyudowondo central spires (catching warm god-rays!)
+    [-3.8,-2.1,-13.8,4.6,1.35,1,.35],[-1.6,-2.0,-14.4,3.8,1.05,4,.65],[.2,-1.9,-13.6,3.4,.95,4,.95],
+    [1.9,-2.0,-14.2,4.1,1.15,4,.85],[3.9,-2.1,-13.5,4.8,1.35,1,.55],
+    // Midground towering dark crags (left & right cathedral cliffs)
+    [-8.4,-2.2,-10.2,5.8,1.85,0,.15],[-5.6,-2.1,-10.6,5.2,1.55,0,.22],[-2.9,-2.0,-11.2,4.9,1.35,0,.35],
+    [3.1,-2.0,-10.8,4.6,1.45,0,.50],[5.8,-2.1,-10.0,5.3,1.65,0,.35],[8.6,-2.2,-9.6,5.9,1.85,0,.20],
+    // Near dramatic cliff buttresses framing the dark valley edges
+    [-6.2,-2.2,-6.8,3.6,1.35,0,.12],[5.8,-2.2,-6.6,3.5,1.30,0,.18]
+  ];
+  for(const [px,base,pz,h,w,bodyTone,sunKiss] of peaks){
+    // Broad pyramidal Sumi-e rocky silhouette built from overlapping vertical axe-cut strokes (부벽준)
+    for(let col=-3;col<=3;col++){
+      const u=col/3, colH=h*(1-Math.abs(u)*.42)*(.88+r()*.22);
+      const cx=px+u*w*.68;
+      for(let k=0;k<7;k++){
+        const q=k/6, py=base+colH*q;
+        const segW=w*(.28+.18*(1-q))*(1-Math.abs(u)*.25);
+        // Dark obsidian core on shadow side, smoky slate-teal on mist side
+        const tCol=col>0&&sunKiss>.55&&q>.55?4:(bodyTone===0&&col<=0?0:1);
+        out.put(cx+(r()-.5)*.09,py,pz+col*.03, .06*u,1,0, colH*.20,segW, 1.35,.55, tCol, r());
+      }
+      // Organic diagonal Jeong Seon axe-cut granite facets (부벽준 — no thin straight poles!)
+      const ribTilt=(u<0?-1:1)*.26+(r()-.5)*.14;
+      for(let k=1;k<=5;k++){
+        const q=k/6, py=base+colH*q;
+        const ribW=w*(.13+.08*(1-q));
+        out.put(cx+ribTilt*q*.25,py,pz+.08, ribTilt,1,0, colH*.16,ribW, 1.55,.58, 0, r());
+      }
     }
-    for(let m=0;m<16;m++){
-      out.put(wx+(r()-.5)*.55,bot+.08+r()*.22,wz+.12, 1,0,0, .28+r()*.22,.11+r()*.08, .85,.82, 11, r());
+    // Golden god-ray rim kiss along the sunlit slope of central/right peaks
+    if(sunKiss>.30){
+      const rx=px+w*.16;
+      for(let k=0;k<5;k++){
+        const q=k/4, gy=base+h*(.48+.42*q);
+        out.put(mix(rx,px+.04,q),gy,pz+.11, -.22,1,0, h*.14,w*.12*sunKiss, .85*sunKiss,.72, 7, r());
+      }
+    }
+    // Signature dark moss dots (미점) scattered across shoulders
+    for(let d=0;d<10;d++){
+      const dx=px+(r()-.5)*w*1.15, dy=base+h*(.28+r()*.56);
+      out.put(dx,dy,pz+.10, 1,.2*(r()-.5),0, .075+r()*.065,.024+r()*.020, 1.8,.36, 0, r());
     }
   }
-  // 3. Layered rounded hills with hemp-fiber strokes (피마준) & rhythmic moss dots (미점)
+
+  // 2. Mongyudowondo Perched Korean Pavilions & Dark Souls Ruined Fortress Wall + Waterfall
+  pavilion(-3.95,0.68,-7.8,.52);    // Left cliffside dark pavilion overlooking the valley
+  pavilion(-0.85,-0.55,-10.2,.36);  // Distant misty valley sanctuary pavilion
+  pavilion(4.75,0.38,-7.4,.44);     // Right upper cliff pavilion
+
+  // Right-side ruined stone fortress battlements & arched aqueduct bridge (고성벽과 아치교)
+  const fx=2.45, fy=-0.18, fz=-8.8;
+  stroke(out,[fx-.55,fy,fz],[fx+1.35,fy+.22,fz],.12,0,2.2,.34,r(),.08);
+  stroke(out,[fx-.55,fy+.16,fz+.02],[fx+1.35,fy+.36,fz+.02],.05,1,1.6,.44,r(),.1);
+  for(let b=0;b<7;b++){
+    const bx=fx-.48+b*.29, by=fy+.18+b*.034;
+    out.put(bx,by+.09,fz+.03, 0,1,0, .11,.055, 2.2,.30, 0, r()); // crenellations
+  }
+  // Tower keep on fortress left edge
+  out.put(fx-.38,fy+.34,fz+.02, 0,1,0, .36,.18, 2.3,.32, 0, r());
+  stroke(out,[fx-.56,fy+.56,fz+.04],[fx-.20,fy+.56,fz+.04],.045,7,.95,.55,r(),.1);
+  // Cascading silver-mist waterfall plunging beneath the ruined bridge!
+  for(let k=0;k<22;k++){
+    const q=k/21, wy=mix(fy-.08,-1.95,q), sway=.035*Math.sin(q*10);
+    out.put(fx+.32+sway,wy,fz+.08, .04,-1,0, .15,.038+.024*q, 1.05,.78, 5, r());
+    if(k%2===0)out.put(fx+.32+sway+(r()-.5)*.06,wy,fz+.10, 0,-1,0, .12,.018, 1.15,.65, 3, r());
+  }
+
+  // 3. Layered Dark Ink Valley Ridges & Mirror-Pond Shoreline (어두운 산맥과 먹빛 수면)
   const banks=[
-    [-14.2,-2.28,1.38,5,.82,1.2],[-10.4,-2.18,1.32,5,.98,2.4],
-    [-7.4,-2.02,1.08,4,.88,4.1],[-5.1,-1.84,.94,4,1.06,5.7]
+    [-12.6,-2.35,1.15,1,.78,1.1],[-9.2,-2.18,1.02,1,.94,2.3],
+    [-6.4,-2.04,.84,0,.86,4.0],[-4.4,-1.88,.68,0,1.08,5.6]
   ];
   for(let k=0;k<banks.length;k++){
-    const [z,base,amp,tone,f,seed]=banks[k], extent=-z*1.72;
-    for(let j=0;j<420;j++){
-      const x=mix(-extent,extent,j/419), u=x/(-z), w=.22+Math.min(1,Math.abs(u)*1.75);
-      const wave=.52*Math.sin(x*f*.92+seed)+.26*Math.sin(x*f*2.17+seed*2)+.11*Math.sin(x*5.1+seed);
-      const y=base+amp*(.42+wave)*w-.15*Math.cos(u*2.4), brush=.38+r()*.48;
-      // Soft bright wash body (담묵/청록/황토 담채)
-      const washTone=k>=2&&j%7===0?7:k===1&&j%9===0?3:tone;
-      out.put(x,y-brush*.72,z, .15*Math.sin(x*3.1+seed),1,0, brush,(-z)*.015, .26+k*.11,.88, washTone, r());
-      // Long sweeping hemp-fiber ridge ribs (피마준 능선 결)
-      if(j%2===0){
-        const depth=.34+r()*.78, angle=.22*Math.cos(x*2.2+seed);
-        out.put(x+angle*depth,y-depth*.80-.09,z+.02, angle,1,0, depth,(-z)*.016, .42,.62, k>=2?1:tone, r());
-      }
-      // Jeong Seon signature horizontal dark moss dots along ridge crests (능선 미점)
+    const [z,base,amp,tone,f,seed]=banks[k], extent=-z*1.70;
+    for(let j=0;j<240;j++){
+      const x=mix(-extent,extent,j/239), u=x/(-z), edgeLift=.25+Math.min(1.1,Math.abs(u)*1.85);
+      const wave=.50*Math.sin(x*f*.90+seed)+.24*Math.sin(x*f*2.1+seed*2);
+      const y=base+amp*(.38+wave)*edgeLift-.22*Math.cos(u*2.2), brush=.34+r()*.42;
+      out.put(x,y-brush*.68,z, .14*Math.sin(x*3+seed),1,0, brush,(-z)*.018, .48+k*.18,.78, tone, r());
       if(j%3===0){
-        out.put(x+(r()-.5)*.06,y-.03,z+.04, 1,.18*Math.sin(x*3),0, .065+r()*.085,.018+r()*.024, .82+k*.18,.42, k>=2?0:1, r());
+        out.put(x+(r()-.5)*.06,y-.02,z+.04, 1,.16*Math.sin(x*3),0, .065+r()*.075,.020+r()*.022, 1.35,.38, 0, r());
       }
     }
   }
-  // 4. Haegeumgang sea stacks (해금강 기암 바위섬) on left and right horizons
-  for(const sx of [-5.8,-4.9, 4.7, 5.9, 6.6]){
-    const sz=-6.4-r()*1.8, sy=-1.82, sh=.68+r()*.85, sw=.14+r()*.10;
-    for(let k=0;k<7;k++){
-      const q=k/6;
-      out.put(sx+(r()-.5)*.04,sy+sh*q,sz, .06,1,0, sh*.18,sw*(1-.35*q), .95,.55, k%2?4:1, r());
-    }
-    stroke(out,[sx-sw*.4,sy,sz+.03],[sx-.02,sy+sh,sz+.03],.024,0,2.1,.30,r(),.3);
-    for(let d=0;d<6;d++){
-      out.put(sx+(r()-.5)*sw,sy+sh*(.65+r()*.38),sz+.04, 1,0,0, .035,.018, 1.6,.35, 0, r());
-    }
-  }
-  // 5. Crooked Joseon pine groves (겸재 정선풍 소나무 솔숲)
-  function pine(x,y,z,h,tone) {
-    const bend=(r()-.45)*h*.28;
-    stroke(out,[x,y,z],[x+bend*.5,y+h*.55,z],h*.026,7,1.65,.35,r(),.25);
-    stroke(out,[x+bend*.5,y+h*.55,z],[x+bend,y+h,z],h*.020,tone,1.95,.28,r(),.35);
-    for(let tier=0;tier<5;tier++)for(const side of [-1,1]){
-      const t=tier/4, reach=h*(.28-.16*t)*(.68+r()*.48), by=y+h*(.26+t*.72), bx=x+bend*t;
-      stroke(out,[bx,by,z],[bx+side*reach,by+h*(.015+.035*r()),z],h*(.024-.010*t),tone,1.35,.38,r());
-      for(let i=0;i<5;i++){
-        const q=r(), w=(.11-.055*t)*h;
-        out.put(bx+side*reach*q,by+h*.028+r()*w*.40,z+.01, 1,.12*side,0, w*(.48+r()*.65),w*.32, 1.15,.44, i%3===0?0:tone, r());
-      }
-    }
-  }
-  for(const side of [-1,1]){
-    for(let i=0;i<7;i++){
-      const x=side*(1.95+r()*3.6), z=-4.2-r()*1.35;
-      pine(x,-1.32+.16*Math.sin(x*2.9),z,.18+r()*.58, i%3===0?0:1);
-    }
-  }
-  // 6. Drifting horizontal mountain mist bands (산허리를 감싸는 밝은 운해와 안개)
-  const mistBands=[[-11.5,-1.15,14.5,.42],[-8.2,-1.35,11.0,.36],[-5.6,-1.52,8.2,.30],[-3.9,-1.62,5.8,.24]];
+
+  // 4. Framing Gnarled Dark Peach-Blossom Branches (좌·우 전경/중경 몽유도원도 복사꽃 고목!)
+  blossomTree(-4.35,-1.45,-5.1, 1.0, 1.18, 1.30);  // Left curving upward from rocky crag
+  blossomTree(4.25, 1.18,-4.8,-1.0, 1.12, 1.35);   // Right sweeping organically across upper-right corner!
+  blossomTree(4.35,-1.35,-5.8,-1.0, 0.88, 0.90);   // Right lower cliff bonsai branch
+
+  // 5. Ethereal Mongyudowondo Misty Valley Fog Banks (운해 — 깊이와 대비를 살리는 연무)
+  const mistBands=[[-11.8,-1.18,13.5,.46],[-8.6,-1.40,10.2,.38],[-5.9,-1.58,7.6,.30],[-4.1,-1.70,5.6,.22]];
   for(const [mz,my,mext,mh] of mistBands){
-    for(let i=0;i<85;i++){
-      const u=i/84*2-1, mx=u*mext+(r()-.5)*.45;
-      const myOff=my+.08*Math.sin(mx*.75+mz)+(r()-.5)*mh*.45;
-      out.put(mx,myOff,mz, 1,.04*Math.cos(mx),0, .42+r()*.55,mh*(.45+r()*.55), .62+r()*.35,.85, i%4===0?3:11, r());
+    for(let i=0;i<56;i++){
+      const u=i/55*2-1, mx=u*mext+(r()-.5)*.45;
+      const myOff=my+.09*Math.sin(mx*.75+mz)+(r()-.5)*mh*.42;
+      const nearCenter=Math.exp(-u*u*2.5);
+      out.put(mx,myOff,mz, 1,.04*Math.cos(mx),0, .44+r()*.48,mh*(.42+r()*.48), (.32+.28*nearCenter),.86, 11, r());
     }
   }
-  // 7. Warm cinnabar seal sun & distant ink-wash birds in the sky
-  const sun=[2.85,1.42,-8.2],rad=.32;
-  out.put(...sun,1,0,0,rad,rad,1.65,.45,6,.19);
-  for(let i=0;i<260;i++){
-    const a=r()*TAU,rr=Math.sqrt(r())*rad;
-    out.put(sun[0]+Math.cos(a)*rr,sun[1]+Math.sin(a)*rr,sun[2],1,0,0,.042+r()*.030,.024+r()*.022,.52,.52,6,r());
-  }
-  for(let i=0;i<12;i++){
-    const x=-3.1+r()*2.4,y=.62+r()*.52,z=-6.8-r()*1.4,s=.045+r()*.035;
-    stroke(out,[x-s,y+s*.38,z],[x,y,z],.006,0,1.4,.28,r());
-    stroke(out,[x,y,z],[x+s*.92,y+s*.44,z],.005,1,1.1,.45,r());
+
+  // 6. Drifting Warm Golden Peach Petals Floating Through the God-Rays (흩날리는 금빛 복사꽃잎)
+  for(let i=0;i<42;i++){
+    const px=(r()*2-1)*4.6, py=-.95+r()*2.85, pz=-4.4-r()*3.4;
+    const ang=r()*TAU, sz=.022+r()*.020;
+    out.put(px,py,pz, Math.cos(ang),Math.sin(ang),0, sz*1.45,sz*.65, 1.35,.55, i%4===0?6:7, r());
+    if(i%3===0){
+      out.put(px,py,pz+.02, 1,0,0, sz*1.8,sz*1.8, .90,.92, 12, r());
+    }
   }
   return out;
 }
