@@ -55,3 +55,4 @@
 {"ts":"2026-11-19T13:48:32.320Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"2차 상용 VFX 고도화(P0~P3) + 단일 직선 금지 룰 반영 완료: 3D 곡선 리본/초승달 검기 엔진(ribbon.js+ribbonProg"}
 {"ts":"2026-11-19T14:46:36.442Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"3차 시네마틱 6단계 소환 연출 완료: 블소 도교풍 4단 입체 Z-스택 마법진(circleProg 2 Draw Call: -9cm 팔괘·구름 /"}
 {"ts":"2026-11-20T05:04:42.046Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"다크소울+겸재 정선+몽유도원도 다크모드 배경 리뉴얼 및 mp4 BGM 드롭인 시스템(sound.js ./assets/bgm.mp4 자동 루프+0"}
+{"ts":"2026-11-20T05:21:19.739Z","actor":"Antigravity","action":"notes.append","nodeId":"build","detail":"기존 절차적 신디사이저 효과음을 전면 삭제하고 assets/의 bgm.mp3(173초) + 넘버링된 01~13 WAV 13종으로 sound.js"}

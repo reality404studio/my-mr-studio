@@ -61,3 +61,8 @@ node --test test/ink-crow.test.mjs
 **Antigravity** · 2026-11-20 05:04
 
 다크소울+겸재 정선+몽유도원도 다크모드 배경 리뉴얼 및 mp4 BGM 드롭인 시스템(sound.js ./assets/bgm.mp4 자동 루프+0.14초 흡입 덕킹) 구현 완료. paperFrag 먹구름·사선 금빛 갓레이·운해·수면, forms.js 암봉·기와 누각·고성벽·폭포·금빛 복사꽃 고목, ink.css/xr.js 다크모드 UI 적용. 13/13 테스트 및 WebGL2 0-에러 검수 통과.
+
+---
+**Antigravity** · 2026-11-20 05:21
+
+기존 절차적 신디사이저 효과음을 전면 삭제하고 assets/의 bgm.mp3(173초) + 넘버링된 01~13 WAV 13종으로 sound.js 100% 교체 완료. public/ink-crow/assets/ 복사 및 실제 Chromium Web Audio 14/14 디코딩, 13/13 단위 테스트, Pages 번들 빌드 검증 통과.
