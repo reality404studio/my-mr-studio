@@ -1,6 +1,6 @@
 // Zero-GC 3D Curl Noise + Vortex/Radial + Hand Collider Feather Swarm for ink-crow Phase 3.
 // Cherry-picked physics core from prototype/splat-vfx-studio (sim.js curlNoise3 + SplatSimKernel hand collider).
-import {TAU, clamp, mix, random, add, sub, mul, dot, onSeal} from './gesture.js?v=6bc0e5d';
+import {TAU, clamp, mix, random, add, sub, mul, dot, onSeal} from './gesture.js?v=a2c3cb2';
 
 // Divergence-free 2-octave analytical 3D Curl Noise (zero heap allocations).
 export function curlNoise3(out, x, y, z, t, freq) {

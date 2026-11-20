@@ -1,6 +1,6 @@
-import {STRIDE} from './ink.js?v=6bc0e5d';
-import {random} from './gesture.js?v=6bc0e5d';
-import {RIBBON_STRIDE} from './ribbon.js?v=6bc0e5d';
+import {STRIDE} from './ink.js?v=a2c3cb2';
+import {random} from './gesture.js?v=a2c3cb2';
+import {RIBBON_STRIDE} from './ribbon.js?v=a2c3cb2';
 
 const quadVert=`#version 300 es
 layout(location=0) in vec2 corner;

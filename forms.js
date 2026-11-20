@@ -1,5 +1,5 @@
-import {SplatBatch} from './ink.js?v=6bc0e5d';
-import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=6bc0e5d';
+import {SplatBatch} from './ink.js?v=a2c3cb2';
+import {TAU, random, clamp, mix, smooth, lerp3, sub, unit, len} from './gesture.js?v=a2c3cb2';
 
 // A tapered stroke consists of oriented pigment deposits along a spatial curve.
 export function stroke(batch,a,b,width,tone,mass,water,seed,taper=.55) {
