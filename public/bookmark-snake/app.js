@@ -13,6 +13,8 @@ import { BookmarkSnakeScene, PHASE } from './snake.js?v=bs-1';
 import {
   BOOKMARK_TEXT,
   buildTextAtlasCanvas,
+  exportAtlasPng,
+  loadBakedAtlasImage,
   loadCustomFontFile,
   loadPearSansFont,
 } from './text-atlas.js?v=bs-1';
@@ -38,6 +40,7 @@ let pointerWorld = [0.08, -0.08, -0.44];
 let lastMs = 0;
 let xr = null;
 let xrModes = [];
+let currentAtlasCanvas = null;
 
 const PHASE_COPY = {
   [PHASE.FLOATING]: ['1단계 · 책갈피 집기', '공중의 책갈피를 핀치해 실제 책 위에 가져다 놓으세요.'],
@@ -69,12 +72,13 @@ function updateHud(hz = 0) {
 
 function rebuildAtlas(fontInfo = null) {
   const { canvas: atlasCanvas } = buildTextAtlasCanvas(BOOKMARK_TEXT, 2048, 256);
+  currentAtlasCanvas = atlasCanvas;
   renderer.uploadTextAtlas(atlasCanvas);
   if (fontInfo) {
     const label =
       fontInfo.source === 'system-fallback'
-        ? '폰트: 시스템 폴백 (Quest용 PearSans 파일 추가 가능)'
-        : `폰트: PearSans (${fontInfo.source})`;
+        ? '폰트: 시스템 폴백 (PearSans 불러온 뒤 PNG 굽기 가능)'
+        : `폰트: PearSans (${fontInfo.source}) · 아틀라스 PNG 굽기 준비됨`;
     $('fontStatus').textContent = label;
   }
 }
@@ -202,6 +206,18 @@ $('fontInput').addEventListener('change', async (e) => {
   }
 });
 
+$('bakeBtn').addEventListener('click', async () => {
+  try {
+    if (!currentAtlasCanvas) {
+      rebuildAtlas();
+    }
+    await exportAtlasPng(currentAtlasCanvas, 'sentence-atlas.png');
+    $('fontStatus').textContent = 'sentence-atlas.png 저장 완료 -> public/bookmark-snake/assets/에 넣어주세요!';
+  } catch (err) {
+    $('fontStatus').textContent = `PNG 굽기 실패: ${err.message}`;
+  }
+});
+
 canvas.addEventListener('pointerdown', (e) => {
   if (mode !== 'manual') {
     mode = 'manual';
@@ -224,8 +240,14 @@ canvas.addEventListener('pointercancel', releasePointer);
 // ---------- BOOTSTRAP ----------
 
 async function init() {
-  const fontInfo = await loadPearSansFont();
-  rebuildAtlas(fontInfo);
+  const bakedImg = await loadBakedAtlasImage();
+  if (bakedImg) {
+    renderer.uploadTextAtlas(bakedImg);
+    $('fontStatus').textContent = '아틀라스: assets/sentence-atlas.png (구운 이미지 사용 중)';
+  } else {
+    const fontInfo = await loadPearSansFont();
+    rebuildAtlas(fontInfo);
+  }
 
   xr = new Immersion(
     renderer,

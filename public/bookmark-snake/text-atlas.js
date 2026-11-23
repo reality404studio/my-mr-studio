@@ -9,6 +9,7 @@
 export const BOOKMARK_TEXT = '사람들이 자신의 영혼을 되찾는 또 다른 순간은 서로 사랑할 때입니다. p49.';
 export const RIBBON_LENGTH_M = 0.30; // 30cm
 export const RIBBON_HEIGHT_M = 0.03; // 3cm
+export const BAKED_ATLAS_URL = './assets/sentence-atlas.png';
 
 const FONT_CANDIDATES = [
   './assets/PearSans-SemiBold.ttf',
@@ -18,6 +19,50 @@ const FONT_CANDIDATES = [
 ];
 
 const FALLBACK_STACK = "'PearSans', 'Pear Sans', 'PearSans-SemiBold', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif";
+
+// Load pre-baked 2048x256 RGBA channel-packed PNG atlas if present (license-safe for Quest 3S & public GitHub).
+export async function loadBakedAtlasImage(url = BAKED_ATLAS_URL) {
+  if (typeof Image === 'undefined' || typeof fetch === 'undefined') return null;
+  try {
+    const res = await fetch(url, { cache: 'no-cache' });
+    if (!res.ok) return null;
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    try {
+      const img = await new Promise((resolve, reject) => {
+        const el = new Image();
+        el.onload = () => resolve(el);
+        el.onerror = reject;
+        el.src = objUrl;
+      });
+      return img;
+    } finally {
+      URL.revokeObjectURL(objUrl);
+    }
+  } catch {
+    return null;
+  }
+}
+
+export function exportAtlasPng(canvas, filename = 'sentence-atlas.png') {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob((blob) => {
+      if (!blob) {
+        reject(new Error('PNG 인코딩에 실패했습니다.'));
+        return;
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      resolve(blob);
+    }, 'image/png');
+  });
+}
 
 export async function loadPearSansFont() {
   if (typeof FontFace === 'undefined' || typeof document === 'undefined') {

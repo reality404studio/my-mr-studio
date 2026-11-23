@@ -13,3 +13,10 @@ unity/**/[Bb]uilds/
 unity/**/[Ll]ogs/
 unity/**/[Uu]ser[Ss]ettings/
 *.apk
+
+# Local-only font files (never commit raw font binaries to public repo; commit baked sentence-atlas.png instead)
+public/bookmark-snake/assets/*.ttf
+public/bookmark-snake/assets/*.otf
+public/bookmark-snake/assets/*.woff
+public/bookmark-snake/assets/*.woff2
+
