@@ -18,9 +18,9 @@ import {
   sub,
   TAU,
   unit,
-} from './gesture.js?v=8d6c64b';
-import { HandMaskData } from './hand-mask.js?v=8d6c64b';
-import { RIBBON_HEIGHT_M, RIBBON_LENGTH_M } from './text-atlas.js?v=8d6c64b';
+} from './gesture.js?v=d7059e7';
+import { HandMaskData } from './hand-mask.js?v=d7059e7';
+import { RIBBON_HEIGHT_M, RIBBON_LENGTH_M } from './text-atlas.js?v=d7059e7';
 
 export const NODE_COUNT = 40;
 export const RIBBON_VERT_STRIDE = 10; // px,py,pz, nx,ny,nz, u,v, edgeFade, tension
@@ -285,33 +285,23 @@ export class BookmarkSnakeScene {
     }
   }
 
-  tickAnchoring(dt, hands, head) {
+  tickAnchoring(dt, hands) {
     this.ribbonVisible = false;
     const h = hands.find((x) => x.side === this.grabSide);
     if (!h || !h.pinch) {
-      // Released pinch -> lock virtual bookmark onto real book position!
-      this.placeBookmarkAt(this.bookmarkPos, this.bookmarkRight, this.bookmarkUp);
+      // Released pinch -> lock omnidirectional bookmark orb onto real book position!
+      this.placeBookmarkAt(this.bookmarkPos);
       this.grabSide = null;
       return;
     }
 
     const p = h.pinchPos || h.tip;
     this.bookmarkPos = lerp3(this.bookmarkPos, p, Math.min(1, dt * 24));
-    // Orient bookmark naturally toward user while respecting hand tilt
-    const toEye = unit(sub(head, this.bookmarkPos));
-    const handRight = h.across ? unit(h.across) : [1, 0, 0];
-    const projRight = sub(handRight, mul(toEye, dot(handRight, toEye)));
-    this.bookmarkRight = len(projRight) > 0.15 ? unit(projRight) : unit(cross([0, 1, 0], toEye));
-    this.bookmarkUp = unit(cross(toEye, this.bookmarkRight));
-    this.bookmarkNormal = toEye;
   }
 
   tickAnchored(_dt, hands) {
     this.ribbonVisible = false;
     this.bookmarkPos = this.anchorPos.slice();
-    this.bookmarkRight = this.anchorRight.slice();
-    this.bookmarkUp = this.anchorUp.slice();
-    this.bookmarkNormal = this.anchorNormal.slice();
 
     const puller = this.findPinchingHand(hands, this.anchorPos, GRAB_TAB_RADIUS);
     if (puller) {
@@ -394,9 +384,9 @@ export class BookmarkSnakeScene {
     const chordLen = Math.max(0.006, len(chord));
     const pullDir = mul(chord, 1 / chordLen);
 
-    // Masking-tape peel arch: leaves book tangent smoothly then lifts gracefully toward pinching fingers
-    const peelLift = Math.min(0.038, chordLen * 0.18) * (1 - 0.35 * this.pullRatio);
-    const upHint = unit(add(this.anchorUp, mul(this.anchorNormal, 0.35)));
+    // Direction-agnostic masking-tape peel arch: lifts gently upward (+Y) regardless of pull direction
+    const peelLift = Math.min(0.036, chordLen * 0.16) * (1 - 0.35 * this.pullRatio);
+    const upHint = [0, 1, 0];
     const ctrl1 = add(add(start, mul(pullDir, chordLen * 0.32)), mul(upHint, peelLift));
     const ctrl2 = add(add(start, mul(pullDir, chordLen * 0.72)), mul(upHint, peelLift * 0.55));
 
@@ -412,7 +402,6 @@ export class BookmarkSnakeScene {
       n[1] = b0 * start[1] + b1 * ctrl1[1] + b2 * ctrl2[1] + b3 * end[1];
       n[2] = b0 * start[2] + b1 * ctrl1[2] + b2 * ctrl2[2] + b3 * end[2];
 
-      // Gentle live flutter when near full tension
       const flutter = Math.sin(t * 14 - this.time * 9) * 0.0014 * t * this.pullRatio;
       n[1] += flutter;
       this.prevNodes[i][0] = n[0];
@@ -420,12 +409,8 @@ export class BookmarkSnakeScene {
       this.prevNodes[i][2] = n[2];
     }
 
-    // Keep bookmark tab attached to the pulled tip during pulling/rewinding
-    this.bookmarkPos = end.slice();
-    this.bookmarkRight = pullDir;
-    const toEye = unit(sub(head, end));
-    this.bookmarkUp = unit(cross(toEye, pullDir));
-    this.bookmarkNormal = unit(cross(pullDir, this.bookmarkUp));
+    // Keep omnidirectional bookmark pearl resting on the book anchor while ribbon unrolls from it
+    this.bookmarkPos = this.anchorPos.slice();
 
     this.ribbonVisible = true;
     this.buildRibbonMesh(head, this.pullRatio);

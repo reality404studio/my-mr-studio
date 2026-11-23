@@ -1,15 +1,15 @@
 // Main entry for Bookmark Sea-Snake WebXR Passthrough Prototype.
 
-import { clamp } from './gesture.js?v=8d6c64b';
+import { clamp } from './gesture.js?v=d7059e7';
 import {
   BookmarkSnakeRenderer,
   identity,
   lookAt,
   perspective,
   SHIMMER_PRESETS,
-} from './render.js?v=8d6c64b';
-import { buildSyntheticHand, DesktopRehearsal } from './rehearsal.js?v=8d6c64b';
-import { BookmarkSnakeScene, PHASE } from './snake.js?v=8d6c64b';
+} from './render.js?v=d7059e7';
+import { buildSyntheticHand, DesktopRehearsal } from './rehearsal.js?v=d7059e7';
+import { BookmarkSnakeScene, PHASE } from './snake.js?v=d7059e7';
 import {
   BOOKMARK_TEXT,
   buildTextAtlasCanvas,
@@ -17,8 +17,8 @@ import {
   loadBakedAtlasImage,
   loadCustomFontFile,
   loadPearSansFont,
-} from './text-atlas.js?v=8d6c64b';
-import { Immersion, supportedModes } from './xr.js?v=8d6c64b';
+} from './text-atlas.js?v=d7059e7';
+import { Immersion, supportedModes } from './xr.js?v=d7059e7';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('stage');

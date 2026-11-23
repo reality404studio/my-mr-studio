@@ -10,13 +10,13 @@ import {
   MASK_INSTANCE_STRIDE,
   MAX_MASK_INSTANCES,
   MAX_SHADER_CAPSULES,
-} from './hand-mask.js?v=8d6c64b';
+} from './hand-mask.js?v=d7059e7';
 import {
   MAX_GLINTS,
   NODE_COUNT,
   PHASE,
   RIBBON_VERT_STRIDE,
-} from './snake.js?v=8d6c64b';
+} from './snake.js?v=d7059e7';
 
 export const identity = () =>
   new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -135,33 +135,26 @@ void main() {
   outColor = vec4(col * a, a);
 }`;
 
-// Pass 2A: Iridescent Virtual Bookmark Tab + optional Desktop Book Stand
+// Pass 2A: Omnidirectional 3D Sunlit Pearl / Dewdrop Bookmark Orb (direction-agnostic!)
 const BOOKMARK_VERT = `#version 300 es
 layout(location=0) in vec2 aCorner; // [-1,1] x [-1,1]
 uniform mat4 uView;
 uniform mat4 uProj;
 uniform vec3 uPos;
-uniform vec3 uRight;
-uniform vec3 uUp;
-uniform vec2 uHalfSize;
-out vec2 vUv;
-out vec3 vWorldPos;
-out vec3 vNormal;
+uniform float uRadius;
+out vec2 vLocal;
 void main() {
-  vec3 world = uPos + uRight * (aCorner.x * uHalfSize.x) + uUp * (aCorner.y * uHalfSize.y);
-  vWorldPos = world;
-  vNormal = normalize(cross(uRight, uUp));
-  vUv = aCorner * 0.5 + 0.5;
-  gl_Position = uProj * uView * vec4(world, 1.0);
+  // Always faces viewer cleanly as a 3D spherical impostor -> zero awkward rotation on any book!
+  vec4 vp = uView * vec4(uPos, 1.0);
+  vp.xy += aCorner * uRadius;
+  vLocal = aCorner;
+  gl_Position = uProj * vp;
 }`;
 
 const BOOKMARK_FRAG = `#version 300 es
 precision mediump float;
-in vec2 vUv;
-in vec3 vWorldPos;
-in vec3 vNormal;
+in vec2 vLocal;
 uniform sampler2D uNoise;
-uniform vec3 uEyePos;
 uniform highp float uTime;
 uniform float uHover;
 uniform float uPulse;
@@ -172,37 +165,47 @@ uniform vec3 uRimTint;
 out vec4 outColor;
 
 void main() {
-  // Elegant bookmark ribbon silhouette with subtle V-notch at the bottom tail
-  float notch = (1.0 - vUv.y) * 0.24;
-  float cx = abs(vUv.x - 0.5) * 2.0;
-  if (vUv.y < 0.22 && (0.22 - vUv.y) > cx * 0.22) discard;
+  float r2 = dot(vLocal, vLocal);
+  if (r2 > 1.0) discard;
+  float r = sqrt(r2);
 
-  // Rounded top corners
-  vec2 topCorner = max(vec2(0.0), vec2(cx - 0.76, vUv.y - 0.88));
-  if (length(topCorner * vec2(1.0, 2.0)) > 0.24) discard;
+  // Outer breathing water-ripple halo around the pearl (1.0 -> 0.62 radius)
+  float orbR = 0.64;
+  float sphereT = r / orbR;
+  float haloRing = exp(-48.0 * pow(r - (0.76 + 0.08 * sin(uTime * 2.4)), 2.0)) * (0.45 + 0.45 * uHover + 0.65 * uPulse);
+  float softHalo = exp(-3.4 * r2) * (0.28 + 0.25 * uHover + 0.4 * uPulse);
 
-  vec3 V = normalize(uEyePos - vWorldPos);
-  vec3 N = gl_FrontFacing ? normalize(vNormal) : -normalize(vNormal);
-  float ndv = abs(dot(N, V));
-  float fresnel = pow(1.0 - ndv, 2.0);
+  // 3D analytical sphere normal inside orbR for liquid-pearl lighting from any angle
+  float inside = 1.0 - smoothstep(orbR - 0.04, orbR + 0.02, r);
+  float nz = sqrt(max(0.0, 1.0 - min(1.0, sphereT * sphereT)));
+  vec3 N = normalize(vec3(vLocal / orbR, nz));
+  float fresnel = pow(1.0 - nz, 2.2);
 
-  vec4 n1 = texture(uNoise, vUv * vec2(1.8, 2.6) + vec2(0.0, -uTime * 0.14));
-  vec4 n2 = texture(uNoise, vUv * vec2(3.6, 5.2) + vec2(uTime * 0.09, -uTime * 0.22));
-  float facet = pow(max(0.0, sin(vUv.y * 34.0 + uTime * 3.8 + n1.r * 6.28 + ndv * 3.5)), 16.0);
-  float glint = facet * (0.85 + uHover * 0.9 + uPulse * 1.3);
+  // Spherical UV swirl + SplatGlint microfacet water-shimmer (from vfx-studio/renderer.js L77-L90)
+  vec2 sUv = N.xy * 0.55 + vec2(0.5);
+  vec4 n1 = texture(uNoise, sUv * 1.9 + vec2(-uTime * 0.14, uTime * 0.09));
+  vec4 n2 = texture(uNoise, sUv * 3.6 + vec2(uTime * 0.11, -uTime * 0.19));
+  float facetA = pow(max(0.0, sin(N.x * 26.0 + N.y * 18.0 + uTime * 3.8 + n1.r * 6.28)), 16.0);
+  float facetB = pow(max(0.0, sin(N.x * 42.0 - N.y * 34.0 - uTime * 5.0 + n2.a * 6.28)), 22.0);
+  float glint = (facetA * 1.1 + facetB * 1.5) * (0.8 + uHover * 0.9 + uPulse * 1.2);
 
-  float border = smoothstep(0.78, 0.96, max(cx, abs(vUv.y - 0.5) * 2.0));
-  float thread = exp(-120.0 * pow(vUv.x - 0.5, 2.0)) * smoothstep(0.18, 0.35, vUv.y) * 0.55;
+  // Crisp top-left specular highlight + radiant core
+  float spec = pow(max(0.0, dot(N, normalize(vec3(-0.35, 0.48, 0.80)))), 18.0);
+  float coreGlow = exp(-4.8 * sphereT * sphereT);
 
-  vec3 base = mix(uRimTint * 0.55, uCoreTint, 0.45 + 0.35 * n1.b);
-  vec3 col = base * (0.82 + 0.35 * uHover + 0.55 * uPulse)
-    + mix(uCoreTint, vec3(1.0, 0.98, 0.94), 0.7) * (border * 0.75 + fresnel * 0.65 + thread)
-    + vec3(1.0, 0.98, 0.94) * glint * 1.45;
+  vec3 orbCol = mix(uRimTint * 0.72, uCoreTint, 0.42 + 0.38 * n1.b + 0.25 * coreGlow)
+    + vec3(1.0, 0.985, 0.95) * (spec * 1.35 + glint * 1.55 + coreGlow * 0.35)
+    + mix(uCoreTint, vec3(1.0), 0.65) * fresnel * 0.95;
 
-  float baseAlpha = mix(0.62, 0.82, uAnchored) + border * 0.22 + uHover * 0.12 + glint * 0.2;
-  float a = clamp(baseAlpha, 0.0, 0.96);
-  float alphaShare = mix(0.85, 0.52, uPassthrough);
-  outColor = vec4(col * a, a * alphaShare);
+  vec3 haloCol = mix(uRimTint, vec3(1.0, 0.985, 0.95), 0.55) * (haloRing + softHalo * 0.65);
+
+  float orbAlpha = inside * (mix(0.68, 0.84, uAnchored) + fresnel * 0.25 + glint * 0.18);
+  float totalAlpha = clamp(orbAlpha + haloRing * 0.65 + softHalo * 0.42, 0.0, 0.96);
+  vec3 col = orbCol * inside + haloCol * (1.0 - inside * 0.65);
+
+  float boost = mix(1.05, 1.42, uPassthrough);
+  float alphaShare = mix(0.82, 0.42, uPassthrough);
+  outColor = vec4(col * totalAlpha * boost, totalAlpha * alphaShare);
 }`;
 
 // Pass 2B: 30cm x 3cm Masking-Tape & PearSans Text Ribbon with 윤슬 SplatGlint + Hybrid Soft Finger Occlusion
@@ -645,8 +648,8 @@ export class BookmarkSnakeRenderer {
     this.bgU = u(this.bgProg, ['uTime']);
     this.handU = u(this.handMaskProg, ['uView', 'uProj', 'uEyePos', 'uVisualAlpha']);
     this.bmU = u(this.bookmarkProg, [
-      'uView', 'uProj', 'uPos', 'uRight', 'uUp', 'uHalfSize', 'uNoise',
-      'uEyePos', 'uTime', 'uHover', 'uPulse', 'uAnchored', 'uPassthrough', 'uCoreTint', 'uRimTint',
+      'uView', 'uProj', 'uPos', 'uRadius', 'uNoise',
+      'uTime', 'uHover', 'uPulse', 'uAnchored', 'uPassthrough', 'uCoreTint', 'uRimTint',
     ]);
     this.ribU = u(this.ribbonProg, [
       'uView', 'uProj', 'uTextAtlas', 'uNoise', 'uEyePos', 'uTime',
@@ -778,20 +781,21 @@ export class BookmarkSnakeRenderer {
     gl.activeTexture(gl.TEXTURE1);
     gl.bindTexture(gl.TEXTURE_2D, this.noiseTex);
 
-    // 2A. Virtual Bookmark Tab (visible until detached into swimming snake, or subtle ghost at anchor)
+    // 2A. Omnidirectional Sunlit Pearl Bookmark Orb (direction-agnostic anchor on real book)
     const showBookmark = scene.phase !== PHASE.SWIMMING;
     if (showBookmark) {
+      const pullShrink = scene.phase === PHASE.PULLING || scene.phase === PHASE.REWINDING
+        ? 1.0 - 0.38 * scene.pullRatio
+        : 1.0;
+      const orbRadius = 0.024 * pullShrink * (1.0 + 0.12 * scene.hoverAmount + 0.16 * scene.anchorPulse);
       gl.depthMask(false);
       gl.useProgram(this.bookmarkProg);
       gl.bindVertexArray(this.quadVao);
       gl.uniformMatrix4fv(this.bmU.uView, false, view);
       gl.uniformMatrix4fv(this.bmU.uProj, false, proj);
       gl.uniform3fv(this.bmU.uPos, scene.bookmarkPos);
-      gl.uniform3fv(this.bmU.uRight, scene.bookmarkRight);
-      gl.uniform3fv(this.bmU.uUp, scene.bookmarkUp);
-      gl.uniform2f(this.bmU.uHalfSize, 0.017, 0.024); // 3.4cm x 4.8cm bookmark tab
+      gl.uniform1f(this.bmU.uRadius, orbRadius);
       gl.uniform1i(this.bmU.uNoise, 1);
-      gl.uniform3fv(this.bmU.uEyePos, eyePos);
       gl.uniform1f(this.bmU.uTime, scene.time);
       gl.uniform1f(this.bmU.uHover, scene.hoverAmount);
       gl.uniform1f(this.bmU.uPulse, scene.anchorPulse);

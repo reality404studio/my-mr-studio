@@ -9,7 +9,7 @@ import {
   lerp3,
   mul,
   smooth,
-} from './gesture.js?v=8d6c64b';
+} from './gesture.js?v=d7059e7';
 
 // Synthesize a full 21-joint hand centered around a palm/pinch pose.
 export function buildSyntheticHand({
