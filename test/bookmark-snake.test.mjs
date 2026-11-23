@@ -187,3 +187,48 @@ test('hybrid hand mask packs finite bilateral capsules and valid unit capsule ge
   const geo = createUnitCapsuleGeometry(10, 2);
   assert.ok(geo.indexCount > 100 && geo.vertices.length % 4 === 0);
 });
+
+test('bilateral two-hand pinch holds the 30cm sentence steady left-to-right for reading, then resumes swimming on release', () => {
+  const scene = new BookmarkSnakeScene();
+  const head = [0, 0, 0];
+  const anchor = [-0.15, -0.08, -0.44];
+  scene.placeBookmarkAt(anchor);
+
+  // Pull out to detach into swimming
+  const pullHand = buildSyntheticHand({ side: 'right', pinch: true });
+  pullHand.pinchPos = anchor.slice();
+  scene.tick(1 / 72, [pullHand], head);
+  for (let i = 1; i <= 55; i++) {
+    pullHand.pinchPos = [anchor[0] + (0.32 * i) / 55, anchor[1], anchor[2]];
+    scene.tick(1 / 72, [pullHand], head);
+    if (scene.phase === PHASE.SWIMMING) break;
+  }
+  assert.equal(scene.phase, PHASE.SWIMMING);
+
+  // Pinch with BOTH left and right hands -> enters READING mode
+  const leftPinch = buildSyntheticHand({ side: 'left', wristPos: [-0.14, -0.14, -0.42], pinch: true });
+  const rightPinch = buildSyntheticHand({ side: 'right', wristPos: [0.14, -0.14, -0.42], pinch: true });
+  leftPinch.pinchPos = [-0.14, -0.04, -0.42];
+  rightPinch.pinchPos = [0.14, -0.04, -0.42];
+
+  for (let i = 0; i < 60; i++) {
+    scene.tick(1 / 72, [leftPinch, rightPinch], head);
+  }
+  assert.equal(scene.phase, PHASE.READING);
+  assert.equal(scene.ribbonVisible, true);
+  // Left-to-right ordering (node[0].x < node[last].x) and steady ~30cm length
+  assert.ok(scene.nodes[0][0] < scene.nodes[NODE_COUNT - 1][0], 'ribbon should read left-to-right');
+  assert.ok(Math.abs(scene.measureSpineLength() - RIBBON_LENGTH_M) < 0.01);
+
+  // Measure frame-to-frame stability while held
+  const snapA = scene.nodes[Math.floor(NODE_COUNT / 2)].slice();
+  scene.tick(1 / 72, [leftPinch, rightPinch], head);
+  const snapB = scene.nodes[Math.floor(NODE_COUNT / 2)].slice();
+  assert.ok(dist(snapA, snapB) < 0.002, 'ribbon should stay calm and steady while reading');
+
+  // Release one hand -> resumes swimming
+  rightPinch.pinch = false;
+  scene.tick(1 / 72, [leftPinch, rightPinch], head);
+  assert.equal(scene.phase, PHASE.SWIMMING);
+});
+

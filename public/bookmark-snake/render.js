@@ -782,7 +782,7 @@ export class BookmarkSnakeRenderer {
     gl.bindTexture(gl.TEXTURE_2D, this.noiseTex);
 
     // 2A. Omnidirectional Sunlit Pearl Bookmark Orb (direction-agnostic anchor on real book)
-    const showBookmark = scene.phase !== PHASE.SWIMMING;
+    const showBookmark = scene.phase !== PHASE.SWIMMING && scene.phase !== PHASE.READING;
     if (showBookmark) {
       const pullShrink = scene.phase === PHASE.PULLING || scene.phase === PHASE.REWINDING
         ? 1.0 - 0.38 * scene.pullRatio
