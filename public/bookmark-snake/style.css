@@ -1,0 +1,142 @@
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #070b12;
+  color: #eef4fa;
+  font-family: 'PearSans', 'Pear Sans', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+#stage {
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+}
+
+#stage:active {
+  cursor: grabbing;
+}
+
+.hud-top {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  right: 14px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  pointer-events: none;
+}
+
+.hud-title {
+  pointer-events: auto;
+  background: rgba(9, 15, 25, 0.64);
+  border: 1px solid rgba(205, 228, 255, 0.16);
+  backdrop-filter: blur(10px);
+  border-radius: 14px;
+  padding: 10px 14px;
+  max-width: 440px;
+}
+
+.hud-title strong {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.hud-title p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.45;
+  color: rgba(226, 238, 252, 0.78);
+}
+
+.badge {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  background: rgba(154, 214, 255, 0.16);
+  color: #bce4ff;
+  border: 1px solid rgba(154, 214, 255, 0.28);
+}
+
+.hud-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+
+.btn {
+  appearance: none;
+  border: 1px solid rgba(210, 232, 255, 0.22);
+  background: rgba(11, 18, 30, 0.68);
+  color: #e6f0fa;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 8px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+
+.btn:hover {
+  background: rgba(26, 40, 62, 0.85);
+  border-color: rgba(210, 232, 255, 0.45);
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+.btn.is-on {
+  border-color: rgba(154, 224, 255, 0.55);
+  background: rgba(44, 82, 118, 0.45);
+  color: #ffffff;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, rgba(110, 198, 255, 0.85), rgba(164, 235, 255, 0.85));
+  color: #06131f;
+  border-color: rgba(255, 255, 255, 0.6);
+  font-weight: 700;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #8ed2ff, #c9f4ff);
+}
+
+.btn-file {
+  display: inline-flex;
+  align-items: center;
+}
+
+.hud-bottom {
+  position: fixed;
+  left: 14px;
+  right: 14px;
+  bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 11.5px;
+  color: rgba(215, 230, 248, 0.68);
+  pointer-events: none;
+}

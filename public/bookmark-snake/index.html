@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>책갈피 윤슬 바다뱀 · WebXR Passthrough</title>
+    <link rel="stylesheet" href="./style.css?v=bs-1" />
+  </head>
+  <body>
+    <canvas id="stage"></canvas>
+
+    <header class="hud-top">
+      <div class="hud-title">
+        <span class="badge" id="fpsBadge">72 Hz</span>
+        <strong id="phaseTitle">준비 중...</strong>
+        <p id="phaseHint"></p>
+      </div>
+      <div class="hud-actions">
+        <button id="xrBtn" class="btn btn-primary" hidden>Quest AR 시작</button>
+        <button id="tapeToggle" class="btn is-on">테이프 띠: ON</button>
+        <button id="presetToggle" class="btn">윤슬: 은빛 윤슬</button>
+        <button id="handToggle" class="btn is-on">손 마스크 보기: ON</button>
+        <button id="modeToggle" class="btn">직접 조작 전환</button>
+        <button id="resetBtn" class="btn">책갈피 다시 붙이기</button>
+        <label class="btn btn-file">
+          PearSans .ttf 불러오기
+          <input id="fontInput" type="file" accept=".ttf,.otf,.woff,.woff2" hidden />
+        </label>
+      </div>
+    </header>
+
+    <footer class="hud-bottom">
+      <span id="fontStatus">폰트 확인 중...</span>
+      <span id="xrStatus"></span>
+    </footer>
+
+    <script type="module" src="./app.js?v=bs-1"></script>
+  </body>
+</html>
