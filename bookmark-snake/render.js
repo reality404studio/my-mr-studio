@@ -10,13 +10,13 @@ import {
   MASK_INSTANCE_STRIDE,
   MAX_MASK_INSTANCES,
   MAX_SHADER_CAPSULES,
-} from './hand-mask.js?v=d7059e7';
+} from './hand-mask.js?v=ad1cff5';
 import {
   MAX_GLINTS,
   NODE_COUNT,
   PHASE,
   RIBBON_VERT_STRIDE,
-} from './snake.js?v=d7059e7';
+} from './snake.js?v=ad1cff5';
 
 export const identity = () =>
   new Float32Array([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
@@ -782,7 +782,7 @@ export class BookmarkSnakeRenderer {
     gl.bindTexture(gl.TEXTURE_2D, this.noiseTex);
 
     // 2A. Omnidirectional Sunlit Pearl Bookmark Orb (direction-agnostic anchor on real book)
-    const showBookmark = scene.phase !== PHASE.SWIMMING;
+    const showBookmark = scene.phase !== PHASE.SWIMMING && scene.phase !== PHASE.READING;
     if (showBookmark) {
       const pullShrink = scene.phase === PHASE.PULLING || scene.phase === PHASE.REWINDING
         ? 1.0 - 0.38 * scene.pullRatio

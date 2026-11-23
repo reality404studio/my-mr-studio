@@ -18,9 +18,9 @@ import {
   sub,
   TAU,
   unit,
-} from './gesture.js?v=d7059e7';
-import { HandMaskData } from './hand-mask.js?v=d7059e7';
-import { RIBBON_HEIGHT_M, RIBBON_LENGTH_M } from './text-atlas.js?v=d7059e7';
+} from './gesture.js?v=ad1cff5';
+import { HandMaskData } from './hand-mask.js?v=ad1cff5';
+import { RIBBON_HEIGHT_M, RIBBON_LENGTH_M } from './text-atlas.js?v=ad1cff5';
 
 export const NODE_COUNT = 40;
 export const RIBBON_VERT_STRIDE = 10; // px,py,pz, nx,ny,nz, u,v, edgeFade, tension
@@ -34,6 +34,7 @@ export const PHASE = {
   PULLING: 'pulling',
   REWINDING: 'rewinding',
   SWIMMING: 'swimming',
+  READING: 'reading',
 };
 
 const DETACH_RATIO = 0.96;
@@ -121,6 +122,8 @@ export class BookmarkSnakeScene {
     // Sea-snake steering state
     this.headVel = [0.09, 0.015, 0.0];
     this._seedSide = null;
+    this.readLeft = null;
+    this.readRight = null;
     this.targetFingerId = null;
     this.targetFingerTimer = 0;
     this.orbitAngle = 0;
@@ -241,6 +244,9 @@ export class BookmarkSnakeScene {
         break;
       case PHASE.SWIMMING:
         this.tickSwimming(stepDt, hands, head);
+        break;
+      case PHASE.READING:
+        this.tickReading(stepDt, hands, head);
         break;
       default:
         break;
@@ -473,7 +479,100 @@ export class BookmarkSnakeScene {
     return current;
   }
 
-  tickSwimming(dt, _hands, head) {
+  getPinchingPair(hands) {
+    if (!hands || hands.length < 2) return null;
+    let first = null;
+    let second = null;
+    for (const h of hands) {
+      if (!h?.pinch) continue;
+      if (!first) first = h;
+      else if (h.side !== first.side) {
+        second = h;
+        break;
+      }
+    }
+    return first && second ? [first, second] : null;
+  }
+
+  tickReading(dt, hands, head) {
+    const pair = this.getPinchingPair(hands);
+    if (!pair) {
+      // Released either hand -> resume calm underwater sea-snake swimming seamlessly from held pose
+      this.readLeft = null;
+      this.readRight = null;
+      const headNode = this.nodes[NODE_COUNT - 1];
+      const neckNode = this.nodes[NODE_COUNT - 2];
+      this.headVel = mul(unit(sub(headNode, neckNode)), 0.085);
+      this.enterPhase(PHASE.SWIMMING);
+      return;
+    }
+
+    const p0 = pair[0].pinchPos || pair[0].tip;
+    const p1 = pair[1].pinchPos || pair[1].tip;
+    const mid = lerp3(p0, p1, 0.5);
+
+    // Order left -> right relative to the viewer so Korean text ALWAYS reads left-to-right!
+    const toEye = unit(sub(head, mid));
+    const viewRight = unit(cross([0, 1, 0], toEye));
+    const leftHandP = dot(sub(p0, mid), viewRight) <= dot(sub(p1, mid), viewRight) ? p0 : p1;
+    const rightHandP = leftHandP === p0 ? p1 : p0;
+
+    // Span exact 30cm centered between the two hands along their natural axis (even if hands are closer together)
+    const rawSpan = sub(rightHandP, leftHandP);
+    const rawLen = len(rawSpan);
+    let axis = rawLen > 0.035 ? mul(rawSpan, 1 / rawLen) : viewRight;
+    // Gently keep reading plane facing the viewer rather than edge-on
+    const axisFlat = sub(axis, mul(toEye, dot(axis, toEye) * 0.65));
+    axis = len(axisFlat) > 0.2 ? unit(axisFlat) : viewRight;
+    if (dot(axis, viewRight) < 0) axis = mul(axis, -1);
+
+    const halfL = RIBBON_LENGTH_M * 0.5;
+    const targetLeft = add(mid, mul(axis, -halfL));
+    const targetRight = add(mid, mul(axis, halfL));
+
+    // Smooth low-pass filter absorbs natural hand tremor so reading is rock-steady
+    const smoothK = Math.min(1, dt * 7.5);
+    if (!this.readLeft || !this.readRight) {
+      this.readLeft = targetLeft.slice();
+      this.readRight = targetRight.slice();
+    } else {
+      this.readLeft = lerp3(this.readLeft, targetLeft, smoothK);
+      this.readRight = lerp3(this.readRight, targetRight, smoothK);
+    }
+
+    // Gently glide all 40 spine nodes into a serene, slightly breathing reading ribbon
+    const nodeLerp = Math.min(1, dt * 10.0);
+    const breath = Math.sin(this.time * 1.4) * 0.0018;
+    for (let i = 0; i < NODE_COUNT; i++) {
+      const t = i / (NODE_COUNT - 1);
+      const arch = Math.sin(t * Math.PI) * 0.007; // Subtle poetic ribbon bow toward viewer
+      const tx = mix(this.readLeft[0], this.readRight[0], t) + toEye[0] * arch;
+      const ty = mix(this.readLeft[1], this.readRight[1], t) + breath;
+      const tz = mix(this.readLeft[2], this.readRight[2], t) + toEye[2] * arch;
+
+      const n = this.nodes[i];
+      n[0] = mix(n[0], tx, nodeLerp);
+      n[1] = mix(n[1], ty, nodeLerp);
+      n[2] = mix(n[2], tz, nodeLerp);
+      this.prevNodes[i][0] = n[0];
+      this.prevNodes[i][1] = n[1];
+      this.prevNodes[i][2] = n[2];
+    }
+
+    this.ribbonVisible = true;
+    this.buildRibbonMesh(head, 1.0);
+  }
+
+  tickSwimming(dt, hands, head) {
+    // Both hands pinching simultaneously -> smoothly pause & unfurl the sentence to read!
+    if (this.getPinchingPair(hands)) {
+      this.readLeft = null;
+      this.readRight = null;
+      this.enterPhase(PHASE.READING);
+      this.tickReading(dt, hands, head);
+      return;
+    }
+
     const headIdx = NODE_COUNT - 1;
     const headNode = this.nodes[headIdx];
     const segLen = RIBBON_LENGTH_M / (NODE_COUNT - 1);

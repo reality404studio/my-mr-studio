@@ -1,8 +1,8 @@
 // WebXR Passthrough (immersive-ar) + Hand Tracking (21 joints + XRJointPose.radius) + Depth Buffer.
 // Extended from prototype/ink-crow-webxr/public/ink-crow/xr.js with depth:true and per-joint radius.
 
-import { classifyHand, DEFAULT_JOINT_RADII, unit } from './gesture.js?v=d7059e7';
-import { identity, multiply } from './render.js?v=d7059e7';
+import { classifyHand, DEFAULT_JOINT_RADII, unit } from './gesture.js?v=ad1cff5';
+import { identity, multiply } from './render.js?v=ad1cff5';
 
 export const JOINTS = [
   'wrist',

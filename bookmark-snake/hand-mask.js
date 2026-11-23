@@ -3,7 +3,7 @@
 // 2) Packs up to 32 bilateral finger bone capsules for Pass 2 ribbon shader soft-feathering & contact AO.
 // 3) Exposes clean finger capsule list for snake collision & helical weaving in snake.js.
 
-import { add, DEFAULT_JOINT_RADII, dist, lerp3, mul, sub, unit } from './gesture.js?v=d7059e7';
+import { add, DEFAULT_JOINT_RADII, dist, lerp3, mul, sub, unit } from './gesture.js?v=ad1cff5';
 
 export const MASK_INSTANCE_STRIDE = 10; // a.xyz, rA, b.xyz, rB, flattenY, pad
 export const MAX_MASK_INSTANCES = 96;

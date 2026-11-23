@@ -1,15 +1,15 @@
 // Main entry for Bookmark Sea-Snake WebXR Passthrough Prototype.
 
-import { clamp } from './gesture.js?v=d7059e7';
+import { clamp } from './gesture.js?v=ad1cff5';
 import {
   BookmarkSnakeRenderer,
   identity,
   lookAt,
   perspective,
   SHIMMER_PRESETS,
-} from './render.js?v=d7059e7';
-import { buildSyntheticHand, DesktopRehearsal } from './rehearsal.js?v=d7059e7';
-import { BookmarkSnakeScene, PHASE } from './snake.js?v=d7059e7';
+} from './render.js?v=ad1cff5';
+import { buildSyntheticHand, DesktopRehearsal } from './rehearsal.js?v=ad1cff5';
+import { BookmarkSnakeScene, PHASE } from './snake.js?v=ad1cff5';
 import {
   BOOKMARK_TEXT,
   buildTextAtlasCanvas,
@@ -17,8 +17,8 @@ import {
   loadBakedAtlasImage,
   loadCustomFontFile,
   loadPearSansFont,
-} from './text-atlas.js?v=d7059e7';
-import { Immersion, supportedModes } from './xr.js?v=d7059e7';
+} from './text-atlas.js?v=ad1cff5';
+import { Immersion, supportedModes } from './xr.js?v=ad1cff5';
 
 const $ = (id) => document.getElementById(id);
 const canvas = $('stage');
@@ -48,7 +48,8 @@ const PHASE_COPY = {
   [PHASE.ANCHORED]: ['3단계 · 문장 뽑기', '책갈피를 핀치해서 30cm 끝까지 마스킹테이프처럼 당겨보세요.'],
   [PHASE.PULLING]: ['뽑는 중...', '끝까지 당기면 분리되어 유영합니다. 중간에 놓으면 되감깁니다.'],
   [PHASE.REWINDING]: ['되감기는 중...', '끝까지 당기지 않아 책갈피 안으로 되감기고 있어요.'],
-  [PHASE.SWIMMING]: ['4단계 · 바다뱀 유영', '양손 손가락을 가까이 대 보세요. 손가락 사이를 감으며 유영합니다.'],
+  [PHASE.SWIMMING]: ['4단계 · 바다뱀 유영', '양손 손가락을 가까이 대 보세요. 양손으로 동시에 핀치하면 멈춰서 읽을 수 있어요.'],
+  [PHASE.READING]: ['읽기 모드 · 양손 핀치 유지', '문장이 가만히 펼쳐집니다. 핀치를 놓으면 다시 바다뱀처럼 유영합니다.'],
 };
 
 function updateHud(hz = 0) {
