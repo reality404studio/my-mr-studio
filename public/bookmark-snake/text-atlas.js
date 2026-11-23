@@ -8,7 +8,7 @@
 
 export const BOOKMARK_TEXT = '사람들이 자신의 영혼을 되찾는 또 다른 순간은 서로 사랑할 때입니다. p49.';
 export const RIBBON_LENGTH_M = 0.30; // 30cm
-export const RIBBON_HEIGHT_M = 0.03; // 3cm
+export const RIBBON_HEIGHT_M = 0.06; // 6cm
 export const BAKED_ATLAS_URL = './assets/sentence-atlas.png';
 
 const FONT_CANDIDATES = [

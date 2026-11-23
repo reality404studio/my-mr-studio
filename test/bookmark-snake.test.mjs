@@ -24,13 +24,13 @@ import {
   RIBBON_LENGTH_M,
 } from '../public/bookmark-snake/text-atlas.js';
 
-test('sentence text and physical dimensions match specification (30cm x 3cm, no quotes)', () => {
+test('sentence text and physical dimensions match specification (30cm x 6cm, no quotes)', () => {
   assert.equal(
     BOOKMARK_TEXT,
     '사람들이 자신의 영혼을 되찾는 또 다른 순간은 서로 사랑할 때입니다. p49.',
   );
   assert.equal(RIBBON_LENGTH_M, 0.30);
-  assert.equal(RIBBON_HEIGHT_M, 0.03);
+  assert.equal(RIBBON_HEIGHT_M, 0.06);
 });
 
 test('floating bookmark grabs on pinch and anchors onto real book location on release', () => {
