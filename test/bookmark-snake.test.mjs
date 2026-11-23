@@ -135,7 +135,7 @@ test('full 30cm pull detaches into 40-node sea-snake that preserves length and a
   });
 
   const visitedFingers = new Set();
-  for (let step = 0; step < 240; step++) {
+  for (let step = 0; step < 360; step++) {
     scene.tick(1 / 72, [leftHand, rightHand], head);
     if (scene.targetFingerId) visitedFingers.add(scene.targetFingerId);
   }

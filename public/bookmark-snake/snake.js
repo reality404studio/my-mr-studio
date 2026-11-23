@@ -119,7 +119,8 @@ export class BookmarkSnakeScene {
     this.anchorPulse = 0;
 
     // Sea-snake steering state
-    this.headVel = [0.16, 0.02, 0.0];
+    this.headVel = [0.09, 0.015, 0.0];
+    this._seedSide = null;
     this.targetFingerId = null;
     this.targetFingerTimer = 0;
     this.orbitAngle = 0;
@@ -436,7 +437,7 @@ export class BookmarkSnakeScene {
     const headNode = this.nodes[NODE_COUNT - 1];
     const neckNode = this.nodes[NODE_COUNT - 2];
     const dir = unit(sub(headNode, neckNode));
-    this.headVel = mul(dir, 0.24);
+    this.headVel = mul(dir, 0.11);
     this.targetFingerId = null;
     this.targetFingerTimer = 0;
     this.orbitAngle = 0;
@@ -468,19 +469,19 @@ export class BookmarkSnakeScene {
     this.targetFingerTimer += dt;
     let current = nearby.find((item) => item.f.id === this.targetFingerId)?.f || null;
 
-    // Gracefully weave from one finger to an adjacent finger (same hand or opposite hand!)
-    const switchInterval = 2.05;
+    // Linger gracefully (~3.8s) around a finger before gliding over to a neighboring finger
+    const switchInterval = 3.8;
     if (!current || this.targetFingerTimer >= switchInterval) {
       let chosen = nearby[0].f;
       if (current && nearby.length > 1) {
-        // Prefer a different nearby finger (including crossing to the other hand!) for figure-8 weaving
+        // Prefer a different nearby finger (including crossing to the other hand!) for calm figure-8 weaving
         const alt = nearby.find((item) => item.f.id !== current.id && item.d < 0.24);
         if (alt) chosen = alt.f;
       }
       if (chosen.id !== this.targetFingerId) {
         this.targetFingerId = chosen.id;
         this.targetFingerTimer = 0;
-        this.orbitDir = -this.orbitDir; // Alternating clockwise/CCW creates natural figure-8 wrapping!
+        this.orbitDir = -this.orbitDir; // Alternating clockwise/CCW creates natural figure-8 wrapping
       }
       current = chosen;
     }
@@ -492,23 +493,22 @@ export class BookmarkSnakeScene {
     const headNode = this.nodes[headIdx];
     const segLen = RIBBON_LENGTH_M / (NODE_COUNT - 1);
 
-    // 1. Steer the sea-snake head: helical finger-wrapping when hands are near, curl-noise swimming otherwise
+    // 1. Steer the sea-snake head: serene slow-motion helical finger-wrapping or calm underwater drift
     const targetFinger = this.pickWeaveFinger(headNode, dt);
     const desiredVel = [0, 0, 0];
 
     if (targetFinger) {
-      // Advance helical orbit angle & longitudinal slide along the finger shaft
-      this.orbitAngle += dt * 3.15 * this.orbitDir;
-      this.orbitSlide = 0.5 + 0.34 * Math.sin(this.time * 1.45);
+      // Languid underwater helical orbit & gentle longitudinal slide along the finger shaft
+      this.orbitAngle += dt * 1.18 * this.orbitDir;
+      this.orbitSlide = 0.5 + 0.28 * Math.sin(this.time * 0.62);
 
       const fAxis = targetFinger.axis;
-      // Construct stable orthonormal frame around finger shaft
       let perpA = cross(fAxis, targetFinger.palmNormal);
       if (len(perpA) < 0.15) perpA = cross(fAxis, [0, 1, 0]);
       perpA = unit(perpA);
       const perpB = unit(cross(fAxis, perpA));
 
-      const orbitR = targetFinger.radius + 0.0155; // Hugs ~1.5cm around finger center (clears skin cleanly)
+      const orbitR = targetFinger.radius + 0.019; // Smooth breathing clearance around skin
       const slidePt = lerp3(targetFinger.base, targetFinger.tip, this.orbitSlide);
       const c = Math.cos(this.orbitAngle);
       const s = Math.sin(this.orbitAngle);
@@ -518,34 +518,34 @@ export class BookmarkSnakeScene {
 
       const toTarget = sub(targetPt, headNode);
       const toDist = len(toTarget);
-      const pullStrength = clamp(toDist * 4.4, 0.06, 0.42);
-      const steer = add(mul(unit(toTarget), pullStrength), mul(tangent, 0.24));
+      const pullStrength = clamp(toDist * 1.85, 0.025, 0.14);
+      const steer = add(mul(unit(toTarget), pullStrength), mul(tangent, 0.095));
       desiredVel[0] = steer[0];
       desiredVel[1] = steer[1];
       desiredVel[2] = steer[2];
     } else {
-      // Free-swimming sea-snake meandering near the anchored book & user's view
+      // Serene free-swimming drift near the anchored book & viewer
       const home = [
-        this.anchorPos[0] + Math.sin(this.time * 0.55) * 0.14,
-        this.anchorPos[1] + 0.09 + Math.cos(this.time * 0.72) * 0.06,
-        this.anchorPos[2] + 0.04 + Math.sin(this.time * 0.43) * 0.07,
+        this.anchorPos[0] + Math.sin(this.time * 0.32) * 0.13,
+        this.anchorPos[1] + 0.08 + Math.cos(this.time * 0.41) * 0.045,
+        this.anchorPos[2] + 0.03 + Math.sin(this.time * 0.27) * 0.055,
       ];
-      curlNoise3(this._curl, headNode[0] * 1.8, headNode[1] * 1.8, headNode[2] * 1.8, this.time * 0.75, 2.8);
+      curlNoise3(this._curl, headNode[0] * 1.6, headNode[1] * 1.6, headNode[2] * 1.6, this.time * 0.38, 2.2);
       const toHome = sub(home, headNode);
       const homeDist = len(toHome);
-      const homePull = homeDist > 0.06 ? mul(unit(toHome), Math.min(0.26, homeDist * 1.15)) : [0, 0, 0];
-      desiredVel[0] = homePull[0] + this._curl[0] * 0.12;
-      desiredVel[1] = homePull[1] + this._curl[1] * 0.09;
-      desiredVel[2] = homePull[2] + this._curl[2] * 0.12;
+      const homePull = homeDist > 0.05 ? mul(unit(toHome), Math.min(0.11, homeDist * 0.65)) : [0, 0, 0];
+      desiredVel[0] = homePull[0] + this._curl[0] * 0.045;
+      desiredVel[1] = homePull[1] + this._curl[1] * 0.032;
+      desiredVel[2] = homePull[2] + this._curl[2] * 0.045;
     }
 
-    // Smooth steering acceleration & speed clamp for silky underwater eel/sea-snake feel
-    const steerBlend = Math.min(1, dt * 5.2);
+    // Silky viscous steering acceleration & readable slow-motion speed band (5.5..13.5 cm/s)
+    const steerBlend = Math.min(1, dt * 2.4);
     this.headVel[0] = mix(this.headVel[0], desiredVel[0], steerBlend);
     this.headVel[1] = mix(this.headVel[1], desiredVel[1], steerBlend);
     this.headVel[2] = mix(this.headVel[2], desiredVel[2], steerBlend);
     const spd = len(this.headVel);
-    const clampedSpd = clamp(spd, 0.12, 0.34);
+    const clampedSpd = clamp(spd, 0.055, 0.135);
     if (spd > 1e-5) {
       const k = clampedSpd / spd;
       this.headVel[0] *= k;
@@ -561,9 +561,9 @@ export class BookmarkSnakeScene {
     headNode[1] += this.headVel[1] * dt;
     headNode[2] += this.headVel[2] * dt;
 
-    // 2. Sea-snake body undulation (Verlet inertia + traveling lateral sine wave + ambient curl)
-    const damping = Math.exp(-3.6 * dt);
-    const swimWaveSpeed = 6.2;
+    // 2. Calm, frame-rate-independent underwater sea-snake undulation
+    const damping = Math.exp(-7.5 * dt);
+    const swimWaveSpeed = 2.6;
     for (let i = headIdx - 1; i >= 0; i--) {
       const n = this.nodes[i];
       const p = this.prevNodes[i];
@@ -574,24 +574,33 @@ export class BookmarkSnakeScene {
       p[1] = n[1];
       p[2] = n[2];
 
-      // Traveling sinusoidal wave grows slightly from head (u=1) toward tail (u=0)
       const u = i / (NODE_COUNT - 1);
-      const tailWeight = 0.25 + 0.75 * (1 - u);
-      const wave = Math.sin((1 - u) * 9.5 - this.time * swimWaveSpeed);
+      const tailWeight = 0.2 + 0.8 * (1 - u);
+      const wave = Math.sin((1 - u) * 6.4 - this.time * swimWaveSpeed);
       const side = this.sides[i];
       const norm = this.normals[i];
-      const lateralAmp = (targetFinger ? 0.00055 : 0.00125) * tailWeight * wave;
-      const verticalAmp = (targetFinger ? 0.00035 : 0.00065) * tailWeight * Math.cos((1 - u) * 7.0 - this.time * 4.4);
+      const lateralAmp = (targetFinger ? 0.014 : 0.026) * dt * tailWeight * wave;
+      const verticalAmp = (targetFinger ? 0.008 : 0.015) * dt * tailWeight * Math.cos((1 - u) * 4.8 - this.time * 1.9);
 
       n[0] += vx + norm[0] * lateralAmp + side[0] * verticalAmp;
       n[1] += vy + norm[1] * lateralAmp + side[1] * verticalAmp;
       n[2] += vz + norm[2] * lateralAmp + side[2] * verticalAmp;
     }
 
-    // 3. Distance constraints + bilateral finger capsule collision projection (3 solver iterations)
+    // 2.5 Gentle Laplacian curve smoothing removes any high-frequency kinks or jitter
+    for (let i = 1; i < headIdx; i++) {
+      const prev = this.nodes[i - 1];
+      const cur = this.nodes[i];
+      const next = this.nodes[i + 1];
+      const sm = 0.14;
+      cur[0] = mix(cur[0], (prev[0] + next[0]) * 0.5, sm);
+      cur[1] = mix(cur[1], (prev[1] + next[1]) * 0.5, sm);
+      cur[2] = mix(cur[2], (prev[2] + next[2]) * 0.5, sm);
+    }
+
+    // 3. Distance constraints + bilateral finger capsule collision projection
     const capsules = this.handMask.fingerCapsules;
     for (let iter = 0; iter < 4; iter++) {
-      // Follow-the-leader distance constraint from head -> tail preserves exact 30cm length
       for (let i = headIdx - 1; i >= 0; i--) {
         const next = this.nodes[i + 1];
         const cur = this.nodes[i];
@@ -605,7 +614,6 @@ export class BookmarkSnakeScene {
         cur[2] = next[2] + dz * scale;
       }
 
-      // Project every spine node cleanly outside all tracked finger capsules of both hands
       if (capsules.length) {
         for (let i = 0; i < NODE_COUNT; i++) {
           const n = this.nodes[i];
@@ -636,13 +644,12 @@ export class BookmarkSnakeScene {
               n[1] = this._closest[1] + ny * minR;
               n[2] = this._closest[2] + nz * minR;
 
-              // Emit occasional 윤슬 micro-glints where the snake brushes across a finger
-              if (iter === 3 && i % 7 === 0 && this.rng() < 0.08) {
+              if (iter === 3 && i % 8 === 0 && this.rng() < 0.05) {
                 this.spawnGlint(
                   n[0], n[1], n[2],
-                  nx * 0.04, ny * 0.04 + 0.02, nz * 0.04,
-                  0.007 + this.rng() * 0.006,
-                  0.45 + this.rng() * 0.35,
+                  nx * 0.025, ny * 0.025 + 0.015, nz * 0.025,
+                  0.007 + this.rng() * 0.005,
+                  0.55 + this.rng() * 0.35,
                   this.rng(),
                 );
               }
@@ -662,12 +669,21 @@ export class BookmarkSnakeScene {
     const verts = this.ribbonVerts;
 
     let prevTang = unit(sub(this.nodes[1], this.nodes[0]));
-    // Seed initial ribbon 'side' (height axis) gently aligned with viewer up (+Y) for readability
     const toEye0 = unit(sub(head, this.nodes[0]));
-    let side = cross(toEye0, prevTang);
-    if (len(side) < 0.12) side = cross([0, 0, 1], prevTang);
-    side = unit(side);
-    if (side[1] < 0) side = mul(side, -1);
+    let rawSide = cross(toEye0, prevTang);
+    if (len(rawSide) < 0.12) rawSide = cross([0, 0, 1], prevTang);
+    rawSide = unit(rawSide);
+    if (rawSide[1] < 0) rawSide = mul(rawSide, -1);
+
+    // Keep ribbon text upright (+Y) with smooth temporal filtering so it never flips upside down
+    if (!this._seedSide) {
+      this._seedSide = rawSide.slice();
+    } else {
+      if (this._seedSide[1] < 0) this._seedSide = mul(this._seedSide, -1);
+      this._seedSide = unit(lerp3(this._seedSide, rawSide, 0.18));
+      if (this._seedSide[1] < 0) this._seedSide = mul(this._seedSide, -1);
+    }
+    let side = this._seedSide.slice();
 
     for (let i = 0; i < NODE_COUNT; i++) {
       const p = this.nodes[i];
@@ -676,16 +692,16 @@ export class BookmarkSnakeScene {
       const tang = unit(sub(pNext, pPrev));
 
       if (i > 0) {
-        // Parallel transport previous side vector onto plane perpendicular to new tangent
         const proj = sub(side, mul(tang, dot(side, tang)));
         if (len(proj) > 1e-4) {
           side = unit(proj);
         }
-        // Subtle gravity/readability pull toward +Y so text doesn't spin upside down over time
+        // Keep text gently upright relative to +Y so sentence remains readable while coiling
         const worldUpProj = sub([0, 1, 0], mul(tang, tang[1]));
-        if (len(worldUpProj) > 0.25) {
+        if (len(worldUpProj) > 0.2) {
           const desiredUp = unit(worldUpProj);
-          side = unit(lerp3(side, desiredUp, 0.085));
+          if (dot(side, desiredUp) < 0) side = mul(side, -1);
+          side = unit(lerp3(side, desiredUp, 0.24));
         }
       }
 

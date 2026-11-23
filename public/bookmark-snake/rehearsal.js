@@ -171,17 +171,17 @@ export class DesktopRehearsal {
       ];
     }
 
-    // Both hands present open fingers near center so sea-snake weaves between all 10 fingers!
+    // Both hands present open fingers calmly near center so sea-snake glides between fingers
     const w = t - 6.6;
     const leftWrist = [
-      -0.11 + Math.sin(w * 0.7) * 0.025,
-      -0.13 + Math.cos(w * 0.9) * 0.015,
-      -0.44 + Math.sin(w * 0.5) * 0.015,
+      -0.105 + Math.sin(w * 0.35) * 0.014,
+      -0.13 + Math.cos(w * 0.42) * 0.008,
+      -0.44 + Math.sin(w * 0.28) * 0.008,
     ];
     const rightWrist = [
-      0.11 + Math.cos(w * 0.65) * 0.025,
-      -0.13 + Math.sin(w * 0.85) * 0.015,
-      -0.43 + Math.cos(w * 0.55) * 0.015,
+      0.105 + Math.cos(w * 0.32) * 0.014,
+      -0.13 + Math.sin(w * 0.40) * 0.008,
+      -0.43 + Math.cos(w * 0.30) * 0.008,
     ];
     return [
       buildSyntheticHand({
@@ -190,7 +190,7 @@ export class DesktopRehearsal {
         pinch: false,
         spread: 1.35,
         curl: 0.10,
-        yaw: 0.35 + Math.sin(w * 0.45) * 0.14,
+        yaw: 0.35 + Math.sin(w * 0.25) * 0.08,
         pitch: 0.16,
       }),
       buildSyntheticHand({
@@ -199,7 +199,7 @@ export class DesktopRehearsal {
         pinch: false,
         spread: 1.35,
         curl: 0.10,
-        yaw: -0.35 + Math.cos(w * 0.48) * 0.14,
+        yaw: -0.35 + Math.cos(w * 0.26) * 0.08,
         pitch: 0.16,
       }),
     ];

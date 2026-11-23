@@ -1,0 +1,66 @@
+name: Deploy bookmark-snake to GitHub Pages (/bookmark-snake/)
+
+on:
+  push:
+    branches:
+      - prototype/bookmark-snake-webxr
+    paths:
+      - 'public/bookmark-snake/**'
+      - 'scripts/build-bookmark-snake-pages.mjs'
+      - '.github/workflows/deploy-bookmark-snake-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: deploy-bookmark-snake-pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run bookmark-snake tests
+        run: node --test test/bookmark-snake.test.mjs
+
+      - name: Build bookmark-snake static bundle
+        run: node scripts/build-bookmark-snake-pages.mjs dist/bookmark-snake --version "${GITHUB_SHA::7}"
+
+      - name: Publish to gh-pages /bookmark-snake/ (preserving existing pages)
+        run: |
+          git fetch origin gh-pages:refs/remotes/origin/gh-pages || true
+          WORKTREE=$(mktemp -d)
+          if git rev-parse --verify refs/remotes/origin/gh-pages >/dev/null 2>&1; then
+            git worktree add -B gh-pages "$WORKTREE" refs/remotes/origin/gh-pages
+          else
+            git worktree add --orphan -b gh-pages "$WORKTREE"
+          fi
+
+          # Preserve root (ink-crow) & other subdirectories; replace ONLY bookmark-snake/
+          rm -rf "$WORKTREE/bookmark-snake"
+          mkdir -p "$WORKTREE/bookmark-snake"
+          cp -a dist/bookmark-snake/bookmark-snake/. "$WORKTREE/bookmark-snake/"
+          touch "$WORKTREE/.nojekyll"
+
+          git -C "$WORKTREE" add bookmark-snake .nojekyll
+          if git -C "$WORKTREE" diff --cached --quiet; then
+            echo "No changes to publish to gh-pages/bookmark-snake."
+          else
+            SHORT_SHA="${GITHUB_SHA::7}"
+            git -C "$WORKTREE" \
+              -c user.name="github-actions[bot]" \
+              -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+              commit -m "Deploy bookmark-snake (${SHORT_SHA})"
+            git -C "$WORKTREE" push origin gh-pages
+          fi
+
+          git worktree remove --force "$WORKTREE"
